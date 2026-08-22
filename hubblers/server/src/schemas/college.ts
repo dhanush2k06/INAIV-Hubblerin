@@ -9,7 +9,7 @@ export const collegeRegisterSchema = z.object({
   adminRole: z.string().optional(),
   email: z.string().email(),
   phone: z.string().min(6),
-  password: z.string().min(8),
+  password: z.string().min(6),
   logoBase64: z.string().optional(),
   shortcode: z.string().optional(),
   accreditationId: z.string().optional(),
@@ -88,7 +88,7 @@ export const organizerRegisterSchema = z
     privacyAccepted: z.literal(true, { errorMap: () => ({ message: 'You must accept the Privacy Policy' }) }),
     authorizedCertified: z.literal(true, { errorMap: () => ({ message: 'You must certify authorization' }) }),
 
-    password: z.string().min(8),
+    password: z.string().min(6),
   })
   .superRefine((data, ctx) => {
     // Parent institution is mandatory for clubs and departments.

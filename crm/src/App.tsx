@@ -5,9 +5,11 @@ import { LoginPage } from './pages/LoginPage'
 import { OverviewPage } from './pages/OverviewPage'
 import { StudentsPage } from './pages/StudentsPage'
 import { OrganizersPage } from './pages/OrganizersPage'
+import { OrganizerDetailPage } from './pages/OrganizerDetailPage'
 import { EventsPage } from './pages/EventsPage'
 import { ActivityPage } from './pages/ActivityPage'
 import { UserDetailPage } from './pages/UserDetailPage'
+import { ReportsPage } from './pages/ReportsPage'
 import { fetchMe } from './services/api'
 import { getCrmRole, getCrmToken, setCrmRole, setCrmToken } from './services/api'
 
@@ -38,7 +40,7 @@ function App() {
       .finally(() => setInitializing(false))
   }, [])
 
-  const isAdmin = useMemo(() => Boolean(token && role), [token, role])
+  const isAdmin = useMemo(() => Boolean(token && role === 'ADMIN'), [token, role])
 
   const handleLogin = (newToken: string, newRole: string) => {
     setToken(newToken)
@@ -72,9 +74,11 @@ function App() {
         <Route index element={<OverviewPage />} />
         <Route path="students" element={<StudentsPage />} />
         <Route path="organizers" element={<OrganizersPage />} />
+        <Route path="organizers/:id" element={<OrganizerDetailPage />} />
         <Route path="users/:id" element={<UserDetailPage />} />
         <Route path="events" element={<EventsPage />} />
         <Route path="activity" element={<ActivityPage />} />
+        <Route path="reports" element={<ReportsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

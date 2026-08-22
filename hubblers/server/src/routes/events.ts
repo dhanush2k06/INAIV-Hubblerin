@@ -7,7 +7,7 @@ import { isEventOver } from '../utils/eventDate.js'
 import { createEventQrCode } from '../utils/qr.js'
 import { sendEventRegistrationEmail } from '../services/emailService.js'
 import { logActivity } from '../services/activityLogger.js'
-import type { FirestoreEvent, UserEventRecord } from '../types.js'
+import type { FirestoreEvent, Role, UserEventRecord } from '../types.js'
 
 const router = Router()
 
@@ -572,7 +572,7 @@ router.delete('/:id/register', verifyFirebaseToken, authorizeRoles('STUDENT'), a
       }
     })
 
-await logActivity({
+    await logActivity({
       userId: uid,
       role: 'STUDENT',
       type: 'EVENT_UNREGISTER',
@@ -591,6 +591,79 @@ await logActivity({
     }
     console.error(`[DELETE /api/events/${eventId}/register] failed:`, error)
     return res.status(500).json({ error: 'Failed to cancel registration', details: message })
+  }
+})
+
+
+const reportSchema = z.object({
+  reason: z.string().min(10, 'Please provide a detailed reason (min 10 chars)'),
+  category: z.enum(['SPAM', 'SCAM', 'MISLEADING', 'INAPPROPRIATE', 'FAKE_EVENT', 'OTHER']),
+})
+
+// POST /api/events/:id/report — student reports a suspicious event
+router.post('/:id/report', verifyFirebaseToken, authorizeRoles('STUDENT', 'COLLEGE_ADMIN', 'ADMIN'), async (req, res) => {
+  const eventId = String(req.params.id)
+  const uid = (req as { user?: { firebaseUid: string } }).user?.firebaseUid
+  if (!uid) return res.status(401).json({ error: 'Unauthorized' })
+
+  try {
+    const parsed = reportSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten().fieldErrors })
+    }
+    const { reason, category } = parsed.data
+
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured on the server.' })
+
+    // Load event info
+    const eventDoc = await db.collection('events').doc(eventId).get()
+    if (!eventDoc.exists) return res.status(404).json({ error: 'Event not found' })
+    const event = eventDoc.data() ?? {}
+
+    // Load reporter info
+    const userDoc = await db.collection('users').doc(uid).get()
+    const user = userDoc.data() ?? {}
+
+    // Filter by reportedBy only (single-field equality needs no composite index),
+    // then check eventId in memory — same pattern as CRM activity queries.
+    const existing = await db.collection('eventReports').where('reportedBy', '==', uid).limit(100).get()
+    if (existing.docs.some((doc) => String(doc.data()?.eventId ?? '') === eventId)) {
+      return res.status(409).json({ error: 'You have already reported this event.' })
+    }
+
+    const reportRef = db.collection('eventReports').doc()
+    const now = new Date().toISOString()
+    await reportRef.set({
+      id: reportRef.id,
+      eventId,
+      eventTitle: String(event.title ?? ''),
+      organizerId: String(event.organizerId ?? ''),
+      organizerName: String(event.organizerName ?? ''),
+      collegeName: String(event.collegeName ?? ''),
+      reportedBy: uid,
+      reporterName: String(user.fullName ?? ''),
+      reporterEmail: String(user.email ?? ''),
+      reporterCollege: String(user.collegeName ?? ''),
+      reason,
+      category,
+      status: 'PENDING',
+      createdAt: now,
+      updatedAt: now,
+    })
+
+    const reporterRole: Role = (req as { user?: { role: Role } }).user?.role ?? 'STUDENT'
+    await logActivity({
+      userId: uid,
+      role: reporterRole,
+      type: 'EVENT_REPORT',
+      description: `Reported event "${event.title}" as ${category}`,
+      meta: { eventId, category },
+    })
+
+    return res.status(201).json({ message: 'Report submitted. Our team will review it shortly.' })
+  } catch (error) {
+    console.error(`[POST /api/events/${eventId}/report] failed:`, error)
+    return res.status(500).json({ error: 'Failed to submit report', details: error instanceof Error ? error.message : String(error) })
   }
 })
 

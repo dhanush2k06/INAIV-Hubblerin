@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { fetchUsers, approveOrganizer, rejectOrganizer, type CrmUser } from '../services/api'
+import { fetchUsers, approveOrganizer, rejectOrganizer, parseApiError, type CrmUser } from '../services/api'
 
 export function OrganizersPage() {
   const [users, setUsers] = useState<CrmUser[]>([])
@@ -22,7 +22,7 @@ export function OrganizersPage() {
         }
       })
       .catch((e) => {
-        if (active) setError(e.message)
+        if (active) setError(parseApiError(e))
       })
       .finally(() => {
         if (active) setLoading(false)
@@ -42,7 +42,7 @@ export function OrganizersPage() {
         prev.map((u) => (u.id === id ? { ...u, verificationStatus: 'VERIFIED' } : u)),
       )
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err))
+      setError(parseApiError(err))
     } finally {
       setActionLoading(null)
     }
@@ -58,7 +58,7 @@ export function OrganizersPage() {
         prev.map((u) => (u.id === id ? { ...u, verificationStatus: 'REJECTED' } : u)),
       )
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : String(err))
+      setError(parseApiError(err))
     } finally {
       setActionLoading(null)
     }
@@ -93,6 +93,7 @@ export function OrganizersPage() {
           <option value="VERIFIED">Verified</option>
           <option value="UNVERIFIED">Unverified</option>
           <option value="PENDING">Pending</option>
+          <option value="REJECTED">Rejected</option>
         </select>
       </div>
 
@@ -118,7 +119,7 @@ export function OrganizersPage() {
               {users.map((u) => (
                 <tr key={u.id} className="transition hover:bg-slate-900/50">
                   <td className="px-4 py-3">
-                    <Link to={`/users/${u.id}`} className="font-semibold text-emerald-400 hover:underline">
+                    <Link to={`/organizers/${u.id}`} className="font-semibold text-violet-400 hover:underline">
                       {u.fullName || '—'}
                     </Link>
                   </td>

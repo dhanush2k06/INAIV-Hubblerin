@@ -20,7 +20,7 @@ export interface AppUser {
   annualCredits: number
   lifetimeCredits: number
   xp: number
-  verificationStatus: 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED'
+  verificationStatus: 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'REJECTED' | 'BLOCKED'
   qrCodeUrl: string | null
   startYear: number | null
   endYear: number | null
@@ -80,6 +80,10 @@ export type ActivityType =
   | 'COLLEGE_REJECT'
   | 'COLLEGE_SUBMIT'
   | 'ORGANIZER_SUBMIT'
+  | 'EVENT_REPORT'
+  | 'ORGANIZER_BLOCK'
+  | 'REPORT_RESOLVE'
+  | 'REPORT_DISMISS'
 
 export interface ActivityLog {
   userId: string

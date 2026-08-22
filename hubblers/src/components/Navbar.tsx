@@ -53,12 +53,12 @@ export function Navbar({ role, onLogout, theme, toggleTheme }: NavbarProps) {
             <Link to="/events" className="text-sm font-medium text-slate-600 transition hover:text-emerald-500 dark:text-slate-200 dark:hover:text-white">
               Events
             </Link>
-            <a href="/#about" className="text-sm font-medium text-slate-600 transition hover:text-emerald-500 dark:text-slate-200 dark:hover:text-white">
+            <Link to="/about" className="text-sm font-medium text-slate-600 transition hover:text-emerald-500 dark:text-slate-200 dark:hover:text-white">
               About
-            </a>
-            <a href="/#contact" className="text-sm font-medium text-slate-600 transition hover:text-emerald-500 dark:text-slate-200 dark:hover:text-white">
+            </Link>
+            <Link to="/contact" className="text-sm font-medium text-slate-600 transition hover:text-emerald-500 dark:text-slate-200 dark:hover:text-white">
               Contact
-            </a>
+            </Link>
           </nav>
 
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-800" />
@@ -127,8 +127,8 @@ export function Navbar({ role, onLogout, theme, toggleTheme }: NavbarProps) {
           <nav className="flex flex-col gap-4">
             <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">Home</Link>
             <Link to="/events" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">Events</Link>
-            <a href="/#about" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">About</a>
-            <a href="/#contact" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">Contact</a>
+            <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">About</Link>
+            <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">Contact</Link>
             
             {role && isRoleKey(role) && (
               <>

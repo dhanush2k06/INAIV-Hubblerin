@@ -257,7 +257,7 @@ if (!form.termsAccepted) {
     try {
       await registerOrganizer(payload)
       setMessage('Organizer registration submitted! Await support approval.')
-      setTimeout(() => navigate('/login'), 2200)
+      setTimeout(() => navigate('/organizer-login'), 2200)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please review the entered details.')
     } finally {

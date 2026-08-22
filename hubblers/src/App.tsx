@@ -9,6 +9,8 @@ import { StudentSignupPage } from './pages/StudentSignupPage'
 import { OrganizerSignupPage } from './pages/OrganizerSignupPage'
 import { HomePage } from './pages/HomePage'
 import { EventsPage } from './pages/EventsPage'
+import { AboutPage } from './pages/AboutPage'
+import { ContactPage } from './pages/ContactPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { fetchProfile } from './services/api'
 import { firebaseSignOut } from './services/firebaseAuth'
@@ -80,6 +82,8 @@ function App() {
           <Route path="/student-signup" element={<StudentSignupPage />} />
           <Route path="/organizer-signup" element={<OrganizerSignupPage />} />
           <Route path="/events" element={<EventsPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
           <Route path="/dashboard" element={isAuthenticated ? <DashboardLayout role={role} /> : <Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -192,6 +192,9 @@ router.post('/login', async (req, res) => {
       // Check organizer / college admin approval status
       if (user.role === 'COLLEGE_ADMIN') {
         const status = user.verificationStatus ?? 'UNVERIFIED'
+        if (status === 'BLOCKED') {
+          return res.status(403).json({ error: 'Your organizer account has been suspended/blocked by the administrator due to reported policy violations.' })
+        }
         if (status === 'UNVERIFIED' || status === 'PENDING') {
           return res.status(403).json({ error: 'Your organizer account is pending approval by the CRM Admin. Please wait for confirmation.' })
         }
@@ -237,6 +240,9 @@ router.post('/login', async (req, res) => {
 
       if (staffRole === 'COLLEGE_ADMIN') {
         const status = staff.verificationStatus ?? 'UNVERIFIED'
+        if (status === 'BLOCKED') {
+          return res.status(403).json({ error: 'Your organizer account has been suspended/blocked by the administrator due to reported policy violations.' })
+        }
         if (status === 'UNVERIFIED' || status === 'PENDING') {
           return res.status(403).json({ error: 'Your organizer account is pending approval by the CRM Admin. Please wait for confirmation.' })
         }

@@ -38,7 +38,7 @@ export function Sidebar({ role }: SidebarProps) {
         <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Navigation</p>
         {sections[role].map((item) => (
           <Link
-            key={item.href}
+            key={item.label}
             to={item.href}
             className="block rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-200 transition hover:border-cyan-500 hover:text-white"
           >

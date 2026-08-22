@@ -3,6 +3,12 @@ import { db } from '../firebase.js'
 import { verifyFirebaseToken } from '../middleware/auth.js'
 import { authorizeRoles } from '../middleware/roles.js'
 import { logActivity } from '../services/activityLogger.js'
+import {
+  sendEventDeletionNoticeToOrganizer,
+  sendOrganizerBlockedNoticeToReporter,
+  sendOrganizerAccountBlockedNotice,
+  sendReportAcknowledgmentEmail,
+} from '../services/emailService.js'
 
 const router = Router()
 
@@ -413,6 +419,406 @@ router.put('/users/:id/reject', async (req, res) => {
     return res.json({ message: 'Organizer rejected successfully' })
   } catch (error) {
     return res.status(500).json({ error: 'Failed to reject organizer', details: error instanceof Error ? error.message : String(error) })
+  }
+})
+
+// GET /api/crm/reports — list all event reports (paginated, filterable)
+router.get('/reports', async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured on the server.' })
+    const statusFilter = String(req.query.status ?? 'ALL')
+    const categoryFilter = String(req.query.category ?? 'ALL')
+    const search = String(req.query.search ?? '').toLowerCase()
+    const page = Math.max(parseInt(String(req.query.page ?? '1'), 10) || 1, 1)
+    const limit = Math.min(Math.max(parseInt(String(req.query.limit ?? '50'), 10) || 50, 1), 200)
+
+    const snap = await db.collection('eventReports').orderBy('createdAt', 'desc').get()
+    let reports = snap.docs.map((doc) => {
+      const d = doc.data() ?? {}
+      return {
+        id: doc.id,
+        eventId: String(d.eventId ?? ''),
+        eventTitle: String(d.eventTitle ?? ''),
+        organizerId: String(d.organizerId ?? ''),
+        organizerName: String(d.organizerName ?? ''),
+        collegeName: String(d.collegeName ?? ''),
+        reportedBy: String(d.reportedBy ?? ''),
+        reporterName: String(d.reporterName ?? ''),
+        reporterEmail: String(d.reporterEmail ?? ''),
+        reporterCollege: String(d.reporterCollege ?? ''),
+        reason: String(d.reason ?? ''),
+        category: String(d.category ?? 'OTHER'),
+        status: String(d.status ?? 'PENDING'),
+        actionTaken: (d.actionTaken as string | null) ?? null,
+        createdAt: String(d.createdAt ?? ''),
+        updatedAt: String(d.updatedAt ?? ''),
+        resolvedBy: (d.resolvedBy as string | null) ?? null,
+        resolution: (d.resolution as string | null) ?? null,
+      }
+    })
+
+    if (statusFilter !== 'ALL') reports = reports.filter((r) => r.status === statusFilter)
+    if (categoryFilter !== 'ALL') reports = reports.filter((r) => r.category === categoryFilter)
+    if (search) {
+      reports = reports.filter((r) =>
+        r.eventTitle.toLowerCase().includes(search) ||
+        r.organizerName.toLowerCase().includes(search) ||
+        r.reporterName.toLowerCase().includes(search) ||
+        r.reporterEmail.toLowerCase().includes(search) ||
+        r.reason.toLowerCase().includes(search)
+      )
+    }
+
+    const total = reports.length
+    const paginated = reports.slice((page - 1) * limit, page * limit)
+    return res.json({ total, page, limit, reports: paginated })
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch reports', details: error instanceof Error ? error.message : String(error) })
+  }
+})
+
+// POST /api/crm/reports/:id/delete-event — admin deletes reported event and acknowledges organizer via email
+router.post('/reports/:id/delete-event', async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured on the server.' })
+    const reportId = String(req.params.id)
+    const { reason, notifyReporter = true } = req.body as { reason?: string; notifyReporter?: boolean }
+
+    const reportRef = db.collection('eventReports').doc(reportId)
+    const reportDoc = await reportRef.get()
+    if (!reportDoc.exists) return res.status(404).json({ error: 'Report not found' })
+
+    const reportData = reportDoc.data() ?? {}
+    const eventId = String(reportData.eventId ?? '')
+    const eventTitle = String(reportData.eventTitle ?? 'Event')
+    let organizerId = String(reportData.organizerId ?? '')
+    let organizerName = String(reportData.organizerName ?? '')
+    let organizerEmail = ''
+
+    // If event exists, load and delete it
+    if (eventId) {
+      const eventRef = db.collection('events').doc(eventId)
+      const eventDoc = await eventRef.get()
+      if (eventDoc.exists) {
+        const evData = eventDoc.data() ?? {}
+        if (!organizerId) organizerId = String(evData.organizerId ?? '')
+        if (!organizerName) organizerName = String(evData.organizerName ?? 'Organizer')
+        await eventRef.delete()
+      }
+    }
+
+    // Try to find organizer email
+    if (organizerId) {
+      const userDoc = await db.collection('users').doc(organizerId).get()
+      if (userDoc.exists) {
+        const u = userDoc.data() ?? {}
+        organizerEmail = String(u.email ?? '')
+        if (!organizerName) organizerName = String(u.fullName ?? '')
+      }
+    }
+
+    // Acknowledge/notify organizer via email
+    if (organizerEmail) {
+      sendEventDeletionNoticeToOrganizer(
+        organizerEmail,
+        organizerName,
+        eventTitle,
+        reason || 'Event removed following report investigation and community guidelines review.',
+      ).catch((err) => console.error('[sendEventDeletionNoticeToOrganizer] failed:', err))
+    }
+
+    // Acknowledge reporting student via email
+    const reporterEmail = String(reportData.reporterEmail ?? '')
+    const reporterName = String(reportData.reporterName ?? 'Student')
+    if (notifyReporter && reporterEmail) {
+      sendReportAcknowledgmentEmail(
+        reporterEmail,
+        reporterName,
+        eventTitle,
+        reason
+          ? `Action Taken: The reported event has been removed from the platform. Resolution Note: ${reason}`
+          : 'Action Taken: The reported event has been removed from the platform after review.',
+      ).catch((err) => console.error('[sendReportAcknowledgmentEmail] failed:', err))
+    }
+
+    const adminUid = (req as { user?: { firebaseUid: string } }).user?.firebaseUid ?? 'admin'
+    const now = new Date().toISOString()
+
+    await reportRef.update({
+      status: 'RESOLVED',
+      actionTaken: 'EVENT_DELETED',
+      resolution: reason || 'Event deleted by admin following report investigation.',
+      resolvedBy: adminUid,
+      updatedAt: now,
+    })
+
+    await logActivity({
+      userId: adminUid,
+      role: 'ADMIN',
+      type: 'EVENT_DELETE',
+      description: `Admin deleted reported event "${eventTitle}" and notified organizer`,
+      meta: { reportId, eventId, reason },
+    })
+
+    await logActivity({
+      userId: adminUid,
+      role: 'ADMIN',
+      type: 'REPORT_RESOLVE',
+      description: `Resolved report for "${eventTitle}" by deleting event`,
+      meta: { reportId, eventId, action: 'EVENT_DELETED' },
+    })
+
+    return res.json({ message: `Event "${eventTitle}" deleted and organizer notified.` })
+  } catch (error) {
+    console.error('[POST /api/crm/reports/:id/delete-event] error:', error)
+    return res.status(500).json({ error: 'Failed to delete event and process report', details: error instanceof Error ? error.message : String(error) })
+  }
+})
+
+// POST /api/crm/reports/:id/block-organizer — admin blocks organizer account and acknowledges student reporter via email
+router.post('/reports/:id/block-organizer', async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured on the server.' })
+    const reportId = String(req.params.id)
+    const { reason, notifyReporter = true, deleteEvents = false } = req.body as {
+      reason?: string
+      notifyReporter?: boolean
+      deleteEvents?: boolean
+    }
+
+    const reportRef = db.collection('eventReports').doc(reportId)
+    const reportDoc = await reportRef.get()
+    if (!reportDoc.exists) return res.status(404).json({ error: 'Report not found' })
+
+    const reportData = reportDoc.data() ?? {}
+    const eventId = String(reportData.eventId ?? '')
+    const eventTitle = String(reportData.eventTitle ?? '')
+    let organizerId = String(reportData.organizerId ?? '')
+    let organizerName = String(reportData.organizerName ?? '')
+    let organizerEmail = ''
+
+    // If organizerId missing on report, resolve from event
+    if (!organizerId && eventId) {
+      const eventDoc = await db.collection('events').doc(eventId).get()
+      if (eventDoc.exists) {
+        const evData = eventDoc.data() ?? {}
+        organizerId = String(evData.organizerId ?? '')
+        if (!organizerName) organizerName = String(evData.organizerName ?? '')
+      }
+    }
+
+    if (!organizerId) {
+      return res.status(400).json({ error: 'Unable to identify the organizer account associated with this report.' })
+    }
+
+    const userRef = db.collection('users').doc(organizerId)
+    const userDoc = await userRef.get()
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'Organizer user account not found in database.' })
+    }
+
+    const userData = userDoc.data() ?? {}
+    organizerEmail = String(userData.email ?? '')
+    if (!organizerName) organizerName = String(userData.fullName ?? 'Organizer')
+    const collegeId = (userData.collegeId as string | null) ?? null
+
+    const now = new Date().toISOString()
+
+    // 1. Block user in users collection
+    await userRef.update({
+      verificationStatus: 'BLOCKED',
+      updatedAt: now,
+    })
+
+    // 2. Block in colleges / organizers collections if linked
+    if (collegeId) {
+      const collegeRef = db.collection('colleges').doc(collegeId)
+      const collegeDoc = await collegeRef.get()
+      if (collegeDoc.exists) {
+        await collegeRef.update({ status: 'BLOCKED' })
+      }
+      const orgRef = db.collection('organizers').doc(collegeId)
+      const orgDoc = await orgRef.get()
+      if (orgDoc.exists) {
+        await orgRef.update({ verificationStatus: 'BLOCKED' })
+      }
+    }
+
+    // 3. Optional: delete organizer's events if requested
+    if (deleteEvents) {
+      const orgEventsSnap = await db.collection('events').where('organizerId', '==', organizerId).get()
+      for (const evDoc of orgEventsSnap.docs) {
+        await evDoc.ref.delete()
+      }
+    }
+
+    // 4. Acknowledge and notify the reporting student via email
+    const reporterEmail = String(reportData.reporterEmail ?? '')
+    const reporterName = String(reportData.reporterName ?? 'Student')
+    if (notifyReporter && reporterEmail) {
+      sendOrganizerBlockedNoticeToReporter(
+        reporterEmail,
+        reporterName,
+        organizerName,
+        eventTitle,
+        reason || 'The organizer account has been suspended following our review of your report.',
+      ).catch((err) => console.error('[sendOrganizerBlockedNoticeToReporter] failed:', err))
+    }
+
+    // 5. Notify organizer that account was suspended
+    if (organizerEmail) {
+      sendOrganizerAccountBlockedNotice(
+        organizerEmail,
+        organizerName,
+        reason || 'Your organizer account was suspended due to reported violations of community and organizer safety standards.',
+      ).catch((err) => console.error('[sendOrganizerAccountBlockedNotice] failed:', err))
+    }
+
+    const adminUid = (req as { user?: { firebaseUid: string } }).user?.firebaseUid ?? 'admin'
+
+    await reportRef.update({
+      status: 'RESOLVED',
+      actionTaken: 'ORGANIZER_BLOCKED',
+      resolution: reason || `Organizer account (${organizerName}) suspended and blocked.`,
+      resolvedBy: adminUid,
+      updatedAt: now,
+    })
+
+    await logActivity({
+      userId: adminUid,
+      role: 'ADMIN',
+      type: 'ORGANIZER_BLOCK',
+      description: `Admin blocked organizer account "${organizerName}" (${organizerId}) following report`,
+      meta: { reportId, organizerId, reason },
+    })
+
+    await logActivity({
+      userId: adminUid,
+      role: 'ADMIN',
+      type: 'REPORT_RESOLVE',
+      description: `Resolved report for "${eventTitle}" by blocking organizer "${organizerName}"`,
+      meta: { reportId, organizerId, action: 'ORGANIZER_BLOCKED' },
+    })
+
+    return res.json({
+      message: `Organizer "${organizerName}" account blocked and student reporter (${reporterEmail || 'user'}) acknowledged via email.`,
+    })
+  } catch (error) {
+    console.error('[POST /api/crm/reports/:id/block-organizer] error:', error)
+    return res.status(500).json({ error: 'Failed to block organizer account', details: error instanceof Error ? error.message : String(error) })
+  }
+})
+
+// PUT /api/crm/reports/:id/resolve — resolve or dismiss a report with optional email acknowledgment
+router.put('/reports/:id/resolve', async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured on the server.' })
+    const reportId = String(req.params.id)
+    const { status, resolution, notifyReporter = true } = req.body as {
+      status?: string
+      resolution?: string
+      notifyReporter?: boolean
+    }
+    if (!status || !['RESOLVED', 'DISMISSED'].includes(status)) {
+      return res.status(400).json({ error: 'status must be RESOLVED or DISMISSED' })
+    }
+
+    const ref = db.collection('eventReports').doc(reportId)
+    const doc = await ref.get()
+    if (!doc.exists) return res.status(404).json({ error: 'Report not found' })
+
+    const reportData = doc.data() ?? {}
+    const adminUid = (req as { user?: { firebaseUid: string } }).user?.firebaseUid ?? 'admin'
+    const now = new Date().toISOString()
+
+    await ref.update({
+      status,
+      actionTaken: status,
+      resolution: resolution ?? '',
+      resolvedBy: adminUid,
+      updatedAt: now,
+    })
+
+    // Optionally acknowledge student reporter
+    const reporterEmail = String(reportData.reporterEmail ?? '')
+    const reporterName = String(reportData.reporterName ?? 'Student')
+    const eventTitle = String(reportData.eventTitle ?? 'Event')
+    if (notifyReporter && reporterEmail) {
+      sendReportAcknowledgmentEmail(
+        reporterEmail,
+        reporterName,
+        eventTitle,
+        resolution || `Your report has been reviewed and marked as ${status.toLowerCase()} by our moderation team.`,
+      ).catch((err) => console.error('[sendReportAcknowledgmentEmail] failed:', err))
+    }
+
+    await logActivity({
+      userId: adminUid,
+      role: 'ADMIN',
+      type: status === 'RESOLVED' ? 'REPORT_RESOLVE' : 'REPORT_DISMISS',
+      description: `Marked report for "${eventTitle}" as ${status}`,
+      meta: { reportId, status, resolution },
+    })
+
+    return res.json({ message: `Report marked as ${status}` })
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to update report', details: error instanceof Error ? error.message : String(error) })
+  }
+})
+
+
+router.get('/organizers/:id', async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured on the server.' })
+    const uid = String(req.params.id)
+    if (!uid) return res.status(400).json({ error: 'Invalid organizer id' })
+
+    const userDoc = await db.collection('users').doc(uid).get()
+    if (!userDoc.exists) return res.status(404).json({ error: 'Organizer not found' })
+
+    const user = serializeUser(userDoc)
+
+    // Events created by this organizer
+    const eventsSnap = await db.collection('events').where('organizerId', '==', uid).get()
+
+    // Compute registration counts per event
+    const userEventsSnap = await db.collection('userEvents').get()
+    const regMap: Record<string, number> = {}
+    for (const ue of userEventsSnap.docs) {
+      const registered = ue.data()?.registered ?? []
+      for (const rec of registered) {
+        regMap[rec.eventId] = (regMap[rec.eventId] ?? 0) + 1
+      }
+    }
+
+    const events = eventsSnap.docs
+      .map((doc) => serializeEvent(doc, regMap[doc.id] ?? 0))
+      .sort((a, b) => (b.startDate ?? '').localeCompare(a.startDate ?? ''))
+
+    const totalRegistrations = events.reduce((sum, e) => sum + (e.registrationCount ?? 0), 0)
+    const totalEvents = events.length
+    const upcomingEvents = events.filter((e) => {
+      if (!e.startDate) return false
+      return new Date(e.startDate) > new Date()
+    }).length
+
+    // Activity timeline
+    const logSnap = await db.collection('activityLogs').where('userId', '==', uid).limit(200).get()
+    const activity = logSnap.docs
+      .map(serializeLog)
+      .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? ''))
+      .slice(0, 100)
+
+    return res.json({
+      ...user,
+      events,
+      totalEvents,
+      totalRegistrations,
+      upcomingEvents,
+      activity,
+    })
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch organizer detail', details: error instanceof Error ? error.message : String(error) })
   }
 })
 

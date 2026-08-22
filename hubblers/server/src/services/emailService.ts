@@ -131,3 +131,173 @@ export async function sendEventRegistrationEmail(
     console.error(`[Email Service] Failed to send event email to ${to}: ${detail}`)
   }
 }
+
+/**
+ * Send notice to an organizer when their event is deleted by Admin due to reports/violations.
+ */
+export async function sendEventDeletionNoticeToOrganizer(
+  to: string,
+  organizerName: string,
+  eventTitle: string,
+  reason: string,
+) {
+  const config = emailjsConfig()
+  if (!config) {
+    logSimulator('Event Removal Notice to Organizer', to, [
+      `Subject: Notice: Removal of Event "${eventTitle}" from HubblerX`,
+      `Organizer: ${organizerName}`,
+      `Event Title: ${eventTitle}`,
+      `Reason / Admin Note: ${reason || 'Violation of community / event guidelines'}`,
+    ])
+    return
+  }
+
+  const templateParams = {
+    to_name: organizerName || 'Organizer',
+    to_email: to,
+    subject: `Notice: Removal of Event "${eventTitle}" on HubblerX`,
+    event_title: eventTitle,
+    reason: reason || 'Event was removed following community guidelines review.',
+    reply_to: process.env.EMAILJS_REPLY_TO || 'hubblersgroup@gmail.com',
+  }
+
+  try {
+    const response = await emailjs.send(
+      config.serviceId,
+      config.templateId,
+      templateParams,
+      { publicKey: config.publicKey, privateKey: config.privateKey },
+    )
+    console.log(`[Email Service] Event removal notice sent to ${to} (${response.status})`)
+  } catch (error: unknown) {
+    console.error(`[Email Service] Failed to send event removal notice to ${to}:`, error)
+  }
+}
+
+/**
+ * Send confirmation/acknowledgment to the reporting student that action was taken on an organizer.
+ */
+export async function sendOrganizerBlockedNoticeToReporter(
+  to: string,
+  reporterName: string,
+  organizerName: string,
+  eventTitle: string,
+  resolutionMessage: string,
+) {
+  const config = emailjsConfig()
+  if (!config) {
+    logSimulator('Report Acknowledgment & Action Notice to Student', to, [
+      `Subject: Update on Your Report: Action Taken on Organizer`,
+      `Student: ${reporterName}`,
+      `Reported Event: ${eventTitle || 'N/A'}`,
+      `Organizer: ${organizerName}`,
+      `Action: The organizer account has been suspended/blocked following our investigation.`,
+      `Admin Message: ${resolutionMessage || 'Thank you for helping keep HubblerX safe.'}`,
+    ])
+    return
+  }
+
+  const templateParams = {
+    to_name: reporterName || 'Student',
+    to_email: to,
+    subject: `Update on Your Report: Action Taken on Organizer`,
+    event_title: eventTitle || 'Reported Event',
+    organizer_name: organizerName || 'Organizer',
+    action_taken: 'Organizer account has been suspended.',
+    resolution_message: resolutionMessage || 'Thank you for reporting this issue. We took appropriate moderation action.',
+    reply_to: process.env.EMAILJS_REPLY_TO || 'hubblersgroup@gmail.com',
+  }
+
+  try {
+    const response = await emailjs.send(
+      config.serviceId,
+      config.templateId,
+      templateParams,
+      { publicKey: config.publicKey, privateKey: config.privateKey },
+    )
+    console.log(`[Email Service] Report resolution notice sent to student ${to} (${response.status})`)
+  } catch (error: unknown) {
+    console.error(`[Email Service] Failed to send report resolution notice to ${to}:`, error)
+  }
+}
+
+/**
+ * Send notice to an organizer that their account has been blocked/suspended.
+ */
+export async function sendOrganizerAccountBlockedNotice(
+  to: string,
+  organizerName: string,
+  reason: string,
+) {
+  const config = emailjsConfig()
+  if (!config) {
+    logSimulator('Account Suspension Notice to Organizer', to, [
+      `Subject: Important: Your HubblerX Organizer Account Has Been Suspended`,
+      `Organizer: ${organizerName}`,
+      `Reason: ${reason || 'Repeated community policy violations or reported fraudulent activities.'}`,
+    ])
+    return
+  }
+
+  const templateParams = {
+    to_name: organizerName || 'Organizer',
+    to_email: to,
+    subject: `Important: Your HubblerX Organizer Account Has Been Suspended`,
+    reason: reason || 'Violation of community and organizer conduct guidelines.',
+    reply_to: process.env.EMAILJS_REPLY_TO || 'hubblersgroup@gmail.com',
+  }
+
+  try {
+    const response = await emailjs.send(
+      config.serviceId,
+      config.templateId,
+      templateParams,
+      { publicKey: config.publicKey, privateKey: config.privateKey },
+    )
+    console.log(`[Email Service] Account suspension notice sent to organizer ${to} (${response.status})`)
+  } catch (error: unknown) {
+    console.error(`[Email Service] Failed to send suspension notice to ${to}:`, error)
+  }
+}
+
+/**
+ * Send general report acknowledgment email to the student reporter.
+ */
+export async function sendReportAcknowledgmentEmail(
+  to: string,
+  reporterName: string,
+  eventTitle: string,
+  resolutionMessage: string,
+) {
+  const config = emailjsConfig()
+  if (!config) {
+    logSimulator('Report Acknowledgment to Student', to, [
+      `Subject: HubblerX: Update on your event report`,
+      `Student: ${reporterName}`,
+      `Event Title: ${eventTitle}`,
+      `Resolution: ${resolutionMessage || 'Your report has been reviewed and resolved by our moderation team.'}`,
+    ])
+    return
+  }
+
+  const templateParams = {
+    to_name: reporterName || 'Student',
+    to_email: to,
+    subject: `HubblerX: Update on your report regarding "${eventTitle}"`,
+    event_title: eventTitle,
+    resolution_message: resolutionMessage || 'Our moderation team reviewed your report and took necessary measures.',
+    reply_to: process.env.EMAILJS_REPLY_TO || 'hubblersgroup@gmail.com',
+  }
+
+  try {
+    const response = await emailjs.send(
+      config.serviceId,
+      config.templateId,
+      templateParams,
+      { publicKey: config.publicKey, privateKey: config.privateKey },
+    )
+    console.log(`[Email Service] Report acknowledgment sent to ${to} (${response.status})`)
+  } catch (error: unknown) {
+    console.error(`[Email Service] Failed to send report acknowledgment to ${to}:`, error)
+  }
+}

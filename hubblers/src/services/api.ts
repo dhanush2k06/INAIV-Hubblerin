@@ -388,3 +388,12 @@ export async function approveCollege(id: string | number) {
 export async function rejectCollege(id: string | number) {
   return request<{ message: string }>(`/api/colleges/reject/${id}`, { method: 'PUT' })
 }
+
+export type ReportCategory = 'SPAM' | 'SCAM' | 'MISLEADING' | 'INAPPROPRIATE' | 'FAKE_EVENT' | 'OTHER'
+
+export async function reportEvent(eventId: string, payload: { reason: string; category: ReportCategory }) {
+  return request<{ message: string }>(`/api/events/${encodeURIComponent(eventId)}/report`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}

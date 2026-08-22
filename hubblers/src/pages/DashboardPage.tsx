@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import type { DashboardData } from '../types'
 import {
   fetchDashboard,
@@ -45,13 +45,9 @@ export function DashboardPage({ role }: DashboardPageProps) {
   const [submittingEvent, setSubmittingEvent] = useState(false)
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null)
 
-  useEffect(() => {
+  const loadDashboardData = useCallback(() => {
     if (!role) return
-    loadDashboardData()
-  }, [role])
-
-  function loadDashboardData() {
-    fetchDashboard(role!)
+    fetchDashboard(role)
       .then(setDashboard)
       .catch(() => setDashboard(null))
 
@@ -60,13 +56,16 @@ export function DashboardPage({ role }: DashboardPageProps) {
     }
 
     if (role === 'COLLEGE_ADMIN') {
-      setLoadingMyEvents(true)
       fetchMyEvents()
         .then(setMyEvents)
         .catch(() => setMyEvents([]))
         .finally(() => setLoadingMyEvents(false))
     }
-  }
+  }, [role])
+
+  useEffect(() => {
+    loadDashboardData()
+  }, [loadDashboardData])
 
   async function handleUnregister(eventId: string, eventTitle: string) {
     setCancellingId(eventId)

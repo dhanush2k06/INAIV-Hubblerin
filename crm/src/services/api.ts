@@ -205,3 +205,86 @@ export async function approveOrganizer(id: string) {
 export async function rejectOrganizer(id: string) {
   return request<{ message: string }>(`/api/crm/users/${encodeURIComponent(id)}/reject`, { method: 'PUT' })
 }
+
+export interface CrmOrganizerDetail extends CrmUser {
+  events: Array<{
+    id: string
+    title: string
+    description: string
+    location: string
+    startDate: string
+    endDate: string
+    xpReward: number
+    createdAt: string
+    registrationCount: number
+  }>
+  totalEvents: number
+  totalRegistrations: number
+  upcomingEvents: number
+  activity: ActivityEntry[]
+}
+
+export async function fetchOrganizerDetail(id: string) {
+  return request<CrmOrganizerDetail>(`/api/crm/organizers/${encodeURIComponent(id)}`)
+}
+
+export interface CrmReport {
+  id: string
+  eventId: string
+  eventTitle: string
+  organizerId?: string
+  organizerName: string
+  collegeName: string
+  reportedBy: string
+  reporterName: string
+  reporterEmail: string
+  reporterCollege: string
+  reason: string
+  category: string
+  status: 'PENDING' | 'RESOLVED' | 'DISMISSED' | string
+  actionTaken?: 'EVENT_DELETED' | 'ORGANIZER_BLOCKED' | 'RESOLVED' | 'DISMISSED' | string | null
+  createdAt: string
+  updatedAt: string
+  resolvedBy: string | null
+  resolution: string | null
+}
+
+export async function fetchReports(params: { status?: string; category?: string; search?: string; page?: number; limit?: number }) {
+  const qs = new URLSearchParams()
+  if (params.status) qs.set('status', params.status)
+  if (params.category) qs.set('category', params.category)
+  if (params.search) qs.set('search', params.search)
+  if (params.page) qs.set('page', String(params.page))
+  if (params.limit) qs.set('limit', String(params.limit))
+  return request<{ total: number; page: number; limit: number; reports: CrmReport[] }>(`/api/crm/reports?${qs.toString()}`)
+}
+
+export async function resolveReport(
+  id: string,
+  payload: { status: 'RESOLVED' | 'DISMISSED'; resolution?: string; notifyReporter?: boolean },
+) {
+  return request<{ message: string }>(`/api/crm/reports/${encodeURIComponent(id)}/resolve`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function deleteReportedEvent(
+  id: string,
+  payload: { reason: string; notifyReporter?: boolean },
+) {
+  return request<{ message: string }>(`/api/crm/reports/${encodeURIComponent(id)}/delete-event`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function blockReportedOrganizer(
+  id: string,
+  payload: { reason: string; notifyReporter?: boolean; deleteEvents?: boolean },
+) {
+  return request<{ message: string }>(`/api/crm/reports/${encodeURIComponent(id)}/block-organizer`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}

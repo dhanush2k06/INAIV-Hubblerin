@@ -11,6 +11,7 @@ const navItems = [
   { label: 'Organizers', to: '/organizers' },
   { label: 'Events', to: '/events' },
   { label: 'Activity', to: '/activity' },
+  { label: '🚩 Reports', to: '/reports' },
 ]
 
 export function Layout({ role, onLogout }: LayoutProps) {
@@ -53,13 +54,33 @@ export function Layout({ role, onLogout }: LayoutProps) {
       </aside>
 
       <main className="h-screen flex-1 overflow-y-auto px-4 py-8 sm:px-6 lg:px-10">
-        <div className="lg:hidden mb-6 flex items-center justify-between">
-          <Link to="/" className="font-display text-lg font-bold text-white">
-            HubblerX CRM
-          </Link>
-          <button onClick={onLogout} className="rounded-xl bg-rose-500 px-3 py-1.5 text-xs font-bold text-white">
-            Logout
-          </button>
+        <div className="lg:hidden mb-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="font-display text-lg font-bold text-white">
+              HubblerX CRM
+            </Link>
+            <button onClick={onLogout} className="rounded-xl bg-rose-500 px-3 py-1.5 text-xs font-bold text-white">
+              Logout
+            </button>
+          </div>
+          <nav className="flex gap-2 overflow-x-auto pb-1">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.to === '/'}
+                className={({ isActive }) =>
+                  `shrink-0 rounded-2xl border px-3 py-2 text-xs transition ${
+                    isActive
+                      ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
+                      : 'border-slate-800 bg-slate-900 text-slate-300'
+                  }`
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
         </div>
         <Outlet />
       </main>

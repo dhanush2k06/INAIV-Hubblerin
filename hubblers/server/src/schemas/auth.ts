@@ -3,10 +3,10 @@ import { z } from 'zod'
 export const signupSchema = z.object({
   role: z.enum(['STUDENT', 'COLLEGE_ADMIN']),
   email: z.string().email().optional(),
-  password: z.string().min(8).optional(),
+  password: z.string().min(6).optional(),
   idToken: z.string().optional(),
   fullName: z.string().min(3).optional(),
-  collegeId: z.number().nullable().optional(),
+  collegeId: z.union([z.string(), z.number()]).nullable().optional(),
   collegeName: z.string().min(2).optional(),
   accreditationId: z.string().optional(),
   username: z.string().min(2).optional(),
@@ -29,5 +29,5 @@ export const loginSchema = z.object({
   idToken: z.string().optional(),
   googleToken: z.string().optional(),
   email: z.string().email().optional(),
-  password: z.string().min(8).optional(),
+  password: z.string().min(6).optional(),
 })
