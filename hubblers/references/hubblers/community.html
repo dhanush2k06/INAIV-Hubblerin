@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community Feed | Hubblers</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Hubbler<span>X</span></div>
+        <ul class="nav-links" id="navLinks">
+            <!-- Nav links will be injected by script.js -->
+        </ul>
+    </nav>
+
+    <div class="community-header">
+        <div class="container">
+            <h1 class="h1-main">Community Feed</h1>
+            <p class="text-muted">See what your connections are achieving across campuses.</p>
+        </div>
+    </div>
+
+    <div class="container community-layout">
+        <!-- Sidebar: Profile Mini -->
+        <aside class="community-sidebar-left">
+            <div class="card mini-profile">
+                <!-- Real user info can go here later, statically mocked for guest / demo -->
+                <div class="mini-profile-header" style="display: flex; justify-content: center; margin-bottom: 1rem;">
+                    <div class="profile-img" style="width: 60px; height: 60px; font-size: 1.25rem;">D</div>
+                </div>
+                <div class="mini-profile-body" style="text-align: center;">
+                    <h3 id="feedProfileName">Demo User</h3>
+                    <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1rem;">Computer Science Engineering</p>
+                    <div class="stats-row" style="display: flex; justify-content: center; gap: 2rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                        <div class="stat">
+                            <span style="display: block; font-weight: bold; color: var(--text-main);">12</span>
+                            <span class="text-muted" style="font-size: 0.8rem;">Connections</span>
+                        </div>
+                        <div class="stat">
+                            <span style="display: block; font-weight: bold; color: var(--primary);">450</span>
+                            <span class="text-muted" style="font-size: 0.8rem;">Points XP</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card" style="margin-top: 1.5rem; padding: 1.5rem;">
+                <h4 style="margin-top:0;">Trending Topics</h4>
+                <ul style="list-style: none; padding: 0; margin: 0; color: var(--primary); font-size: 0.9rem; line-height: 2;">
+                    <li>#AI_Symposium2026</li>
+                    <li>#WebDevBootcamp</li>
+                    <li>#ReactJS</li>
+                    <li>#VITVellore</li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Feed -->
+        <main class="community-feed-main" id="communityFeedContainer">
+            <!-- Posts will be generated here by JS -->
+        </main>
+
+        <!-- Sidebar: Right (Suggestions / Friends) -->
+        <aside class="community-sidebar-right">
+            <div class="card p-4">
+                <h4 style="margin: 0 0 1rem 0; padding: 1.5rem 1.5rem 0 1.5rem;">Suggested Connections</h4>
+                <div class="connections-list" id="suggestedConnections">
+                    <!-- Connections injected via JS -->
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-logo">Hubbler<span>X</span></div>
+            <p>© 2026 Hubblers. Empowering students through knowledge.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

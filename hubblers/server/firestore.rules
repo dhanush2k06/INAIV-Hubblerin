@@ -1,0 +1,57 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isRole(role) {
+      return isSignedIn() && request.auth.token.role == role;
+    }
+
+    function isAdmin() {
+      return isRole('ADMIN') || isRole('SUPPORT');
+    }
+
+    // Public event catalog: any signed-in user can read
+    // Writes by college admins / support / admin
+    match /events/{eventId} {
+      allow read: if isSignedIn() || isAdmin();
+      allow write: if isRole('COLLEGE_ADMIN') || isRole('SUPPORT') || isRole('ADMIN');
+    }
+
+    // Colleges: visible to signed-in users, editable by support / admin
+    match /colleges/{collegeId} {
+      allow read: if isSignedIn() || isAdmin();
+      allow write: if isRole('SUPPORT') || isRole('ADMIN');
+    }
+
+    // Users: each user can only read/write their OWN document,
+    // plus support/admin can read all (read-only for admin)
+    match /users/{uid} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid
+                          || isRole('SUPPORT');
+      allow read: if isAdmin();
+    }
+
+    // Per-user event history: isolation scoped to the owning uid
+    match /userEvents/{uid} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid
+                          || isRole('SUPPORT');
+      allow read: if isAdmin();
+    }
+
+    // Organizers: readable by admin, managed by support
+    match /organizers/{orgId} {
+      allow read: if isSignedIn() || isAdmin();
+      allow write: if isRole('SUPPORT') || isRole('ADMIN');
+    }
+
+    // Activity logs: written by the server SDK (service account bypasses rules),
+    // read by admin/support roles
+    match /activityLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+  }
+}

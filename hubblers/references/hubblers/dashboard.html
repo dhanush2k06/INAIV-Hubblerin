@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Hubblers</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Hubbler<span>X</span></div>
+        <ul class="nav-links" id="navLinks">
+            <!-- Filled by script.js -->
+        </ul>
+    </nav>
+
+    <div class="container mt-16">
+
+        <header style="text-align: center; margin-bottom: 3rem;">
+            <h1 id="welcomeText" class="h1-main">Welcome back, Student!</h1>
+            <p class="text-muted" style="margin-bottom: 1.5rem;">Here is your event participation history and earned certificates.</p>
+            <a href="profile.html" class="btn-secondary" style="padding: 0.6rem 1.2rem; font-size: 0.9rem;">View & Edit Profile</a>
+        </header>
+
+        <section>
+            <h2 style="text-align: left; margin-bottom: 1.5rem;">Your Registrations</h2>
+            <div id="historyGrid" class="event-grid">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+
+        <section class="leaderboard-section" style="margin-top: 4rem; text-align: center;">
+            <h2 style="margin-bottom: 1.5rem;">Global Leaderboard</h2>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">See how you rank against other students in the HubblerX community.</p>
+            <div class="leaderboard-container">
+                <div id="leaderboardList">
+                    <div class="loading-spinner"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        async function loadDashboard() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = session.user;
+            document.getElementById('welcomeText').innerText = `Welcome back, ${user.user_metadata.full_name || 'Student'}!`;
+
+            const { data: history, error } = await supabaseClient
+                .from('event_participations')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('registered_at', { ascending: false });
+
+            const grid = document.getElementById('historyGrid');
+            if (error) {
+                grid.innerHTML = `<p class="error-text">Error loading history: ${error.message}</p>`;
+                return;
+            }
+
+            if (history.length === 0) {
+                grid.innerHTML = `<div class="empty-state">
+                    <p>You haven't registered for any events yet.</p>
+                    <a href="events.html" class="link-primary">Browse events here</a>
+                </div>`;
+                return;
+            }
+
+            grid.innerHTML = history.map(item => `
+                <div class="card history-card">
+                    <div class="card-content">
+                        <span class="status-badge badge-success">Registered</span>
+                        <h3 class="history-title">${item.event_title}</h3>
+                        <p class="history-meta">Ticket: <span class="ticket-id-text">${item.ticket_id}</span></p>
+                        <div class="history-footer">
+                            <span class="date-text">${new Date(item.registered_at).toLocaleDateString()}</span>
+                            <button class="btn-text" onclick="alert('Downloading...')">Download PDF</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            loadLeaderboard();
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

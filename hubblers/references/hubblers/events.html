@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Events | Hubblers</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><a href="index.html">Hubbler<span>X</span></a></div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="signup.html">Rewards</a></li>
+            <li class="btn-login"><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+
+    <main class="container mt-16 pb-20">
+        <div class="dashboard-header">
+            <div>
+                <h1 class="h1-main">Explore All Events</h1>
+                <p class="text-muted">Find symposiums, workshops, and student meetups across campuses.</p>
+            </div>
+            <a class="btn btn-secondary btn-sm" href="community.html">Go to Community</a>
+        </div>
+        
+        <div class="search-container surface" style="padding: 1.25rem;">
+            <input type="text" id="eventSearch" placeholder="Search for workshops, symposiums...">
+            <div class="filter-group">
+                <button class="filter-btn active" data-category="all" type="button">All</button>
+                <button class="filter-btn" data-category="symposium" type="button">Symposiums</button>
+                <button class="filter-btn" data-category="workshop" type="button">Workshops</button>
+            </div>
+        </div>
+
+        <section class="event-grid mt-8" id="eventGrid"></section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-logo">Hubbler<span>X</span></div>
+            <p>© 2026 Hubblers. Empowering students through knowledge.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

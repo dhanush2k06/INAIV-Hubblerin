@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Registration - HubblerX</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Hubbler<span>X</span></div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li class="btn-login"><a href="college-login.html">Partner Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="auth-container" style="max-width: 650px;">
+        <form class="auth-form" id="collegeSignupForm">
+            <h2>Partner Registration</h2>
+            <p class="form-subtitle">Register your institution to host events and engage with the student community.</p>
+
+            <!-- Section 1: Institution Details -->
+            <div class="form-section">
+                <h3>Institution Details</h3>
+                <div class="form-group">
+                    <label for="collegeOfficialName">College Official Name *</label>
+                    <input type="text" id="collegeOfficialName" required placeholder="Full registered name">
+                    <div class="field-help">2–120 chars. Shown on certificates and event pages.</div>
+                </div>
+                <div class="form-group">
+                    <label for="collegeLogo">College Logo</label>
+                    <input type="file" id="collegeLogo" accept="image/jpeg,image/png" class="file-input">
+                    <div class="field-help">PNG/JPG, max 5MB. Appears on all public pages.</div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Official College Email *</label>
+                    <input type="email" id="email" required placeholder="rep@college.edu.in">
+                    <div class="field-help">Must be an institutional email ending in .edu or .ac.in.</div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" required placeholder="Min 8 chars: 1 upper, 1 num, 1 spec">
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn" id="submitBtn">Submit Registration</button>
+        </form>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

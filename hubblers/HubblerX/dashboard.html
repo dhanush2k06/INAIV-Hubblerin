@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | Hubblers</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Hub<span>blers</span></div>
+        <ul class="nav-links" id="navLinks">
+            <!-- Filled by script.js -->
+        </ul>
+    </nav>
+
+    <div class="container" style="margin-top: 4rem;">
+        <header style="margin-bottom: 3rem;">
+            <h1 id="welcomeText">Welcome back, Student!</h1>
+            <p style="color: #636e72;">Here is your event participation history and earned certificates.</p>
+        </header>
+
+        <section>
+            <h2 style="text-align: left; margin-bottom: 1.5rem;">Your Registrations</h2>
+            <div id="historyGrid" class="event-grid">
+                <div class="loading-spinner"></div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        async function loadDashboard() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = session.user;
+            document.getElementById('welcomeText').innerText = `Welcome back, ${user.user_metadata.full_name || 'Student'}!`;
+
+            const { data: history, error } = await supabaseClient
+                .from('event_participations')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('registered_at', { ascending: false });
+
+            const grid = document.getElementById('historyGrid');
+            if (error) {
+                grid.innerHTML = `<p style="color: red;">Error loading history: ${error.message}</p>`;
+                return;
+            }
+
+            if (history.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; padding: 3rem; background: white; border-radius: 12px;">You haven't registered for any events yet. <a href="events.html">Browse events here</a>.</p>`;
+                return;
+            }
+
+            grid.innerHTML = history.map(item => `
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-tag">REGISTERED</span>
+                        <h3 style="margin: 0.5rem 0;">${item.event_title}</h3>
+                        <p style="font-size: 0.9rem; color: #636e72;">Ticket: <span class="ticket-id">${item.ticket_id}</span></p>
+                        <p style="font-size: 0.8rem; margin-top: 1rem;">Registered on: ${new Date(item.registered_at).toLocaleDateString()}</p>
+                        <button class="btn-book" style="background: #00b894;" onclick="alert('Downloading certificate for ${item.ticket_id}...')">Download Certificate</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        loadDashboard();
+    </script>
+</body>
+</html>

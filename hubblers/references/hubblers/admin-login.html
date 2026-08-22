@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Hubblers</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><a href="index.html">Hubbler<span>X</span></a></div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li class="btn-login"><a href="login.html">Student Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="auth-container">
+        <form class="auth-form" id="loginForm">
+            <div class="staff-badge"><span class="staff-label">ADMIN PANEL</span></div>
+            <h2>HubblerX Admin</h2>
+            <p class="form-subtitle">Authorized access for system administration and verification.</p>
+            <div class="form-group">
+                <label for="email">Admin Email</label>
+                <input type="email" id="email" required placeholder="hubblersgroup@gmail.com">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="auth-btn">Authorize Access</button>
+            <div class="auth-footer">
+                <a href="login.html">Back to Student Login</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Portal Login - Hubblers</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Hubbler<span>X</span></div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li class="btn-login"><a href="login.html">Student Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="auth-container">
+        <form class="auth-form" id="loginForm">
+<div class="portal-badge"><span class="portal-label">COLLEGE PORTAL</span></div>
+
+
+            <h2>Partner Login</h2>
+            <p class="form-subtitle">Manage your institution's events and track student participation.</p>
+            <div class="form-group">
+                <label for="email">Institutional Email</label>
+                <input type="email" id="email" required placeholder="rep@college.edu.in">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="auth-btn">Access Dashboard</button>
+            <div class="auth-footer">
+                Want to partner with us? <a href="college-signup.html">Register your Institution</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

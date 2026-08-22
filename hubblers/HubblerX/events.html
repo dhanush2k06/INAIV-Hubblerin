@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Events | Hubblers</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">Hub<span>blers</span></div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="signup.html">Rewards</a></li>
+            <li class="btn-login"><a href="login.html" style="color: white;">Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="container" style="margin-top: 4rem;">
+        <h1 style="text-align: center; color: #2d3436; margin-bottom: 3rem;">Explore All Events</h1>
+        
+        <div class="search-container">
+            <input type="text" id="eventSearch" placeholder="Search for workshops, symposiums...">
+            <div class="filter-group">
+                <button class="filter-btn active" data-category="all">All</button>
+                <button class="filter-btn" data-category="symposium">Symposiums</button>
+                <button class="filter-btn" data-category="workshop">Workshops</button>
+            </div>
+        </div>
+
+        <section class="event-grid" id="eventGrid" style="margin-top: 3rem;"></section>
+    </div>
+
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-logo">Hub<span>blers</span></div>
+            <p>© 2026 Hubblers. Empowering students through knowledge.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Sign Up - HubblerX</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo"><a href="index.html">Hubbler<span>X</span></a></div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="events.html">Browse</a></li>
+            <li class="btn-login"><a href="login.html">Login</a></li>
+        </ul>
+    </nav>
+
+    <div class="auth-container">
+        <form class="auth-form" id="signupForm">
+            <h2>Student Sign Up</h2>
+            <p class="form-subtitle">Join HubblerX to access college events, earn credits, and climb leaderboards.</p>
+
+            <!-- Section 1: Personal Info -->
+            <div class="form-section">
+                <h3>Personal Information</h3>
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" required placeholder="Enter your full name (2-60 chars, letters + spaces)">
+                    <div class="field-help">Displayed on profile, certificates, leaderboard</div>
+                </div>
+                <div class="form-group">
+                    <label for="mobile">Mobile Number * (+91)</label>
+                    <input type="tel" id="mobile" required placeholder="10 digits only" maxlength="10">
+                    <button type="button" id="sendOTP" class="otp-btn" disabled>Send OTP</button>
+                    <div class="otp-container hidden" id="otpContainer">
+
+
+                        <input type="text" id="otp" placeholder="Enter 6-digit OTP" maxlength="6">
+                        <button type="button" id="verifyOTP" class="otp-btn">Verify</button>
+                    </div>
+                    <div class="field-help">OTP verified at signup. Used for SMS ticket delivery</div>
+                </div>
+                <div class="form-group">
+                    <label for="profilePhoto">Profile Photo</label>
+                    <input type="file" id="profilePhoto" accept="image/jpeg,image/png" class="file-input">
+                    <div id="photoPreview" class="photo-preview"></div>
+                    <div class="field-help">JPG/PNG, max 5MB. Optional, can add later</div>
+                </div>
+            </div>
+
+            <!-- Section 2: College Info -->
+            <div class="form-section">
+                <h3>College Information *</h3>
+                <div class="form-group">
+                    <label for="collegeName">College Name *</label>
+                    <select id="collegeName" required>
+                        <option value="">Select your college</option>
+                        <!-- Populated dynamically from Supabase colleges table -->
+                    </select>
+                    <div class="field-help">Must match registered HubblerX college</div>
+                </div>
+                <div class="form-group hidden" id="collegeLocationGroup">
+
+
+                    <label for="collegeLocation">College Location / Campus *</label>
+                    <select id="collegeLocation" required disabled>
+                        <option value="">Select campus</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="department">Department *</label>
+                    <select id="department" required disabled>
+                        <option value="">Select department</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="educationTier">Education Tier *</label>
+                    <select id="educationTier" required>
+                        <option value="">Select tier</option>
+                        <option value="DIPLOMA">Diploma</option>
+                        <option value="UG">UG (Under Graduate)</option>
+                        <option value="PG">PG (Post Graduate)</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startYear">College Start Year *</label>
+                        <select id="startYear" required disabled>
+                            <option value="">Select year</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="endYear">Expected End Year *</label>
+                        <select id="endYear" required disabled>
+                            <option value="">Select year</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="rollNumber">Registration / Roll Number *</label>
+                    <input type="text" id="rollNumber" required placeholder="e.g. CS2026-001 (4-20 alphanumeric)">
+                    <div class="field-help">Unique per college. Not public.</div>
+                </div>
+            </div>
+
+            <!-- Section 3: Account Setup -->
+            <div class="form-section">
+                <h3>Account Setup *</h3>
+                <div class="form-group">
+                    <label for="hubblerHandle">Hubbler Username (Handle) *</label>
+                    <input type="text" id="hubblerHandle" required placeholder="@yourhandle" maxlength="30">
+                    <div id="handleSuggestion" class="handle-suggest"></div>
+                    <div class="field-help">@firstname.collegecode auto-suggested. Globally unique.</div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" required placeholder="student@university.edu">
+                    <div class="field-help">Magic link sent here. College email preferred.</div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password *</label>
+                    <input type="password" id="password" required placeholder="Min 8 chars: 1 upper, 1 number, 1 special">
+                    <div class="password-strength" id="passwordStrength"></div>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn" disabled id="submitBtn">Create HubblerX Account</button>
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+            <div class="form-errors" id="formErrors"></div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
