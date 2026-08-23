@@ -41,10 +41,12 @@ if (!serviceAccountPath) {
   required.push('FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY')
 }
 
-for (const key of required) {
-  if (!process.env[key]) {
-    throw new Error(`Missing environment variable: ${key}`)
-  }
+const missing = required.filter((key) => !process.env[key])
+if (missing.length > 0) {
+  throw new Error(
+    `Missing required environment variables on startup: [${missing.join(', ')}].\n` +
+    'Please add them in your Render service Environment tab or local .env file.'
+  )
 }
 
 export const env = {
