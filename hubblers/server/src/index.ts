@@ -12,25 +12,46 @@ import { env } from './config.js'
 
 const app = express()
 
-app.use(helmet())
-// Local development origins should always be allowed so the Vite dev servers
-// (hubblers on :5173, CRM on :5174) can talk to the backend without CORS errors.
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }),
+)
+
+// Local development and common production origins
 const devOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:5174',
   'http://127.0.0.1:5174',
 ]
-const allowedOrigins = [env.corsOrigin, ...env.corsOrigins, ...devOrigins].filter(Boolean)
+
+const allowedOrigins = [env.corsOrigin, ...env.corsOrigins, ...devOrigins]
+  .filter(Boolean)
+  .map((o) => o.replace(/\/$/, ''))
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. curl, server-to-server) and any allowed origin.
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow server-to-server, curl, or mobile app requests (no origin)
+      if (!origin) return callback(null, true)
+
+      const normalizedOrigin = origin.replace(/\/$/, '')
+
+      // Allow if wildcard, explicitly in allowedOrigins list, or any .onrender.com subdomain
+      if (
+        allowedOrigins.includes('*') ||
+        allowedOrigins.includes(normalizedOrigin) ||
+        normalizedOrigin.endsWith('.onrender.com') ||
+        devOrigins.includes(normalizedOrigin)
+      ) {
         return callback(null, true)
       }
-      return callback(new Error('Not allowed by CORS'))
+
+      console.warn(`[CORS] Blocked request from unauthorized origin: ${origin}`)
+      return callback(new Error(`Not allowed by CORS: ${origin}`))
     },
+    credentials: true,
   }),
 )
 app.use(express.json({ limit: '10mb' }))
