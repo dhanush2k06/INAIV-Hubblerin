@@ -16,8 +16,9 @@ const sections: Sections = {
     { label: 'Profile', href: '/dashboard' },
   ],
   COLLEGE_ADMIN: [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Programs', href: '/dashboard' },
+    { label: 'Overview', href: '/dashboard?tab=overview' },
+    { label: '👥 Registration Base (CRM)', href: '/dashboard?tab=registrations' },
+    { label: '🎪 My Events', href: '/dashboard?tab=events' },
   ],
   SUPPORT: [
     { label: 'Review', href: '/dashboard' },

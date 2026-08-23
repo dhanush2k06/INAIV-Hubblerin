@@ -240,6 +240,7 @@ export interface Event {
   startDate?: string
   endDate?: string
   xpReward?: number
+  coverImage?: string | null
   createdAt?: string
   registeredAt?: string
   qrCodeUrl?: string
@@ -266,6 +267,7 @@ export interface CreateEventPayload {
   startDate: string
   endDate?: string
   xpReward?: number
+  coverImage?: string | null
 }
 
 export interface EventRegistrationDetails {
@@ -282,12 +284,49 @@ export async function fetchEvents() {
   return request<Event[]>('/api/events')
 }
 
+export interface OrganizerRegistration {
+  id: string
+  studentUid: string
+  eventId: string
+  eventTitle: string
+  eventLocation: string
+  eventStartDate: string
+  eventEndDate: string
+  name: string
+  email: string
+  phone: string
+  collegeName: string
+  degree: string
+  branch: string
+  year: string
+  registeredAt: string
+  attended: boolean
+  qrCodeUrl: string
+}
+
+export interface OrganizerRegistrationResponse {
+  total: number
+  registrations: OrganizerRegistration[]
+  events: Array<{ id: string; title: string; location: string; startDate: string; endDate: string }>
+}
+
 export async function fetchRegisteredEvents() {
   return request<Event[]>('/api/events/registered')
 }
 
 export async function fetchMyEvents() {
   return request<Event[]>('/api/events/mine')
+}
+
+export async function fetchOrganizerRegistrations() {
+  return request<OrganizerRegistrationResponse>('/api/events/mine/registrations')
+}
+
+export async function updateRegistrationAttendance(studentUid: string, eventId: string, attended: boolean) {
+  return request<{ message: string }>(`/api/events/mine/registrations/${encodeURIComponent(studentUid)}/${encodeURIComponent(eventId)}/attendance`, {
+    method: 'PATCH',
+    body: JSON.stringify({ attended }),
+  })
 }
 
 export async function createEvent(payload: CreateEventPayload) {

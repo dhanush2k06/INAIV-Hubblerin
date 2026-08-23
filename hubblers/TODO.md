@@ -56,8 +56,8 @@ Create a separate, admin-only CRM dashboard to track user (students/organizers) 
 
 ### 7. Admin seed account
 - [x] Create `server/src/seedAdmin.ts` + `seed:admin` npm script
-- [x] Set default admin credentials: hubblersgroup@gmail.com / hubblerx47#
-- [x] CRM login uses only the admin custom-token flow (prefilled credentials)
+- [x] Admin credentials loaded from env vars (ADMIN_EMAIL / ADMIN_PASSWORD)
+- [x] CRM login form — no hardcoded credentials
 
 ### 8. Build & verify
 - [x] `npm install` in `crm/`

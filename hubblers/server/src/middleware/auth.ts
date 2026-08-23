@@ -37,10 +37,12 @@ export const verifyFirebaseToken: RequestHandler = async (req, res, next) => {
       }
     }
 
+    let resolvedRole: Role = (role as string) === 'ORGANIZER' ? 'COLLEGE_ADMIN' : (role ?? 'STUDENT')
+
     ;(req as RequestWithUser).user = {
       firebaseUid: decoded.uid,
       email: decoded.email ?? '',
-      role: role ?? 'STUDENT',
+      role: resolvedRole,
       collegeId,
     }
     next()

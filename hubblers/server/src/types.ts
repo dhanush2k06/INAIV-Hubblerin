@@ -48,6 +48,7 @@ export interface FirestoreEvent {
   startDate: string
   endDate: string
   xpReward: number
+  coverImage?: string | null
   createdAt: string
   organizerId?: string
   organizerName?: string

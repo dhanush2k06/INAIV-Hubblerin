@@ -10,9 +10,17 @@ import { auth as firebaseAuth, db } from './firebase.js'
  * document with role `ADMIN`, then sets the custom claims `{ role: 'ADMIN' }`.
  */
 async function seedAdmin() {
-const email = process.env.ADMIN_EMAIL ?? 'hubblersgroup@gmail.com'
-  const password = process.env.ADMIN_PASSWORD ?? 'hubblerx47#'
+const email = process.env.ADMIN_EMAIL
+  const password = process.env.ADMIN_PASSWORD
   const fullName = process.env.ADMIN_NAME ?? 'HubblerX Admin'
+
+  if (!email || !password) {
+    console.error(
+      'Missing required environment variables.\n' +
+      'Usage: ADMIN_EMAIL="admin@example.com" ADMIN_PASSWORD="SecurePass!" npm run seed:admin'
+    )
+    process.exit(1)
+  }
 
   if (!firebaseAuth || !db) {
     console.error('Firebase is not initialized. Cannot seed admin.')

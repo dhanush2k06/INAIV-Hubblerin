@@ -81,7 +81,10 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/student-signup" element={<StudentSignupPage />} />
           <Route path="/organizer-signup" element={<OrganizerSignupPage />} />
-          <Route path="/events" element={<EventsPage />} />
+          <Route
+            path="/events"
+            element={role === 'COLLEGE_ADMIN' ? <Navigate to="/dashboard?tab=registrations" replace /> : <EventsPage />}
+          />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/dashboard" element={isAuthenticated ? <DashboardLayout role={role} /> : <Navigate to="/login" replace />} />

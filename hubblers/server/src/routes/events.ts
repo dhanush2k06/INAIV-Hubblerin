@@ -5,7 +5,11 @@ import { verifyFirebaseToken } from '../middleware/auth.js'
 import { authorizeRoles } from '../middleware/roles.js'
 import { isEventOver } from '../utils/eventDate.js'
 import { createEventQrCode } from '../utils/qr.js'
-import { sendEventRegistrationEmail } from '../services/emailService.js'
+import {
+  sendEventRegistrationEmail,
+  sendReportSubmittedStudentAcknowledgment,
+  sendReportSubmittedOrganizerNotice,
+} from '../services/emailService.js'
 import { logActivity } from '../services/activityLogger.js'
 import type { FirestoreEvent, Role, UserEventRecord } from '../types.js'
 
@@ -29,6 +33,7 @@ const eventCreateSchema = z.object({
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().optional().default(''),
   xpReward: z.number().int().min(0).optional().default(50),
+  coverImage: z.string().optional().nullable().default(null),
 })
 
 function nowIso(): string {
@@ -46,6 +51,7 @@ function serializeEvent(doc: { id: string; data: () => Record<string, unknown> |
     startDate: String(data.startDate ?? ''),
     endDate: String(data.endDate ?? ''),
     xpReward: Number(data.xpReward ?? 50),
+    coverImage: (data.coverImage as string | null) ?? (data.imageUrl as string | null) ?? null,
     createdAt: String(data.createdAt ?? ''),
     organizerId: (data.organizerId as string | null) ?? undefined,
     organizerName: (data.organizerName as string | null) ?? undefined,
@@ -104,6 +110,7 @@ router.post('/', verifyFirebaseToken, authorizeRoles('COLLEGE_ADMIN', 'ADMIN'), 
       startDate: data.startDate,
       endDate: data.endDate || data.startDate,
       xpReward: data.xpReward,
+      coverImage: data.coverImage ?? null,
       createdAt: nowIso(),
       organizerId: uid,
       organizerName,
@@ -172,6 +179,161 @@ router.get('/mine', verifyFirebaseToken, authorizeRoles('COLLEGE_ADMIN', 'ADMIN'
     console.error('[GET /api/events/mine] failed:', error)
     return res.status(500).json({
       error: 'Failed to fetch organizer events',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
+})
+
+// GET /api/events/mine/registrations — automatic aggregate registration base for organizer's events
+router.get('/mine/registrations', verifyFirebaseToken, authorizeRoles('COLLEGE_ADMIN', 'ADMIN'), async (req, res) => {
+  const uid = (req as { user?: { firebaseUid: string } }).user?.firebaseUid
+  if (!uid) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
+  try {
+    if (!db) {
+      return res.status(500).json({ error: 'Firestore is not configured on the server.' })
+    }
+
+    // 1. Fetch organizer's events
+    const snapshot = await db.collection('events').where('organizerId', '==', uid).get()
+    const eventMap: Record<string, { id: string; title: string; location: string; startDate: string; endDate: string }> = {}
+    const organizerEvents: Array<{ id: string; title: string; location: string; startDate: string; endDate: string }> = []
+
+    for (const doc of snapshot.docs) {
+      const data = doc.data()
+      const evInfo = {
+        id: doc.id,
+        title: String(data.title ?? ''),
+        location: String(data.location ?? ''),
+        startDate: String(data.startDate ?? ''),
+        endDate: String(data.endDate ?? ''),
+      }
+      eventMap[doc.id] = evInfo
+      organizerEvents.push(evInfo)
+    }
+
+    if (organizerEvents.length === 0) {
+      return res.json({ total: 0, registrations: [], events: [] })
+    }
+
+    const eventIds = Object.keys(eventMap)
+
+    // 2. Scan userEvents collection for registrations matching this organizer's events
+    const userEventsSnap = await db.collection('userEvents').get()
+    const registrations: Array<{
+      id: string
+      studentUid: string
+      eventId: string
+      eventTitle: string
+      eventLocation: string
+      eventStartDate: string
+      eventEndDate: string
+      name: string
+      email: string
+      phone: string
+      collegeName: string
+      degree: string
+      branch: string
+      year: string
+      registeredAt: string
+      attended: boolean
+      qrCodeUrl: string
+    }> = []
+
+    for (const ueDoc of userEventsSnap.docs) {
+      const records: UserEventRecord[] = ueDoc.data()?.registered ?? []
+      for (const r of records) {
+        if (eventIds.includes(r.eventId)) {
+          const ev = eventMap[r.eventId]
+          registrations.push({
+            id: `${ueDoc.id}_${r.eventId}`,
+            studentUid: ueDoc.id,
+            eventId: r.eventId,
+            eventTitle: ev?.title ?? 'Event',
+            eventLocation: ev?.location ?? '',
+            eventStartDate: ev?.startDate ?? '',
+            eventEndDate: ev?.endDate ?? '',
+            name: String(r.name ?? ''),
+            email: String(r.email ?? ''),
+            phone: String(r.phone ?? ''),
+            collegeName: String(r.collegeName ?? ''),
+            degree: String(r.degree ?? ''),
+            branch: String(r.branch ?? ''),
+            year: String(r.year ?? ''),
+            registeredAt: String(r.registeredAt ?? ''),
+            attended: Boolean(r.attended ?? false),
+            qrCodeUrl: String(r.qrCodeUrl ?? ''),
+          })
+        }
+      }
+    }
+
+    // Sort by registeredAt descending
+    registrations.sort((a, b) => b.registeredAt.localeCompare(a.registeredAt))
+
+    return res.json({
+      total: registrations.length,
+      registrations,
+      events: organizerEvents,
+    })
+  } catch (error) {
+    console.error('[GET /api/events/mine/registrations] failed:', error)
+    return res.status(500).json({
+      error: 'Failed to fetch organizer registrations',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
+})
+
+// PATCH /api/events/mine/registrations/:studentUid/:eventId/attendance — update attendance status
+router.patch('/mine/registrations/:studentUid/:eventId/attendance', verifyFirebaseToken, authorizeRoles('COLLEGE_ADMIN', 'ADMIN'), async (req, res) => {
+  const uid = (req as { user?: { firebaseUid: string } }).user?.firebaseUid
+  const { studentUid, eventId } = req.params
+  const { attended } = req.body as { attended?: boolean }
+
+  if (!uid || !studentUid || !eventId) {
+    return res.status(400).json({ error: 'Missing required parameters' })
+  }
+
+  try {
+    if (!db) {
+      return res.status(500).json({ error: 'Firestore is not configured on the server.' })
+    }
+
+    // Verify organizer owns the event
+    const eventDoc = await db.collection('events').doc(eventId).get()
+    if (!eventDoc.exists || eventDoc.data()?.organizerId !== uid) {
+      return res.status(403).json({ error: 'Unauthorized to manage attendance for this event' })
+    }
+
+    const userEventsRef = db.collection('userEvents').doc(studentUid)
+    const userEventsDoc = await userEventsRef.get()
+    if (!userEventsDoc.exists) {
+      return res.status(404).json({ error: 'Student registration record not found' })
+    }
+
+    const records: UserEventRecord[] = userEventsDoc.data()?.registered ?? []
+    let updated = false
+    const newRecords = records.map((r) => {
+      if (r.eventId === eventId) {
+        updated = true
+        return { ...r, attended: attended !== undefined ? Boolean(attended) : !r.attended }
+      }
+      return r
+    })
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Registration for event not found' })
+    }
+
+    await userEventsRef.update({ registered: newRecords })
+    return res.json({ message: 'Attendance status updated successfully' })
+  } catch (error) {
+    console.error('[PATCH attendance] failed:', error)
+    return res.status(500).json({
+      error: 'Failed to update attendance',
       details: error instanceof Error ? error.message : String(error),
     })
   }
@@ -306,6 +468,7 @@ router.put('/:id', verifyFirebaseToken, authorizeRoles('COLLEGE_ADMIN', 'ADMIN')
     if (data.startDate !== undefined) updates.startDate = data.startDate
     if (data.endDate !== undefined) updates.endDate = data.endDate
     if (data.xpReward !== undefined) updates.xpReward = data.xpReward
+    if (data.coverImage !== undefined) updates.coverImage = data.coverImage
     updates.updatedAt = nowIso()
 
     await eventRef.update(updates)
@@ -633,16 +796,22 @@ router.post('/:id/report', verifyFirebaseToken, authorizeRoles('STUDENT', 'COLLE
 
     const reportRef = db.collection('eventReports').doc()
     const now = new Date().toISOString()
+    const eventTitle = String(event.title ?? '')
+    const organizerId = String(event.organizerId ?? '')
+    let organizerName = String(event.organizerName ?? '')
+    const reporterName = String(user.fullName ?? 'Student')
+    const reporterEmail = String(user.email ?? '')
+
     await reportRef.set({
       id: reportRef.id,
       eventId,
-      eventTitle: String(event.title ?? ''),
-      organizerId: String(event.organizerId ?? ''),
-      organizerName: String(event.organizerName ?? ''),
+      eventTitle,
+      organizerId,
+      organizerName,
       collegeName: String(event.collegeName ?? ''),
       reportedBy: uid,
-      reporterName: String(user.fullName ?? ''),
-      reporterEmail: String(user.email ?? ''),
+      reporterName,
+      reporterEmail,
       reporterCollege: String(user.collegeName ?? ''),
       reason,
       category,
@@ -656,11 +825,51 @@ router.post('/:id/report', verifyFirebaseToken, authorizeRoles('STUDENT', 'COLLE
       userId: uid,
       role: reporterRole,
       type: 'EVENT_REPORT',
-      description: `Reported event "${event.title}" as ${category}`,
+      description: `Reported event "${eventTitle}" as ${category}`,
       meta: { eventId, category },
     })
 
-    return res.status(201).json({ message: 'Report submitted. Our team will review it shortly.' })
+    // 1. Send acknowledgment email to the student who submitted the report
+    if (reporterEmail) {
+      sendReportSubmittedStudentAcknowledgment(
+        reporterEmail,
+        reporterName,
+        eventTitle,
+        category,
+        reason,
+        reportRef.id,
+      ).catch((err) => console.error('[sendReportSubmittedStudentAcknowledgment] error:', err))
+    }
+
+    // 2. Fetch organizer email and send notice/acknowledgment to the organizer
+    let organizerEmail = ''
+    if (organizerId) {
+      try {
+        const orgUserDoc = await db.collection('users').doc(organizerId).get()
+        if (orgUserDoc.exists) {
+          const orgUser = orgUserDoc.data() ?? {}
+          organizerEmail = String(orgUser.email ?? '')
+          if (!organizerName || organizerName === 'Organizer') {
+            organizerName = String(orgUser.fullName ?? 'Organizer')
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load organizer user info for report email:', err)
+      }
+    }
+
+    if (organizerEmail) {
+      sendReportSubmittedOrganizerNotice(
+        organizerEmail,
+        organizerName || 'Organizer',
+        eventTitle,
+        category,
+        reason,
+        reportRef.id,
+      ).catch((err) => console.error('[sendReportSubmittedOrganizerNotice] error:', err))
+    }
+
+    return res.status(201).json({ message: 'Report submitted. An acknowledgment has been sent to your email, and our Trust & Safety team will review the listing.' })
   } catch (error) {
     console.error(`[POST /api/events/${eventId}/report] failed:`, error)
     return res.status(500).json({ error: 'Failed to submit report', details: error instanceof Error ? error.message : String(error) })

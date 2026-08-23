@@ -1,10 +1,18 @@
+# ======================================================
+# HubblerX — Root .gitignore
+# ======================================================
+
+# ──────────────────────────────────────────────────────
 # Dependencies
+# ──────────────────────────────────────────────────────
 node_modules/
 **/node_modules/
 .pnp
 .pnp.js
 
+# ──────────────────────────────────────────────────────
 # Production build outputs
+# ──────────────────────────────────────────────────────
 dist/
 **/dist/
 dist-ssr/
@@ -14,18 +22,22 @@ dist-server/
 *.tsbuildinfo
 **/*.tsbuildinfo
 
+# ──────────────────────────────────────────────────────
 # Environment variables & secrets (CRITICAL)
+# ──────────────────────────────────────────────────────
 .env
 .env.*
 !.env.example
 *.env
 **/.env
-**/*.env
+**/.env.*
 !**/.env.example
 *.local
 **/*.local
 
-# Firebase Service Account Credentials & Private Keys (CRITICAL)
+# ──────────────────────────────────────────────────────
+# Firebase Service Account Credentials & Private Keys
+# ──────────────────────────────────────────────────────
 *firebase-adminsdk*.json
 **/*firebase-adminsdk*.json
 *serviceAccount*.json
@@ -35,7 +47,9 @@ dist-server/
 *.key
 **/*.key
 
+# ──────────────────────────────────────────────────────
 # Logs & Temporary files
+# ──────────────────────────────────────────────────────
 logs/
 **/logs/
 *.log
@@ -52,10 +66,13 @@ server_test.log
 build-check-client.txt
 **/build-check-client.txt
 
+# ──────────────────────────────────────────────────────
 # Editor & OS files
+# ──────────────────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
-.idea
+!.vscode/settings.json
+.idea/
 .DS_Store
 Thumbs.db
 *.suo
@@ -63,3 +80,18 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+*~
+
+# ──────────────────────────────────────────────────────
+# Testing & Coverage
+# ──────────────────────────────────────────────────────
+coverage/
+**/coverage/
+.nyc_output/
+
+# ──────────────────────────────────────────────────────
+# Misc
+# ──────────────────────────────────────────────────────
+*.tgz
+.cache/
+.parcel-cache/

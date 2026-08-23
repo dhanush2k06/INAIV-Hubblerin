@@ -17,18 +17,31 @@ HubblerX is a student-college engagement platform with role-based access for stu
    npm install
    ```
 
-2. Create backend environment file:
+2. Create environment files from the templates:
 
    ```bash
+   # Backend (required)
    cp server/.env.example server/.env
+
+   # Frontend (required)
+   cp .env.example .env
    ```
 
-   Then update `server/.env` with your Firebase and MySQL configuration.
+   Then update each `.env` with your Firebase and service configuration.
+   See the `.env.example` files for documentation on each variable.
 
-3. Create the database schema:
+3. If you have a separate CRM dashboard (`../crm/`):
 
-   - Run the SQL in `server/sql/schema.sql` against your MySQL instance.
-   - Add a support account manually if needed using the commented example insert statement.
+   ```bash
+   cd ../crm
+   cp .env.example .env
+   ```
+
+4. Seed the admin account for the CRM dashboard:
+
+   ```bash
+   ADMIN_EMAIL="admin@yourdomain.com" ADMIN_PASSWORD="YourSecurePassword" npm run seed:admin
+   ```
 
 ## Development
 

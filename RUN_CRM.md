@@ -76,7 +76,7 @@ npm run seed:admin
 cd ..
 ```
 
-Defaults (can be overridden with env vars):
+Set credentials via environment variables:
 
 ```bash
 ADMIN_EMAIL="admin@hubblerx.com" \
@@ -85,8 +85,7 @@ ADMIN_NAME="HubblerX Admin" \
 npm run seed:admin
 ```
 
-The seeded login page already pre-fills the default admin credentials
-(`hubblersgroup@gmail.com` / `hubblerx47#`) for quick local testing.
+Use the credentials you specified above to log in to the CRM dashboard.
 
 ---
 

@@ -188,10 +188,30 @@ router.post('/login', async (req, res) => {
         return res.status(404).json({ error: 'Account found in Firebase but not registered in Firestore. Please complete signup.' })
       }
       const user = userDoc.data() as AppUser
+      const effectiveRole: Role = (user.role as string) === 'ORGANIZER' ? 'COLLEGE_ADMIN' : user.role
 
       // Check organizer / college admin approval status
-      if (user.role === 'COLLEGE_ADMIN') {
-        const status = user.verificationStatus ?? 'UNVERIFIED'
+      if (effectiveRole === 'COLLEGE_ADMIN') {
+        let status = user.verificationStatus ?? 'UNVERIFIED'
+        if ((status === 'UNVERIFIED' || status === 'PENDING') && user.collegeId) {
+          try {
+            const [collegeDoc, orgDoc] = await Promise.all([
+              db.collection('colleges').doc(user.collegeId).get(),
+              db.collection('organizers').doc(user.collegeId).get(),
+            ])
+            if (
+              collegeDoc.data()?.status === 'APPROVED' ||
+              orgDoc.data()?.verificationStatus === 'APPROVED' ||
+              orgDoc.data()?.status === 'APPROVED'
+            ) {
+              status = 'VERIFIED'
+              await db.collection('users').doc(firebaseUid).update({ verificationStatus: 'VERIFIED' })
+            }
+          } catch (crossCheckErr) {
+            console.warn('[auth.login] Error checking cross-collection approval:', crossCheckErr)
+          }
+        }
+
         if (status === 'BLOCKED') {
           return res.status(403).json({ error: 'Your organizer account has been suspended/blocked by the administrator due to reported policy violations.' })
         }
@@ -201,31 +221,31 @@ router.post('/login', async (req, res) => {
         if (status === 'REJECTED') {
           return res.status(403).json({ error: 'Your organizer account registration was rejected.' })
         }
-      } else if (user.role !== 'STUDENT' && user.role !== 'ADMIN' && user.role !== 'SUPPORT') {
+      } else if (effectiveRole !== 'STUDENT' && effectiveRole !== 'ADMIN' && effectiveRole !== 'SUPPORT') {
         return res.status(403).json({ error: 'Unsupported account role.' })
       }
 
       // Ensure custom claims are set
-      await setClaims(firebaseUid, user.role, user.collegeId)
+      await setClaims(firebaseUid, effectiveRole, user.collegeId)
 
       await logActivity({
         userId: firebaseUid,
-        role: user.role,
+        role: effectiveRole,
         type: 'LOGIN',
-        description: `${user.fullName} signed in`,
+        description: `${user.fullName} signed in (${effectiveRole})`,
         meta: { email: user.email },
       })
 
       // Return the fresh ID token (client already has it, but role is useful)
-      return res.json({ token, role: user.role })
+      return res.json({ token, role: effectiveRole })
     }
 
     if (data.email && data.password) {
-      // Support, Admin, and Organizer accounts authenticate via email/password + custom token.
+      // Support, Admin, and Organizer/College-Admin accounts authenticate via email/password + custom token.
       const emailSnapshot = await db
         .collection('users')
         .where('email', '==', data.email)
-        .where('role', 'in', ['SUPPORT', 'ADMIN', 'COLLEGE_ADMIN'])
+        .where('role', 'in', ['SUPPORT', 'ADMIN', 'COLLEGE_ADMIN', 'ORGANIZER'])
         .limit(1)
         .get()
       if (emailSnapshot.empty) {
@@ -236,10 +256,29 @@ router.post('/login', async (req, res) => {
       const staffUser = emailSnapshot.docs[0]
       const staffUid = staffUser.id
       const staff = staffUser.data() as AppUser
-      const staffRole: Role = staff.role
+      const staffRole: Role = (staff.role as string) === 'ORGANIZER' ? 'COLLEGE_ADMIN' : staff.role
 
       if (staffRole === 'COLLEGE_ADMIN') {
-        const status = staff.verificationStatus ?? 'UNVERIFIED'
+        let status = staff.verificationStatus ?? 'UNVERIFIED'
+        if ((status === 'UNVERIFIED' || status === 'PENDING') && staff.collegeId) {
+          try {
+            const [collegeDoc, orgDoc] = await Promise.all([
+              db.collection('colleges').doc(staff.collegeId).get(),
+              db.collection('organizers').doc(staff.collegeId).get(),
+            ])
+            if (
+              collegeDoc.data()?.status === 'APPROVED' ||
+              orgDoc.data()?.verificationStatus === 'APPROVED' ||
+              orgDoc.data()?.status === 'APPROVED'
+            ) {
+              status = 'VERIFIED'
+              await db.collection('users').doc(staffUid).update({ verificationStatus: 'VERIFIED' })
+            }
+          } catch (crossCheckErr) {
+            console.warn('[auth.login] Error checking cross-collection approval:', crossCheckErr)
+          }
+        }
+
         if (status === 'BLOCKED') {
           return res.status(403).json({ error: 'Your organizer account has been suspended/blocked by the administrator due to reported policy violations.' })
         }

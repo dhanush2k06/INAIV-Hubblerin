@@ -52,7 +52,15 @@ export function OrganizerLoginPage({ onLogin }: OrganizerLoginPageProps) {
           return
         } catch (backendError) {
           const msg = parseApiError(backendError)
-          if (/pending approval/i.test(msg) || /rejected/i.test(msg) || /account not found/i.test(msg)) {
+          if (
+            /pending approval/i.test(msg) ||
+            /rejected/i.test(msg) ||
+            /blocked/i.test(msg) ||
+            /suspended/i.test(msg) ||
+            /unverified/i.test(msg) ||
+            /account not found/i.test(msg) ||
+            /organizer account/i.test(msg)
+          ) {
             setError(msg)
             return
           }

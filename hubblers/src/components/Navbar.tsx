@@ -19,8 +19,9 @@ const sections: Sections = {
     { label: 'Profile', href: '/dashboard' },
   ],
   COLLEGE_ADMIN: [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Programs', href: '/dashboard' },
+    { label: 'Overview', href: '/dashboard?tab=overview' },
+    { label: 'Registration Base', href: '/dashboard?tab=registrations' },
+    { label: 'My Events', href: '/dashboard?tab=events' },
   ],
   SUPPORT: [
     { label: 'Review', href: '/dashboard' },
@@ -50,9 +51,16 @@ export function Navbar({ role, onLogout, theme, toggleTheme }: NavbarProps) {
             <Link to="/" className="text-sm font-medium text-slate-600 transition hover:text-emerald-500 dark:text-slate-200 dark:hover:text-white">
               Home
             </Link>
-            <Link to="/events" className="text-sm font-medium text-slate-600 transition hover:text-emerald-500 dark:text-slate-200 dark:hover:text-white">
-              Events
-            </Link>
+            {role !== 'COLLEGE_ADMIN' && (
+              <Link to="/events" className="text-sm font-medium text-slate-600 transition hover:text-emerald-500 dark:text-slate-200 dark:hover:text-white">
+                Events
+              </Link>
+            )}
+            {role === 'COLLEGE_ADMIN' && (
+              <Link to="/dashboard?tab=registrations" className="text-sm font-medium text-emerald-600 font-semibold transition hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-white">
+                Registration Base
+              </Link>
+            )}
             <Link to="/about" className="text-sm font-medium text-slate-600 transition hover:text-emerald-500 dark:text-slate-200 dark:hover:text-white">
               About
             </Link>
@@ -126,7 +134,12 @@ export function Navbar({ role, onLogout, theme, toggleTheme }: NavbarProps) {
         <div className="border-t border-slate-200 bg-white p-4 transition-colors dark:border-slate-800 dark:bg-slate-950 lg:hidden">
           <nav className="flex flex-col gap-4">
             <Link to="/" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">Home</Link>
-            <Link to="/events" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">Events</Link>
+            {role !== 'COLLEGE_ADMIN' && (
+              <Link to="/events" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">Events</Link>
+            )}
+            {role === 'COLLEGE_ADMIN' && (
+              <Link to="/dashboard?tab=registrations" onClick={() => setIsMenuOpen(false)} className="text-base font-semibold text-emerald-500 dark:text-emerald-400">Registration Base</Link>
+            )}
             <Link to="/about" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">About</Link>
             <Link to="/contact" onClick={() => setIsMenuOpen(false)} className="text-base font-medium text-slate-600 dark:text-slate-200">Contact</Link>
             
