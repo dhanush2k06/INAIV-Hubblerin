@@ -50,7 +50,6 @@ services:
   - type: web
     name: hubblerx-app
     runtime: static
-    plan: free
     rootDir: hubblers
     buildCommand: npm install && npm run build
     staticPublishPath: dist
@@ -82,7 +81,6 @@ services:
   - type: web
     name: hubblerx-crm
     runtime: static
-    plan: free
     rootDir: crm
     buildCommand: npm install && npm run build
     staticPublishPath: dist
