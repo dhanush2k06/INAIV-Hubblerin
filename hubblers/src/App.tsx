@@ -12,6 +12,7 @@ import { EventsPage } from './pages/EventsPage'
 import { AboutPage } from './pages/AboutPage'
 import { ContactPage } from './pages/ContactPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { PublicProfilePage } from './pages/PublicProfilePage'
 import { fetchProfile } from './services/api'
 import { firebaseSignOut } from './services/firebaseAuth'
 import './index.css'
@@ -87,6 +88,7 @@ function App() {
           />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/profile/:hubblerId" element={<PublicProfilePage />} />
           <Route path="/dashboard" element={isAuthenticated ? <DashboardLayout role={role} /> : <Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

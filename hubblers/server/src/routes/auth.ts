@@ -4,6 +4,7 @@ import { auth as firebaseAuth, db } from '../firebase.js'
 import { createStudentQrCode } from '../utils/qr.js'
 import { sendRegistrationEmail } from '../services/emailService.js'
 import { logActivity } from '../services/activityLogger.js'
+import { generateUniqueHubblerId, ensureUserHubblerId, DEFAULT_PRIVACY_SETTINGS } from '../utils/hubblerId.js'
 import type { AppUser, Role } from '../types.js'
 
 const router = Router()
@@ -118,10 +119,14 @@ router.post('/signup', async (req, res) => {
       `qr-codes/${firebaseUid}.png`,
     ).catch(() => `https://placeholder-qr/${firebaseUid}.png`)
 
+    const hubblerId = await generateUniqueHubblerId()
+
     await upsertUser(firebaseUid, {
       fullName: data.fullName,
       email: data.email,
       role: 'STUDENT',
+      hubblerId,
+      privacy: { ...DEFAULT_PRIVACY_SETTINGS },
       collegeId: data.collegeId ? String(data.collegeId) : null,
       collegeName: data.collegeName ?? null,
       accreditationId: data.accreditationId ?? null,
@@ -142,7 +147,7 @@ router.post('/signup', async (req, res) => {
       endYear: data.endYear ?? null,
     })
 
-await setClaims(firebaseUid, 'STUDENT', data.collegeId ? String(data.collegeId) : null)
+    await setClaims(firebaseUid, 'STUDENT', data.collegeId ? String(data.collegeId) : null)
 
     sendRegistrationEmail(data.email, data).catch((err: unknown) =>
       console.error('Failed to send signup email:', err),
@@ -152,11 +157,11 @@ await setClaims(firebaseUid, 'STUDENT', data.collegeId ? String(data.collegeId) 
       userId: firebaseUid,
       role: 'STUDENT',
       type: 'SIGNUP',
-      description: `Student account created for ${data.fullName}`,
-      meta: { email: data.email, collegeId: data.collegeId ?? null },
+      description: `Student account created for ${data.fullName} (${hubblerId})`,
+      meta: { email: data.email, collegeId: data.collegeId ?? null, hubblerId },
     })
 
-    return res.status(201).json({ message: 'Student signup created', verificationLink, qrUrl })
+    return res.status(201).json({ message: 'Student signup created', verificationLink, qrUrl, hubblerId })
   } catch (error) {
     console.error('[POST /api/auth/signup] failed:', error)
     return res.status(500).json({
@@ -225,6 +230,13 @@ router.post('/login', async (req, res) => {
         return res.status(403).json({ error: 'Unsupported account role.' })
       }
 
+      // Ensure HubblerID exists for student
+      let studentHubblerId = user.hubblerId
+      if (effectiveRole === 'STUDENT') {
+        const { hubblerId } = await ensureUserHubblerId(firebaseUid, user)
+        studentHubblerId = hubblerId
+      }
+
       // Ensure custom claims are set
       await setClaims(firebaseUid, effectiveRole, user.collegeId)
 
@@ -233,11 +245,11 @@ router.post('/login', async (req, res) => {
         role: effectiveRole,
         type: 'LOGIN',
         description: `${user.fullName} signed in (${effectiveRole})`,
-        meta: { email: user.email },
+        meta: { email: user.email, hubblerId: studentHubblerId },
       })
 
-      // Return the fresh ID token (client already has it, but role is useful)
-      return res.json({ token, role: effectiveRole })
+      // Return the fresh ID token (client already has it, but role and hubblerId are useful)
+      return res.json({ token, role: effectiveRole, hubblerId: studentHubblerId })
     }
 
     if (data.email && data.password) {

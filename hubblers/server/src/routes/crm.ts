@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { z } from 'zod'
 import { db } from '../firebase.js'
 import { verifyFirebaseToken } from '../middleware/auth.js'
 import { authorizeRoles } from '../middleware/roles.js'
@@ -9,6 +10,9 @@ import {
   sendOrganizerAccountBlockedNotice,
   sendReportAcknowledgmentEmail,
 } from '../services/emailService.js'
+import { BADGES_CATALOG } from '../rewardConfig.js'
+import { calculateLevel } from '../services/rewardService.js'
+import type { RewardItem, RedemptionRecord, UserBadgeRecord, XpTransactionRecord, AppUser } from '../types.js'
 
 const router = Router()
 
@@ -819,6 +823,396 @@ router.get('/organizers/:id', async (req, res) => {
     })
   } catch (error) {
     return res.status(500).json({ error: 'Failed to fetch organizer detail', details: error instanceof Error ? error.message : String(error) })
+  }
+})
+
+// ---- REWARDS & GAMIFICATION CRM ENDPOINTS ----
+
+const rewardSchema = z.object({
+  name: z.string().min(1, 'Reward name is required'),
+  description: z.string().min(1, 'Description is required'),
+  image: z.string().optional().default('🎁'),
+  xpCost: z.number().int().min(1, 'XP Cost must be at least 1'),
+  category: z.enum(['THEME', 'FRAME', 'TITLE', 'BADGE', 'DISCOUNT', 'ACCESS']),
+  minLevel: z.number().int().min(1).optional().default(1),
+  minXp: z.number().int().min(0).optional().default(0),
+  active: z.boolean().optional().default(true),
+  valueData: z.record(z.unknown()).optional().default({}),
+})
+
+// GET /api/crm/rewards — list all store rewards with redemption counts
+router.get('/rewards', async (_req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured.' })
+
+    const [rewardsSnap, redemptionsSnap] = await Promise.all([
+      db.collection('rewards').get(),
+      db.collection('redemptions').get(),
+    ])
+
+    const redemptionsCountMap: Record<string, number> = {}
+    for (const doc of redemptionsSnap.docs) {
+      const r = doc.data() as RedemptionRecord
+      if (r.rewardId) {
+        redemptionsCountMap[r.rewardId] = (redemptionsCountMap[r.rewardId] || 0) + 1
+      }
+    }
+
+    const rewards = rewardsSnap.docs.map((doc) => {
+      const data = doc.data() as RewardItem
+      return {
+        ...data,
+        id: doc.id,
+        redemptionsCount: redemptionsCountMap[doc.id] || 0,
+      }
+    })
+
+    rewards.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+    return res.json(rewards)
+  } catch (error) {
+    console.error('[GET /api/crm/rewards] failed:', error)
+    return res.status(500).json({
+      error: 'Failed to fetch rewards',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
+})
+
+// POST /api/crm/rewards — create new store reward
+router.post('/rewards', async (req, res) => {
+  try {
+    const parsed = rewardSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten().fieldErrors })
+    }
+
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured.' })
+
+    const data = parsed.data
+    const rewardRef = db.collection('rewards').doc()
+    const now = new Date().toISOString()
+
+    const newReward: RewardItem = {
+      id: rewardRef.id,
+      name: data.name,
+      description: data.description,
+      image: data.image || '🎁',
+      xpCost: data.xpCost,
+      category: data.category,
+      minLevel: data.minLevel || 1,
+      minXp: data.minXp || 0,
+      active: data.active !== undefined ? data.active : true,
+      valueData: data.valueData || {},
+      createdAt: now,
+      updatedAt: now,
+    }
+
+    await rewardRef.set(newReward)
+    return res.status(201).json({ message: 'Reward created successfully', reward: newReward })
+  } catch (error) {
+    console.error('[POST /api/crm/rewards] failed:', error)
+    return res.status(500).json({
+      error: 'Failed to create reward',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
+})
+
+// PUT /api/crm/rewards/:id — update existing reward
+router.put('/rewards/:id', async (req, res) => {
+  const rewardId = String(req.params.id)
+  if (!rewardId) return res.status(400).json({ error: 'Invalid reward ID' })
+
+  try {
+    const parsed = rewardSchema.partial().safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten().fieldErrors })
+    }
+
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured.' })
+
+    const rewardRef = db.collection('rewards').doc(rewardId)
+    const rewardDoc = await rewardRef.get()
+    if (!rewardDoc.exists) {
+      return res.status(404).json({ error: 'Reward not found' })
+    }
+
+    const updates: Record<string, unknown> = {
+      ...parsed.data,
+      updatedAt: new Date().toISOString(),
+    }
+
+    await rewardRef.update(updates)
+    const updatedDoc = await rewardRef.get()
+    return res.json({ message: 'Reward updated successfully', reward: { id: rewardId, ...updatedDoc.data() } })
+  } catch (error) {
+    console.error(`[PUT /api/crm/rewards/${rewardId}] failed:`, error)
+    return res.status(500).json({
+      error: 'Failed to update reward',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
+})
+
+// DELETE /api/crm/rewards/:id — delete reward
+router.delete('/rewards/:id', async (req, res) => {
+  const rewardId = String(req.params.id)
+  if (!rewardId) return res.status(400).json({ error: 'Invalid reward ID' })
+
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured.' })
+
+    const rewardRef = db.collection('rewards').doc(rewardId)
+    const rewardDoc = await rewardRef.get()
+    if (!rewardDoc.exists) {
+      return res.status(404).json({ error: 'Reward not found' })
+    }
+
+    await rewardRef.delete()
+    return res.json({ message: 'Reward deleted successfully' })
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Failed to delete reward',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
+})
+
+// GET /api/crm/redemptions — view all student redemptions
+router.get('/redemptions', async (req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured.' })
+
+    const search = String(req.query.search || '').toLowerCase()
+    const status = String(req.query.status || '').toUpperCase()
+    const page = Math.max(1, parseInt(String(req.query.page || '1'), 10))
+    const limit = Math.min(200, Math.max(1, parseInt(String(req.query.limit || '50'), 10)))
+
+    const snap = await db.collection('redemptions').get()
+    let redemptions = snap.docs.map((doc) => ({
+      ...(doc.data() as RedemptionRecord),
+      id: doc.id,
+    }))
+
+    if (status && status !== 'ALL') {
+      redemptions = redemptions.filter((r) => r.status === status)
+    }
+
+    if (search) {
+      redemptions = redemptions.filter(
+        (r) =>
+          r.userName.toLowerCase().includes(search) ||
+          r.userEmail.toLowerCase().includes(search) ||
+          r.rewardName.toLowerCase().includes(search) ||
+          r.redemptionCode.toLowerCase().includes(search),
+      )
+    }
+
+    redemptions.sort((a, b) => (b.redeemedAt || '').localeCompare(a.redeemedAt || ''))
+
+    const total = redemptions.length
+    const start = (page - 1) * limit
+    const paginated = redemptions.slice(start, start + limit)
+
+    return res.json({ total, page, limit, redemptions: paginated })
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Failed to fetch redemptions',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
+})
+
+// GET /api/crm/rewards/stats — full XP analytics, circulating supply, activity counts, top students
+router.get('/rewards/stats', async (_req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured.' })
+
+    const [usersSnap, txSnap, badgesSnap, certSnap, redemptionsSnap] = await Promise.all([
+      db.collection('users').where('role', '==', 'STUDENT').get(),
+      db.collection('xpTransactions').get(),
+      db.collection('userBadges').get(),
+      db.collection('certificates').get(),
+      db.collection('redemptions').get(),
+    ])
+
+    let totalCirculatingXp = 0
+    const students: Array<{
+      id: string
+      fullName: string
+      email: string
+      collegeName: string
+      xp: number
+      level: number
+      levelTitle: string
+      badgesCount: number
+      certificatesCount: number
+      redemptionsCount: number
+    }> = []
+
+    const userBadgesCountMap: Record<string, number> = {}
+    for (const b of badgesSnap.docs) {
+      const uid = b.data().userId
+      if (uid) userBadgesCountMap[uid] = (userBadgesCountMap[uid] || 0) + 1
+    }
+
+    const userCertCountMap: Record<string, number> = {}
+    for (const c of certSnap.docs) {
+      const uid = c.data().studentUid
+      if (uid) userCertCountMap[uid] = (userCertCountMap[uid] || 0) + 1
+    }
+
+    const userRedemptionCountMap: Record<string, number> = {}
+    for (const r of redemptionsSnap.docs) {
+      const uid = r.data().userId
+      if (uid) userRedemptionCountMap[uid] = (userRedemptionCountMap[uid] || 0) + 1
+    }
+
+    for (const doc of usersSnap.docs) {
+      const u = doc.data() as AppUser
+      const userXp = Number(u.xp || 0)
+      totalCirculatingXp += userXp
+      const lvl = calculateLevel(userXp)
+
+      students.push({
+        id: doc.id,
+        fullName: u.fullName || 'Student',
+        email: u.email || '',
+        collegeName: u.collegeName || 'Unknown College',
+        xp: userXp,
+        level: lvl.level,
+        levelTitle: lvl.title,
+        badgesCount: userBadgesCountMap[doc.id] || 0,
+        certificatesCount: userCertCountMap[doc.id] || 0,
+        redemptionsCount: userRedemptionCountMap[doc.id] || 0,
+      })
+    }
+
+    students.sort((a, b) => b.xp - a.xp)
+    const topStudents = students.slice(0, 20)
+
+    let totalEarnedXp = 0
+    let totalRedeemedXp = 0
+    const activityBreakdown: Record<string, { count: number; totalXp: number }> = {}
+
+    for (const doc of txSnap.docs) {
+      const tx = doc.data() as XpTransactionRecord
+      const amount = Number(tx.amount || 0)
+      const type = tx.activityType || 'OTHER'
+
+      if (amount > 0) {
+        totalEarnedXp += amount
+      } else {
+        totalRedeemedXp += Math.abs(amount)
+      }
+
+      if (!activityBreakdown[type]) {
+        activityBreakdown[type] = { count: 0, totalXp: 0 }
+      }
+      activityBreakdown[type].count += 1
+      activityBreakdown[type].totalXp += amount
+    }
+
+    return res.json({
+      totalCirculatingXp,
+      totalEarnedXp,
+      totalRedeemedXp,
+      totalStudents: students.length,
+      totalBadgesIssued: badgesSnap.size,
+      totalCertificatesIssued: certSnap.size,
+      totalRedemptions: redemptionsSnap.size,
+      activityBreakdown,
+      topStudents,
+    })
+  } catch (error) {
+    console.error('[GET /api/crm/rewards/stats] failed:', error)
+    return res.status(500).json({
+      error: 'Failed to fetch rewards statistics',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
+})
+
+// GET /api/crm/badges — system badges overview
+router.get('/badges', async (_req, res) => {
+  try {
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured.' })
+
+    const snap = await db.collection('userBadges').get()
+    const badgeEarnedCountMap: Record<string, number> = {}
+
+    for (const doc of snap.docs) {
+      const b = doc.data() as UserBadgeRecord
+      if (b.badgeId) {
+        badgeEarnedCountMap[b.badgeId] = (badgeEarnedCountMap[b.badgeId] || 0) + 1
+      }
+    }
+
+    const badges = BADGES_CATALOG.map((b) => ({
+      ...b,
+      unlockedCount: badgeEarnedCountMap[b.id] || 0,
+    }))
+
+    return res.json(badges)
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Failed to fetch badges',
+      details: error instanceof Error ? error.message : String(error),
+    })
+  }
+})
+
+// POST /api/crm/badges/award — manually grant badge to student
+const awardBadgeSchema = z.object({
+  studentUid: z.string().min(1, 'Student UID is required'),
+  badgeId: z.string().min(1, 'Badge ID is required'),
+})
+
+router.post('/badges/award', async (req, res) => {
+  try {
+    const parsed = awardBadgeSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.flatten().fieldErrors })
+    }
+
+    if (!db) return res.status(500).json({ error: 'Firestore is not configured.' })
+
+    const { studentUid, badgeId } = parsed.data
+    const badgeDef = BADGES_CATALOG.find((b) => b.id === badgeId)
+    if (!badgeDef) {
+      return res.status(404).json({ error: 'Badge not found in catalog' })
+    }
+
+    const userDoc = await db.collection('users').doc(studentUid).get()
+    if (!userDoc.exists) {
+      return res.status(404).json({ error: 'Student not found' })
+    }
+
+    const badgeDocId = `${studentUid}_${badgeId}`
+    const badgeRef = db.collection('userBadges').doc(badgeDocId)
+    const existing = await badgeRef.get()
+    if (existing.exists) {
+      return res.status(409).json({ error: 'Student already has this badge' })
+    }
+
+    const record: UserBadgeRecord = {
+      id: badgeDocId,
+      userId: studentUid,
+      badgeId: badgeDef.id,
+      badgeName: badgeDef.name,
+      badgeDescription: badgeDef.description,
+      badgeCategory: badgeDef.category,
+      badgeIcon: badgeDef.icon,
+      awardedAt: new Date().toISOString(),
+    }
+
+    await badgeRef.set(record)
+    return res.status(201).json({ message: `Badge "${badgeDef.name}" awarded successfully!`, badge: record })
+  } catch (error) {
+    return res.status(500).json({
+      error: 'Failed to award badge',
+      details: error instanceof Error ? error.message : String(error),
+    })
   }
 })
 

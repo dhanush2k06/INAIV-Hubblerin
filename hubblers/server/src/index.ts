@@ -8,9 +8,16 @@ import collegesRoutes from './routes/colleges.js'
 import dashboardRoutes from './routes/dashboard.js'
 import eventsRoutes from './routes/events.js'
 import crmRoutes from './routes/crm.js'
+import rewardsRoutes from './routes/rewards.js'
+import connectionsRoutes from './routes/connections.js'
+import postsRoutes from './routes/posts.js'
+import { seedInitialRewards } from './services/rewardService.js'
 import { env } from './config.js'
 
 const app = express()
+
+// Auto-seed initial store rewards in the background on startup
+seedInitialRewards().catch((err) => console.error('[Server] seedInitialRewards error:', err))
 
 app.use(
   helmet({
@@ -71,6 +78,9 @@ app.use('/api/colleges', collegesRoutes)
 app.use('/api/dashboard', dashboardRoutes)
 app.use('/api/events', eventsRoutes)
 app.use('/api/crm', crmRoutes)
+app.use('/api/rewards', rewardsRoutes)
+app.use('/api/connections', connectionsRoutes)
+app.use('/api/posts', postsRoutes)
 
 app.get('/api/health', (_req, res) => res.json({ message: 'Hubblers API is running' }))
 

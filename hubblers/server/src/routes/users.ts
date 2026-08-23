@@ -42,6 +42,9 @@ router.get('/profile', verifyFirebaseToken, async (req, res) => {
   if (!userDoc.exists) return res.status(404).json({ error: 'Profile not found' })
   const data = userDoc.data() as AppUser
 
+  const { ensureUserHubblerId } = await import('../utils/hubblerId.js')
+  const { hubblerId, privacy } = await ensureUserHubblerId(uid, data)
+
   // Resolve college display name from the user's collegeId (if set)
   let collegeName: string | null = null
   if (data.collegeId) {
@@ -49,7 +52,7 @@ router.get('/profile', verifyFirebaseToken, async (req, res) => {
     if (collegeDoc.exists) collegeName = collegeDoc.data()?.collegeName ?? null
   }
 
-  return res.json({ firebaseUid: uid, ...data, collegeName })
+  return res.json({ firebaseUid: uid, ...data, hubblerId, privacy, collegeName })
 })
 
 router.put('/profile', verifyFirebaseToken, async (req, res) => {

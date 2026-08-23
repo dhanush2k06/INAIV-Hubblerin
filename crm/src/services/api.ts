@@ -288,3 +288,127 @@ export async function blockReportedOrganizer(
     body: JSON.stringify(payload),
   })
 }
+
+// ---- REWARDS & GAMIFICATION CRM API ----
+
+export type RewardCategory = 'THEME' | 'FRAME' | 'TITLE' | 'BADGE' | 'DISCOUNT' | 'ACCESS'
+
+export interface CrmRewardItem {
+  id: string
+  name: string
+  description: string
+  image: string
+  xpCost: number
+  category: RewardCategory
+  minLevel: number
+  minXp: number
+  active: boolean
+  valueData: Record<string, unknown>
+  createdAt: string
+  updatedAt?: string
+  redemptionsCount?: number
+}
+
+export interface CrmRedemptionRecord {
+  id: string
+  userId: string
+  userName: string
+  userEmail: string
+  rewardId: string
+  rewardName: string
+  category: RewardCategory
+  xpCost: number
+  redemptionCode: string
+  status: 'ACTIVE' | 'USED' | 'EXPIRED'
+  meta?: Record<string, unknown>
+  redeemedAt: string
+}
+
+export interface CrmRewardsStats {
+  totalCirculatingXp: number
+  totalEarnedXp: number
+  totalRedeemedXp: number
+  totalStudents: number
+  totalBadgesIssued: number
+  totalCertificatesIssued: number
+  totalRedemptions: number
+  activityBreakdown: Record<string, { count: number; totalXp: number }>
+  topStudents: Array<{
+    id: string
+    fullName: string
+    email: string
+    collegeName: string
+    xp: number
+    level: number
+    levelTitle: string
+    badgesCount: number
+    certificatesCount: number
+    redemptionsCount: number
+  }>
+}
+
+export interface CrmBadgeItem {
+  id: string
+  name: string
+  description: string
+  icon: string
+  category: string
+  criteria: string
+  unlockedCount: number
+}
+
+export async function fetchCrmRewards() {
+  return request<CrmRewardItem[]>('/api/crm/rewards')
+}
+
+export async function createCrmReward(payload: Partial<CrmRewardItem>) {
+  return request<{ message: string; reward: CrmRewardItem }>('/api/crm/rewards', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function updateCrmReward(id: string, payload: Partial<CrmRewardItem>) {
+  return request<{ message: string; reward: CrmRewardItem }>(`/api/crm/rewards/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+export async function deleteCrmReward(id: string) {
+  return request<{ message: string }>(`/api/crm/rewards/${encodeURIComponent(id)}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function fetchCrmRedemptions(params: {
+  search?: string
+  status?: string
+  page?: number
+  limit?: number
+}) {
+  const qs = new URLSearchParams()
+  if (params.search) qs.set('search', params.search)
+  if (params.status) qs.set('status', params.status)
+  if (params.page) qs.set('page', String(params.page))
+  if (params.limit) qs.set('limit', String(params.limit))
+  return request<{ total: number; page: number; limit: number; redemptions: CrmRedemptionRecord[] }>(
+    `/api/crm/redemptions?${qs.toString()}`,
+  )
+}
+
+export async function fetchCrmRewardsStats() {
+  return request<CrmRewardsStats>('/api/crm/rewards/stats')
+}
+
+export async function fetchCrmBadges() {
+  return request<CrmBadgeItem[]>('/api/crm/badges')
+}
+
+export async function awardCrmBadge(payload: { studentUid: string; badgeId: string }) {
+  return request<{ message: string; badge: unknown }>('/api/crm/badges/award', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+

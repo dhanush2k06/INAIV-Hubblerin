@@ -15,8 +15,13 @@ type Sections = Record<RoleKey, SectionItem[]>
 
 const sections: Sections = {
   STUDENT: [
-    { label: 'Overview', href: '/dashboard' },
-    { label: 'Profile', href: '/dashboard' },
+    { label: '📊 Overview', href: '/dashboard?tab=overview' },
+    { label: '⚡ Community Feed', href: '/dashboard?tab=feed' },
+    { label: '🤝 Connections', href: '/dashboard?tab=connections' },
+    { label: '🏆 Rewards & Badges', href: '/dashboard?tab=rewards' },
+    { label: '🥇 Leaderboard', href: '/dashboard?tab=leaderboard' },
+    { label: '📜 Certificates', href: '/dashboard?tab=certificates' },
+    { label: '🛍️ XP Store', href: '/dashboard?tab=store' },
   ],
   COLLEGE_ADMIN: [
     { label: 'Overview', href: '/dashboard?tab=overview' },

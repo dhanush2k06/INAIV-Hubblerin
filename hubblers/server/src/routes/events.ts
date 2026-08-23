@@ -11,7 +11,8 @@ import {
   sendReportSubmittedOrganizerNotice,
 } from '../services/emailService.js'
 import { logActivity } from '../services/activityLogger.js'
-import type { FirestoreEvent, Role, UserEventRecord } from '../types.js'
+import { awardXpActivity, revertXpActivity, issueCertificate } from '../services/rewardService.js'
+import type { FirestoreEvent, Role, UserEventRecord, EventCategory } from '../types.js'
 
 const router = Router()
 
@@ -32,6 +33,7 @@ const eventCreateSchema = z.object({
   location: z.string().min(1, 'Location is required'),
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().optional().default(''),
+  category: z.enum(['WORKSHOP', 'COMPETITION', 'VOLUNTEERING', 'GENERAL']).optional().default('GENERAL'),
   xpReward: z.number().int().min(0).optional().default(50),
   coverImage: z.string().optional().nullable().default(null),
 })
@@ -50,6 +52,7 @@ function serializeEvent(doc: { id: string; data: () => Record<string, unknown> |
     location: String(data.location ?? ''),
     startDate: String(data.startDate ?? ''),
     endDate: String(data.endDate ?? ''),
+    category: (data.category as EventCategory) || 'GENERAL',
     xpReward: Number(data.xpReward ?? 50),
     coverImage: (data.coverImage as string | null) ?? (data.imageUrl as string | null) ?? null,
     createdAt: String(data.createdAt ?? ''),
@@ -109,6 +112,7 @@ router.post('/', verifyFirebaseToken, authorizeRoles('COLLEGE_ADMIN', 'ADMIN'), 
       location: data.location,
       startDate: data.startDate,
       endDate: data.endDate || data.startDate,
+      category: data.category || 'GENERAL',
       xpReward: data.xpReward,
       coverImage: data.coverImage ?? null,
       createdAt: nowIso(),
@@ -329,6 +333,42 @@ router.patch('/mine/registrations/:studentUid/:eventId/attendance', verifyFireba
     }
 
     await userEventsRef.update({ registered: newRecords })
+
+    // If attendance is now marked as attended (true), award Attendance XP + Category XP + Issue Certificate
+    const isNowAttended = newRecords.find((r) => r.eventId === eventId)?.attended
+    if (isNowAttended) {
+      const eventData = eventDoc.data() as FirestoreEvent
+      const evTitle = eventData.title || 'Event'
+
+      // 1. Award Attendance XP (+20 XP)
+      awardXpActivity(studentUid, 'ATTENDANCE', eventId, `Verified attendance for "${evTitle}"`).catch((err) =>
+        console.error('[Attendance XP] error:', err),
+      )
+
+      // 2. Award Category-specific XP (Workshop +25, Competition +30, Volunteering +40)
+      if (eventData.category === 'WORKSHOP') {
+        awardXpActivity(studentUid, 'WORKSHOP', eventId, `Workshop completion bonus for "${evTitle}"`).catch((err) =>
+          console.error('[Workshop XP] error:', err),
+        )
+      } else if (eventData.category === 'COMPETITION') {
+        awardXpActivity(
+          studentUid,
+          'COMPETITION',
+          eventId,
+          `Competition participation bonus for "${evTitle}"`,
+        ).catch((err) => console.error('[Competition XP] error:', err))
+      } else if (eventData.category === 'VOLUNTEERING') {
+        awardXpActivity(studentUid, 'VOLUNTEERING', eventId, `Volunteering bonus for "${evTitle}"`).catch((err) =>
+          console.error('[Volunteering XP] error:', err),
+        )
+      }
+
+      // 3. Auto-issue verified Certificate (+25 XP)
+      issueCertificate(studentUid, eventId).catch((err) =>
+        console.error('[Auto Certificate] error:', err),
+      )
+    }
+
     return res.json({ message: 'Attendance status updated successfully' })
   } catch (error) {
     console.error('[PATCH attendance] failed:', error)
@@ -467,6 +507,7 @@ router.put('/:id', verifyFirebaseToken, authorizeRoles('COLLEGE_ADMIN', 'ADMIN')
     if (data.location !== undefined) updates.location = data.location
     if (data.startDate !== undefined) updates.startDate = data.startDate
     if (data.endDate !== undefined) updates.endDate = data.endDate
+    if (data.category !== undefined) updates.category = data.category
     if (data.xpReward !== undefined) updates.xpReward = data.xpReward
     if (data.coverImage !== undefined) updates.coverImage = data.coverImage
     updates.updatedAt = nowIso()
@@ -594,17 +635,15 @@ router.post('/:id/register', verifyFirebaseToken, authorizeRoles('STUDENT'), asy
         registered: [...registered, record],
       }, { merge: true })
 
-      xpGained = event.xpReward ?? 50
       if (userDoc.exists) {
         const userData = userDoc.data()!
         transaction.update(userRef, {
-          xp: (userData.xp ?? 0) + xpGained,
           annualCredits: (userData.annualCredits ?? 0) + 10,
           lifetimeCredits: (userData.lifetimeCredits ?? 0) + 10,
         })
       } else {
         transaction.set(userRef, {
-          xp: xpGained,
+          xp: 0,
           annualCredits: 10,
           lifetimeCredits: 10,
           updatedAt: nowIso(),
@@ -612,8 +651,11 @@ router.post('/:id/register', verifyFirebaseToken, authorizeRoles('STUDENT'), asy
       }
     })
 
+    // Award +5 XP for Registration via idempotent reward engine
     const eventDoc = await eventRef.get()
     const event = eventDoc.data() as FirestoreEvent
+    const xpRes = await awardXpActivity(uid, 'REGISTRATION', eventId, `Registered for event "${event.title ?? ''}"`)
+    xpGained = xpRes.xpEarned || 5
 
     const qrData: Record<string, string> = {
       eventId,
@@ -728,12 +770,14 @@ router.delete('/:id/register', verifyFirebaseToken, authorizeRoles('STUDENT'), a
       if (userDoc.exists) {
         const userData = userDoc.data()!
         transaction.update(userRef, {
-          xp: Math.max((userData.xp ?? 0) - xpReward, 0),
           annualCredits: Math.max((userData.annualCredits ?? 0) - 10, 0),
           lifetimeCredits: Math.max((userData.lifetimeCredits ?? 0) - 10, 0),
         })
       }
     })
+
+    // Revert registration XP via idempotent reward engine
+    const revertRes = await revertXpActivity(uid, 'REGISTRATION', eventId)
 
     await logActivity({
       userId: uid,
@@ -743,7 +787,7 @@ router.delete('/:id/register', verifyFirebaseToken, authorizeRoles('STUDENT'), a
       meta: { eventId },
     })
 
-    return res.json({ message: 'Registration cancelled', xpDeducted: xpReward, creditsDeducted: 10 })
+    return res.json({ message: 'Registration cancelled', xpDeducted: revertRes.xpDeducted || 5, creditsDeducted: 10 })
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     if (message === 'EVENT_NOT_FOUND') {

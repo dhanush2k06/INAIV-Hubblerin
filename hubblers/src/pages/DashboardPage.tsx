@@ -18,6 +18,22 @@ import {
   type CreateEventPayload,
   type OrganizerRegistration,
 } from '../services/api'
+import {
+  fetchRewardsSummary,
+  fetchStoreRewards,
+} from '../services/rewardsApi'
+import { XPLevelCard } from '../components/rewards/XPLevelCard'
+import { BadgeGallery } from '../components/rewards/BadgeGallery'
+import { LeaderboardView } from '../components/rewards/LeaderboardView'
+import { CertificateSection } from '../components/rewards/CertificateSection'
+import { RewardStore } from '../components/rewards/RewardStore'
+import { RedemptionHistory } from '../components/rewards/RedemptionHistory'
+import { FeedbackModal } from '../components/rewards/FeedbackModal'
+import { ReferralModal } from '../components/rewards/ReferralModal'
+import { CertificateModal } from '../components/rewards/CertificateModal'
+import { ConnectionsHub } from '../components/connections/ConnectionsHub'
+import { CommunityFeed } from '../components/feed/CommunityFeed'
+import type { StudentRewardsSummary, RewardItem, Certificate } from '../types'
 import { exportRegistrationsToCsv } from '../utils/excelExport'
 
 interface DashboardPageProps {
@@ -39,6 +55,11 @@ export function DashboardPage({ role }: DashboardPageProps) {
   const activeTab = searchParams.get('tab') || 'overview'
 
   const [dashboard, setDashboard] = useState<DashboardData | null>(null)
+  const [rewardsSummary, setRewardsSummary] = useState<StudentRewardsSummary | null>(null)
+  const [storeRewards, setStoreRewards] = useState<RewardItem[]>([])
+  const [feedbackEvent, setFeedbackEvent] = useState<{ id: string; title: string } | null>(null)
+  const [isReferralOpen, setIsReferralOpen] = useState(false)
+  const [activeCertModal, setActiveCertModal] = useState<Certificate | null>(null)
   const [pending, setPending] = useState<PendingCollege[]>([])
   const [myEvents, setMyEvents] = useState<Event[]>([])
   const [loadingMyEvents, setLoadingMyEvents] = useState(false)
@@ -66,6 +87,11 @@ export function DashboardPage({ role }: DashboardPageProps) {
     fetchDashboard(role)
       .then(setDashboard)
       .catch(() => setDashboard(null))
+
+    if (role === 'STUDENT') {
+      fetchRewardsSummary().then(setRewardsSummary).catch(() => setRewardsSummary(null))
+      fetchStoreRewards().then(setStoreRewards).catch(() => setStoreRewards([]))
+    }
 
     if (role === 'SUPPORT') {
       fetchPendingColleges().then(setPending).catch(() => setPending([]))
@@ -295,14 +321,145 @@ export function DashboardPage({ role }: DashboardPageProps) {
                 </button>
               </div>
             )}
+            {role === 'STUDENT' && (
+              <div className="flex flex-wrap items-center gap-3">
+                {(rewardsSummary?.hubblerId || dashboard?.hubblerId) && (
+                  <div className="flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-mono font-bold text-emerald-400">
+                    <span>🆔 {rewardsSummary?.hubblerId || dashboard?.hubblerId}</span>
+                    <button
+                      onClick={() => {
+                        const hid = rewardsSummary?.hubblerId || dashboard?.hubblerId
+                        if (hid) {
+                          navigator.clipboard.writeText(hid)
+                          setMessage('HubblerID copied to clipboard!')
+                        }
+                      }}
+                      className="rounded-lg bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-300 hover:bg-emerald-500/30 transition"
+                      title="Copy HubblerID"
+                    >
+                      Copy
+                    </button>
+                    <a
+                      href={`/profile/${rewardsSummary?.hubblerId || dashboard?.hubblerId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="rounded-lg bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-300 hover:bg-emerald-500/30 transition"
+                      title="View Public Profile"
+                    >
+                      View Public ↗
+                    </a>
+                  </div>
+                )}
+                <button
+                  onClick={() => setIsReferralOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2.5 text-xs font-bold text-cyan-300 shadow-sm transition hover:bg-cyan-500/20 active:scale-95"
+                >
+                  <span>🎁</span>
+                  <span>Refer a Friend (+20 XP)</span>
+                </button>
+              </div>
+            )}
           </div>
+
+          {/* Student Tab Navigation Bar */}
+          {role === 'STUDENT' && (
+            <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-slate-200 dark:border-slate-800">
+              <button
+                onClick={() => setSearchParams({ tab: 'overview' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                  activeTab === 'overview'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                📊 Overview
+              </button>
+              <button
+                onClick={() => setSearchParams({ tab: 'feed' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                  activeTab === 'feed'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                ⚡ Community Feed
+              </button>
+              <button
+                onClick={() => setSearchParams({ tab: 'connections' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                  activeTab === 'connections'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                🤝 Connections
+              </button>
+              <button
+                onClick={() => setSearchParams({ tab: 'rewards' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                  activeTab === 'rewards'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                🏆 Rewards & Badges
+              </button>
+              <button
+                onClick={() => setSearchParams({ tab: 'leaderboard' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                  activeTab === 'leaderboard'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                🥇 Leaderboard
+              </button>
+              <button
+                onClick={() => setSearchParams({ tab: 'certificates' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${
+                  activeTab === 'certificates'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <span>📜 Certificates</span>
+                {rewardsSummary?.certificates && rewardsSummary.certificates.length > 0 && (
+                  <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-black ${
+                    activeTab === 'certificates' ? 'bg-slate-950 text-emerald-400' : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                  }`}>
+                    {rewardsSummary.certificates.length}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setSearchParams({ tab: 'store' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                  activeTab === 'store'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                🛍️ XP Store
+              </button>
+              <button
+                onClick={() => setSearchParams({ tab: 'inventory' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                  activeTab === 'inventory'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                🎒 Wardrobe & Vouchers
+              </button>
+            </div>
+          )}
 
           {/* Organizer Tab Navigation Bar */}
           {role === 'COLLEGE_ADMIN' && (
-            <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-slate-200 pb-2 dark:border-slate-800">
+            <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-slate-200 dark:border-slate-800">
               <button
                 onClick={() => setSearchParams({ tab: 'overview' })}
-                className={`rounded-2xl px-5 py-2.5 text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-5 py-2.5 text-sm font-bold transition ${
                   activeTab === 'overview'
                     ? 'bg-emerald-500 text-slate-950 shadow-sm'
                     : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
@@ -312,7 +469,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'registrations' })}
-                className={`rounded-2xl px-5 py-2.5 text-sm font-bold transition flex items-center gap-2 ${
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-5 py-2.5 text-sm font-bold transition flex items-center gap-2 ${
                   activeTab === 'registrations'
                     ? 'bg-emerald-500 text-slate-950 shadow-sm'
                     : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
@@ -329,7 +486,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'events' })}
-                className={`rounded-2xl px-5 py-2.5 text-sm font-bold transition flex items-center gap-2 ${
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-5 py-2.5 text-sm font-bold transition flex items-center gap-2 ${
                   activeTab === 'events'
                     ? 'bg-emerald-500 text-slate-950 shadow-sm'
                     : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
@@ -369,102 +526,218 @@ export function DashboardPage({ role }: DashboardPageProps) {
         {/* STUDENT VIEW */}
         {role === 'STUDENT' && dashboard ? (
           <div className="space-y-8">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Total XP</p>
-                <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{dashboard.xp ?? 0}</p>
-                <p className="mt-1 text-xs text-slate-500">Earn XP by attending events</p>
-              </div>
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Annual Credits</p>
-                <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{dashboard.credits?.annual ?? 0}</p>
-                <p className="mt-1 text-xs text-slate-500">Credits reset each academic year</p>
-              </div>
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Lifetime Credits</p>
-                <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{dashboard.credits?.lifetime ?? 0}</p>
-                <p className="mt-1 text-xs text-slate-500">All-time accumulated credits</p>
-              </div>
-              <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Events Registered</p>
-                <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{dashboard.registeredEvents?.length ?? 0}</p>
-                <p className="mt-1 text-xs text-slate-500">Active and past registrations</p>
-              </div>
-            </div>
+            {/* TAB 1: OVERVIEW */}
+            {activeTab === 'overview' && (
+              <div className="space-y-8">
+                {rewardsSummary && (
+                  <XPLevelCard
+                    totalXp={rewardsSummary.xp}
+                    monthlyXp={rewardsSummary.monthlyXp}
+                    monthlyRank={rewardsSummary.monthlyRank}
+                    level={rewardsSummary.level}
+                    onOpenReferral={() => setIsReferralOpen(true)}
+                  />
+                )}
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/95">
-              <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">My Activity — Registered Events</h2>
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700 dark:bg-slate-900 dark:text-slate-300">
-                  {dashboard.registeredEvents?.length ?? 0} event(s)
-                </span>
-              </div>
-              {!dashboard.registeredEvents || dashboard.registeredEvents.length === 0 ? (
-                <p className="mt-6 text-slate-500 dark:text-slate-400">
-                  You haven't registered for any events yet. Head to the Events page to get started.
-                </p>
-              ) : (
-                <div className="mt-6 space-y-4">
-                  {dashboard.registeredEvents.map((event) => (
-                    <div key={event.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
-                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                          <p className="text-lg font-semibold text-slate-900 dark:text-white">{event.title}</p>
-                          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                            {event.startDate} · {event.location}
-                          </p>
-                        </div>
-                        <div className="flex flex-wrap items-center gap-3">
-                          <span className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-500 ring-1 ring-amber-500/20">
-                            +{event.xpReward ?? 50} XP
-                          </span>
-                          {event.eventOver ? (
-                            <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-700 ring-1 ring-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600">
-                              Event Over
-                            </span>
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 ring-1 ring-emerald-500/20 dark:text-emerald-400">
-                                Registered
-                              </span>
-                              <button
-                                onClick={() => handleUnregister(event.id, event.title)}
-                                disabled={cancellingId === event.id}
-                                className="rounded-full bg-rose-500/10 px-3 py-1 text-xs font-bold text-rose-500 ring-1 ring-rose-500/30 transition hover:bg-rose-600 hover:text-white disabled:opacity-50"
-                              >
-                                {cancellingId === event.id ? 'Cancelling…' : 'Cancel Registration'}
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      {event.qrCodeUrl ? (
-                        <div className="mt-4 flex flex-col items-start gap-4 rounded-3xl bg-white p-4 dark:bg-slate-950 sm:flex-row sm:items-center">
-                          <img
-                            src={event.qrCodeUrl}
-                            alt={`QR code for ${event.title}`}
-                            className="h-32 w-32 rounded-2xl bg-white p-1 shadow-sm"
-                          />
-                          <div>
-                            <p className="text-sm font-semibold text-slate-900 dark:text-white">Event QR Code Pass</p>
-                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                              Present this QR code at the venue entrance. A copy was also sent via email.
-                            </p>
-                          </div>
-                        </div>
-                      ) : event.eventOver ? (
-                        <div className="mt-4 rounded-3xl bg-white p-4 dark:bg-slate-950">
-                          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Event has ended</p>
-                          <p className="mt-1 text-xs text-slate-500">
-                            The QR code is no longer valid and has been removed. This event stays in your history.
-                          </p>
-                        </div>
-                      ) : null}
-                    </div>
-                  ))}
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Total XP</p>
+                    <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{rewardsSummary?.xp ?? dashboard.xp ?? 0}</p>
+                    <p className="mt-1 text-xs text-slate-500">Verified activity earnings</p>
+                  </div>
+                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Annual Credits</p>
+                    <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{dashboard.credits?.annual ?? 0}</p>
+                    <p className="mt-1 text-xs text-slate-500">Credits reset each academic year</p>
+                  </div>
+                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Lifetime Credits</p>
+                    <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{dashboard.credits?.lifetime ?? 0}</p>
+                    <p className="mt-1 text-xs text-slate-500">All-time accumulated credits</p>
+                  </div>
+                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Badges Unlocked</p>
+                    <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">
+                      {rewardsSummary?.unlockedBadges?.length ?? 0}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">Milestone & ranking honors</p>
+                  </div>
                 </div>
-              )}
-            </section>
+
+                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/95">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">My Activity — Registered Events</h2>
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                      {dashboard.registeredEvents?.length ?? 0} event(s)
+                    </span>
+                  </div>
+                  {!dashboard.registeredEvents || dashboard.registeredEvents.length === 0 ? (
+                    <p className="mt-6 text-slate-500 dark:text-slate-400">
+                      You haven't registered for any events yet. Head to the Events page to get started.
+                    </p>
+                  ) : (
+                    <div className="mt-6 space-y-4">
+                      {dashboard.registeredEvents.map((event) => {
+                        const matchingCert = rewardsSummary?.certificates?.find((c) => c.eventId === event.id)
+
+                        return (
+                          <div key={event.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
+                            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-lg font-semibold text-slate-900 dark:text-white">{event.title}</p>
+                                  {event.category && (
+                                    <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                      {event.category}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                  {event.startDate} · {event.location}
+                                </p>
+                              </div>
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-500 ring-1 ring-emerald-500/20">
+                                  +5 Reg XP
+                                </span>
+
+                                {/* Feedback Button */}
+                                {(event.eventOver || event.attended) && (
+                                  <button
+                                    onClick={() => setFeedbackEvent({ id: event.id, title: event.title })}
+                                    className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/30 transition"
+                                  >
+                                    💬 Leave Feedback (+5 XP)
+                                  </button>
+                                )}
+
+                                {/* Certificate Button */}
+                                {matchingCert && (
+                                  <button
+                                    onClick={() => setActiveCertModal(matchingCert)}
+                                    className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-bold text-amber-600 dark:text-amber-300 hover:bg-amber-500/30 transition"
+                                  >
+                                    📜 View Certificate
+                                  </button>
+                                )}
+
+                                {event.eventOver ? (
+                                  <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-700 ring-1 ring-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600">
+                                    Event Over
+                                  </span>
+                                ) : (
+                                  <div className="flex items-center gap-2">
+                                    <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 ring-1 ring-emerald-500/20 dark:text-emerald-400">
+                                      Registered
+                                    </span>
+                                    <button
+                                      onClick={() => handleUnregister(event.id, event.title)}
+                                      disabled={cancellingId === event.id}
+                                      className="rounded-full bg-rose-500/10 px-3 py-1 text-xs font-bold text-rose-500 ring-1 ring-rose-500/30 transition hover:bg-rose-600 hover:text-white disabled:opacity-50"
+                                    >
+                                      {cancellingId === event.id ? 'Cancelling…' : 'Cancel Registration'}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            {event.qrCodeUrl ? (
+                              <div className="mt-4 flex flex-col items-start gap-4 rounded-3xl bg-white p-4 dark:bg-slate-950 sm:flex-row sm:items-center">
+                                <img
+                                  src={event.qrCodeUrl}
+                                  alt={`QR code for ${event.title}`}
+                                  className="h-32 w-32 rounded-2xl bg-white p-1 shadow-sm"
+                                />
+                                <div>
+                                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Event QR Code Pass</p>
+                                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    Present this QR code at the venue entrance. A copy was also sent via email.
+                                  </p>
+                                </div>
+                              </div>
+                            ) : event.eventOver ? (
+                              <div className="mt-4 rounded-3xl bg-white p-4 dark:bg-slate-950">
+                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Event has ended</p>
+                                <p className="mt-1 text-xs text-slate-500">
+                                  The QR code is no longer valid and has been removed. This event stays in your history.
+                                </p>
+                              </div>
+                            ) : null}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </section>
+              </div>
+            )}
+
+            {/* TAB: COMMUNITY FEED */}
+            {activeTab === 'feed' && (
+              <CommunityFeed currentHubblerId={rewardsSummary?.hubblerId || dashboard.hubblerId} />
+            )}
+
+            {/* TAB: MY CONNECTIONS & PRIVACY */}
+            {activeTab === 'connections' && (
+              <ConnectionsHub
+                currentHubblerId={rewardsSummary?.hubblerId || dashboard.hubblerId}
+                currentPrivacy={rewardsSummary?.privacy || dashboard.privacy}
+              />
+            )}
+
+            {/* TAB 2: REWARDS & BADGES */}
+            {activeTab === 'rewards' && rewardsSummary && (
+              <div className="space-y-8">
+                <XPLevelCard
+                  totalXp={rewardsSummary.xp}
+                  monthlyXp={rewardsSummary.monthlyXp}
+                  monthlyRank={rewardsSummary.monthlyRank}
+                  level={rewardsSummary.level}
+                  onOpenReferral={() => setIsReferralOpen(true)}
+                />
+                <BadgeGallery
+                  unlockedBadges={rewardsSummary.unlockedBadges}
+                  allBadges={rewardsSummary.allBadges}
+                />
+              </div>
+            )}
+
+            {/* TAB 3: LEADERBOARD */}
+            {activeTab === 'leaderboard' && (
+              <LeaderboardView />
+            )}
+
+            {/* TAB 4: CERTIFICATES */}
+            {activeTab === 'certificates' && rewardsSummary && (
+              <CertificateSection
+                certificates={rewardsSummary.certificates}
+              />
+            )}
+
+            {/* TAB 5: REWARD STORE */}
+            {activeTab === 'store' && rewardsSummary && (
+              <RewardStore
+                rewards={storeRewards}
+                currentXp={rewardsSummary.xp}
+                currentLevel={rewardsSummary.level.level}
+                existingRedemptions={rewardsSummary.redemptions}
+                onRedeemSuccess={(_newBal) => {
+                  loadDashboardData()
+                  setMessage('Reward redeemed successfully!')
+                }}
+              />
+            )}
+
+            {/* TAB 6: WARDROBE & VOUCHERS */}
+            {activeTab === 'inventory' && rewardsSummary && (
+              <RedemptionHistory
+                redemptions={rewardsSummary.redemptions}
+                activeTheme={rewardsSummary.activeTheme ?? null}
+                activeFrame={rewardsSummary.activeFrame ?? null}
+                activeTitle={rewardsSummary.activeTitle ?? null}
+                onEquipSuccess={() => loadDashboardData()}
+              />
+            )}
           </div>
         ) : null}
 
@@ -1096,6 +1369,39 @@ export function DashboardPage({ role }: DashboardPageProps) {
           </div>
         </div>
       )}
+
+      {/* FEEDBACK MODAL */}
+      {feedbackEvent && (
+        <FeedbackModal
+          eventId={feedbackEvent.id}
+          eventTitle={feedbackEvent.title}
+          isOpen={Boolean(feedbackEvent)}
+          onClose={() => setFeedbackEvent(null)}
+          onSuccess={(xpEarned) => {
+            setMessage(`Feedback submitted! Earned +${xpEarned} XP.`)
+            loadDashboardData()
+          }}
+        />
+      )}
+
+      {/* REFERRAL MODAL */}
+      {rewardsSummary && (
+        <ReferralModal
+          referralCode={rewardsSummary.referralCode}
+          referredCount={rewardsSummary.referredCount}
+          isOpen={isReferralOpen}
+          onClose={() => setIsReferralOpen(false)}
+          onReferralApplied={() => {
+            loadDashboardData()
+          }}
+        />
+      )}
+
+      {/* CERTIFICATE MODAL */}
+      <CertificateModal
+        certificate={activeCertModal}
+        onClose={() => setActiveCertModal(null)}
+      />
     </div>
   )
 }

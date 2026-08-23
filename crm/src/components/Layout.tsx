@@ -10,6 +10,7 @@ const navItems = [
   { label: 'Students', to: '/students' },
   { label: 'Organizers', to: '/organizers' },
   { label: 'Events', to: '/events' },
+  { label: '🏆 Rewards & XP', to: '/rewards' },
   { label: 'Activity', to: '/activity' },
   { label: '🚩 Reports', to: '/reports' },
 ]

@@ -10,6 +10,7 @@ import { EventsPage } from './pages/EventsPage'
 import { ActivityPage } from './pages/ActivityPage'
 import { UserDetailPage } from './pages/UserDetailPage'
 import { ReportsPage } from './pages/ReportsPage'
+import { RewardsManagementPage } from './pages/RewardsManagementPage'
 import { fetchMe } from './services/api'
 import { getCrmRole, getCrmToken, setCrmRole, setCrmToken } from './services/api'
 
@@ -77,6 +78,7 @@ function App() {
         <Route path="organizers/:id" element={<OrganizerDetailPage />} />
         <Route path="users/:id" element={<UserDetailPage />} />
         <Route path="events" element={<EventsPage />} />
+        <Route path="rewards" element={<RewardsManagementPage />} />
         <Route path="activity" element={<ActivityPage />} />
         <Route path="reports" element={<ReportsPage />} />
       </Route>

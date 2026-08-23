@@ -41,6 +41,64 @@ service cloud.firestore {
       allow read: if isAdmin();
     }
 
+    // Connections: visible to participating users or admin
+    match /connections/{connId} {
+      allow read: if isSignedIn() && (
+        resource.data.user1 == request.auth.uid ||
+        resource.data.user2 == request.auth.uid ||
+        isAdmin()
+      );
+      allow write: if false; // Server SDK handles atomic mutations
+    }
+
+    // Follows: readable by signed-in users, deletable/creatable by follower
+    match /follows/{followId} {
+      allow read: if isSignedIn() || isAdmin();
+      allow write: if false; // Server SDK handles atomic mutations
+    }
+
+    // Achievement Posts: readable by signed in users, written only via server SDK
+    match /posts/{postId} {
+      allow read: if isSignedIn() || isAdmin();
+      allow write: if false; // Server SDK enforces verification & privacy
+    }
+
+    // Post Comments: readable by signed in users
+    match /postComments/{commentId} {
+      allow read: if isSignedIn() || isAdmin();
+      allow write: if false; // Server SDK enforces sanitation & counts
+    }
+
+    // Verified Badges: readable by signed in users, written by server SDK
+    match /userBadges/{badgeDocId} {
+      allow read: if isSignedIn() || isAdmin();
+      allow write: if false; // Server SDK enforces badge criteria
+    }
+
+    // Verified Certificates: readable by all signed in users for verification
+    match /certificates/{certId} {
+      allow read: if true; // Publicly verifiable by verification code URL
+      allow write: if false; // Server SDK issues official certificates
+    }
+
+    // Reward Store: readable by signed-in users, managed by admin/support
+    match /rewards/{rewardId} {
+      allow read: if isSignedIn() || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Redemptions: readable by owning student or admin, created by server SDK
+    match /redemptions/{redemptionId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if false; // Server SDK handles atomic XP deduction & code generation
+    }
+
+    // XP Transactions: readable by owning student or admin, written by server SDK
+    match /xpTransactions/{txId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow write: if false; // Server SDK enforces non-tampering idempotency
+    }
+
     // Organizers: readable by admin, managed by support
     match /organizers/{orgId} {
       allow read: if isSignedIn() || isAdmin();
