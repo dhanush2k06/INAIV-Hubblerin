@@ -9,6 +9,7 @@ const serverDir = path.resolve(serverRoot, '..')
 dotenv.config({ path: path.resolve(serverDir, '.env') })
 
 function normalizePrivateKey(raw: string): string {
+  if (!raw) return ''
   let key = raw.trim()
   if (
     (key.startsWith('"') && key.endsWith('"')) ||
@@ -16,7 +17,7 @@ function normalizePrivateKey(raw: string): string {
   ) {
     key = key.slice(1, -1)
   }
-  return key.replace(/\\n/g, '\n')
+  return key.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n').replace(/\r\n/g, '\n').replace(/\\r/g, '')
 }
 
 function resolveServiceAccountPath(): string | null {
