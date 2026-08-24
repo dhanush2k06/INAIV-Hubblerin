@@ -3,6 +3,7 @@ import { calculateLevel } from './rewardService.js'
 import { ensureUserHubblerId, DEFAULT_PRIVACY_SETTINGS } from '../utils/hubblerId.js'
 import type {
   AppUser,
+  AchievementPostRecord,
   CertificateRecord,
   ConnectionRecord,
   ConnectionStatus,
@@ -11,6 +12,29 @@ import type {
   UserBadgeRecord,
   UserPrivacySettings,
 } from '../types.js'
+
+/** Shape of a user card shown in connections/followers/following lists */
+interface ConnectionUserCard {
+  hubblerId: string
+  fullName: string
+  collegeName: string
+  profileImage: string | null
+  activeTitle: string | null
+  activeFrame: string | null
+  level: number
+  badgeCount: number
+}
+
+/** Shape of a full connection item (friend / pending) */
+interface ConnectionItem {
+  id: string
+  status: string
+  isRequester: boolean
+  createdAt: string
+  updatedAt: string
+  user: ConnectionUserCard
+  mutualCount: number
+}
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -245,7 +269,7 @@ export async function getPublicProfile(
       .limit(10)
       .get()
 
-    const recentPosts = postsSnap.docs.map((d) => d.data() as any)
+    const recentPosts = postsSnap.docs.map((d) => d.data() as AchievementPostRecord)
 
     return {
       hubblerId,
@@ -636,9 +660,9 @@ export async function getMyConnections(currentUid: string): Promise<{
 
   const allConnDocs = [...connSnap1.docs, ...connSnap2.docs]
 
-  const friends: any[] = []
-  const pendingIncoming: any[] = []
-  const pendingOutgoing: any[] = []
+  const friends: ConnectionItem[] = []
+  const pendingIncoming: ConnectionItem[] = []
+  const pendingOutgoing: ConnectionItem[] = []
 
   for (const doc of allConnDocs) {
     const c = doc.data() as ConnectionRecord
@@ -685,7 +709,7 @@ export async function getMyConnections(currentUid: string): Promise<{
   }
 
   // Resolve followers list
-  const followers: any[] = []
+  const followers: ConnectionUserCard[] = []
   for (const doc of followersSnap.docs) {
     const f = doc.data() as FollowRecord
     const fDoc = await db.collection('users').doc(f.followerUid).get()
@@ -708,7 +732,7 @@ export async function getMyConnections(currentUid: string): Promise<{
   }
 
   // Resolve following list
-  const following: any[] = []
+  const following: ConnectionUserCard[] = []
   for (const doc of followingSnap.docs) {
     const f = doc.data() as FollowRecord
     const fDoc = await db.collection('users').doc(f.targetUid).get()

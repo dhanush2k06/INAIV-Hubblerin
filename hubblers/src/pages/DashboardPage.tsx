@@ -113,7 +113,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
   }, [role])
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     loadDashboardData()
   }, [loadDashboardData])
 
@@ -721,7 +721,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
                 currentXp={rewardsSummary.xp}
                 currentLevel={rewardsSummary.level.level}
                 existingRedemptions={rewardsSummary.redemptions}
-                onRedeemSuccess={(_newBal) => {
+                onRedeemSuccess={() => {
                   loadDashboardData()
                   setMessage('Reward redeemed successfully!')
                 }}

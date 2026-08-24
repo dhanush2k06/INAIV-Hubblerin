@@ -101,7 +101,7 @@ export async function getFeedPosts(
   if (!db) return { posts: [], total: 0, page }
 
   try {
-    let postsQuery = db.collection('posts').orderBy('createdAt', 'desc')
+    const postsQuery = db.collection('posts').orderBy('createdAt', 'desc')
 
     let allowedAuthorUids: Set<string> | null = null
 

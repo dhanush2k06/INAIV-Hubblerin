@@ -11,7 +11,7 @@ export function StudentsPage() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setLoading(true)
     fetchUsers({ role: 'STUDENT', search, verificationStatus: status })
       .then((res) => {

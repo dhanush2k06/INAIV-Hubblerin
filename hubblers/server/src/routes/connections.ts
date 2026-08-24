@@ -203,7 +203,7 @@ router.get('/privacy', async (req, res) => {
     const user = userDoc.data() as AppUser
     const privacy = user.privacy || { ...DEFAULT_PRIVACY_SETTINGS }
     return res.json(privacy)
-  } catch (error) {
+  } catch {
     return res.status(500).json({ error: 'Failed to fetch privacy settings' })
   }
 })

@@ -611,7 +611,7 @@ router.post('/:id/register', verifyFirebaseToken, authorizeRoles('STUDENT'), asy
       if (!eventDoc.exists) {
         throw new Error('EVENT_NOT_FOUND')
       }
-      const event = eventDoc.data() as FirestoreEvent
+      const _event = eventDoc.data() as FirestoreEvent
 
       const registered: UserEventRecord[] = userEventsDoc.exists ? (userEventsDoc.data()?.registered ?? []) : []
 
@@ -738,7 +738,6 @@ router.delete('/:id/register', verifyFirebaseToken, authorizeRoles('STUDENT'), a
     const userEventsRef = db.collection('userEvents').doc(uid)
     const userRef = db.collection('users').doc(uid)
 
-    let xpReward = 50
     await db.runTransaction(async (transaction) => {
       // All reads FIRST
       const eventDoc = await transaction.get(eventRef)
@@ -748,8 +747,7 @@ router.delete('/:id/register', verifyFirebaseToken, authorizeRoles('STUDENT'), a
       if (!eventDoc.exists) {
         throw new Error('EVENT_NOT_FOUND')
       }
-      const event = eventDoc.data() as FirestoreEvent
-      xpReward = event.xpReward ?? 50
+      // xpReward deduction is handled by revertXpActivity below the transaction
 
       const registered: UserEventRecord[] = userEventsDoc.exists ? (userEventsDoc.data()?.registered ?? []) : []
 

@@ -23,7 +23,7 @@ function App() {
     const storedToken = getCrmToken()
     if (!storedToken) {
       // No stored token: no need to call the API, so resolve the loading state directly.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setInitializing(false)
       return
     }
