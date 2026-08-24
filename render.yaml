@@ -10,8 +10,8 @@ services:
     runtime: node
     plan: free
     rootDir: hubblers
-    buildCommand: npm install && npx tsc -p server/tsconfig.json
-    startCommand: node dist-server/index.js
+    buildCommand: if [ -d "hubblers" ]; then cd hubblers && npm install && npx tsc -p server/tsconfig.json; else npm install && npx tsc -p server/tsconfig.json; fi
+    startCommand: if [ -d "hubblers" ]; then cd hubblers && node dist-server/index.js; else node dist-server/index.js; fi
     envVars:
       - key: PORT
         value: 4000
@@ -51,7 +51,7 @@ services:
     name: hubblerx-app
     runtime: static
     rootDir: hubblers
-    buildCommand: npm install && npm run build
+    buildCommand: if [ -d "hubblers" ]; then cd hubblers && npm install && npm run build && cp -r dist ..; else npm install && npm run build; fi
     staticPublishPath: dist
     routes:
       - type: rewrite
@@ -82,7 +82,7 @@ services:
     name: hubblerx-crm
     runtime: static
     rootDir: crm
-    buildCommand: npm install && npm run build
+    buildCommand: if [ -d "crm" ]; then cd crm && npm install && npm run build && cp -r dist ..; else npm install && npm run build; fi
     staticPublishPath: dist
     routes:
       - type: rewrite

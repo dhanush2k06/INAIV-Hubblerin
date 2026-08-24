@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "install:hubblers": "cd hubblers && npm install",
-    "install:crm": "cd crm && npm install",
+    "build": "if [ -d \"hubblers\" ]; then cd hubblers && npm install && npm run build && cp -r dist ..; else npm install && npm run build; fi",
+    "start": "if [ -d \"hubblers\" ]; then cd hubblers && node dist-server/index.js; else node dist-server/index.js; fi",
     "build:backend": "cd hubblers && npm install && npx tsc -p server/tsconfig.json",
-    "build:frontend": "cd hubblers && npm install && npm run build",
-    "build:crm": "cd crm && npm install && npm run build",
-    "start:server": "cd hubblers && node dist-server/index.js",
-    "postinstall": "echo 'Root package.json — use build:backend, build:frontend, or build:crm'"
+    "build:frontend": "cd hubblers && npm install && npm run build && cp -r dist ..",
+    "build:crm": "cd crm && npm install && npm run build && cp -r dist ..",
+    "start:server": "cd hubblers && node dist-server/index.js"
   }
 }
