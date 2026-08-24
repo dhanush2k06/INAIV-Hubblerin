@@ -10,8 +10,8 @@ services:
     runtime: node
     plan: free
     rootDir: hubblers
-    buildCommand: npm install && tsc -p server/tsconfig.json
-    startCommand: npm run start:server
+    buildCommand: npm install && npx tsc -p server/tsconfig.json
+    startCommand: node dist-server/index.js
     envVars:
       - key: PORT
         value: 4000
