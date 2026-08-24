@@ -25,11 +25,30 @@ interface ConnectionUserCard {
   badgeCount: number
 }
 
-/** Shape of a full connection item (friend / pending) */
-interface ConnectionItem {
+interface FriendConnectionItem {
   id: string
-  status: string
+  status: 'ACCEPTED'
   isRequester: boolean
+  createdAt: string
+  updatedAt: string
+  user: ConnectionUserCard
+  mutualCount: number
+}
+
+interface PendingIncomingConnectionItem {
+  id: string
+  status: 'PENDING'
+  isRequester: false
+  createdAt: string
+  updatedAt: string
+  user: ConnectionUserCard
+  mutualCount: number
+}
+
+interface PendingOutgoingConnectionItem {
+  id: string
+  status: 'PENDING'
+  isRequester: true
   createdAt: string
   updatedAt: string
   user: ConnectionUserCard
@@ -660,9 +679,9 @@ export async function getMyConnections(currentUid: string): Promise<{
 
   const allConnDocs = [...connSnap1.docs, ...connSnap2.docs]
 
-  const friends: ConnectionItem[] = []
-  const pendingIncoming: ConnectionItem[] = []
-  const pendingOutgoing: ConnectionItem[] = []
+  const friends: FriendConnectionItem[] = []
+  const pendingIncoming: PendingIncomingConnectionItem[] = []
+  const pendingOutgoing: PendingOutgoingConnectionItem[] = []
 
   for (const doc of allConnDocs) {
     const c = doc.data() as ConnectionRecord
@@ -678,32 +697,48 @@ export async function getMyConnections(currentUid: string): Promise<{
     const badgesSnap = await db.collection('userBadges').where('userId', '==', partnerUid).get()
     const mutuals = await getMutualFriendUids(currentUid, partnerUid)
 
-    const item = {
-      id: c.id,
-      status: c.status,
-      isRequester,
-      createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
-      user: {
-        hubblerId,
-        fullName: partner.fullName || 'Student',
-        collegeName: partner.collegeName || 'HubblerX Network',
-        profileImage: partner.profileImage || null,
-        activeTitle: partner.activeTitle || null,
-        activeFrame: partner.activeFrame || null,
-        level: levelInfo.level,
-        badgeCount: badgesSnap.size,
-      },
-      mutualCount: mutuals.length,
+    const userCard: ConnectionUserCard = {
+      hubblerId,
+      fullName: partner.fullName || 'Student',
+      collegeName: partner.collegeName || 'HubblerX Network',
+      profileImage: partner.profileImage || null,
+      activeTitle: partner.activeTitle || null,
+      activeFrame: partner.activeFrame || null,
+      level: levelInfo.level,
+      badgeCount: badgesSnap.size,
     }
 
     if (c.status === 'ACCEPTED') {
-      friends.push(item)
+      friends.push({
+        id: c.id,
+        status: 'ACCEPTED',
+        isRequester,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+        user: userCard,
+        mutualCount: mutuals.length,
+      })
     } else if (c.status === 'PENDING') {
       if (isRequester) {
-        pendingOutgoing.push(item)
+        pendingOutgoing.push({
+          id: c.id,
+          status: 'PENDING',
+          isRequester: true,
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt,
+          user: userCard,
+          mutualCount: mutuals.length,
+        })
       } else {
-        pendingIncoming.push(item)
+        pendingIncoming.push({
+          id: c.id,
+          status: 'PENDING',
+          isRequester: false,
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt,
+          user: userCard,
+          mutualCount: mutuals.length,
+        })
       }
     }
   }
