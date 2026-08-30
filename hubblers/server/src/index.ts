@@ -1,3 +1,5 @@
+import path from 'path'
+import fs from 'fs'
 import express from 'express'
 import helmet from 'helmet'
 import cors from 'cors'
@@ -102,9 +104,27 @@ app.use('/api/posts', postsRoutes)
 
 app.get('/api/health', (_req, res) => res.json({ message: 'Hubblers API is running' }))
 
-app.use((_req, res) => {
-  res.status(404).json({ error: 'Not Found' })
-})
+// Serve static frontend assets if built dist folder exists (Single-service Railway deployment)
+const possibleDistPaths = [
+  path.join(process.cwd(), 'dist'),
+  path.join(process.cwd(), 'hubblers', 'dist'),
+  path.join(process.cwd(), '..', 'dist'),
+]
+
+const distPath = possibleDistPaths.find((p) => fs.existsSync(path.join(p, 'index.html')))
+
+if (distPath) {
+  console.log(`[Server] Serving static frontend from: ${distPath}`)
+  app.use(express.static(distPath))
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next()
+    res.sendFile(path.join(distPath, 'index.html'))
+  })
+} else {
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'API route not found' })
+  })
+}
 
 // Global error handler — catches any error thrown in a route (including async
 // handlers) and returns a 500 instead of letting the process crash, which is
