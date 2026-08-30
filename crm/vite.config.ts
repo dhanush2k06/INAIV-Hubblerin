@@ -18,5 +18,22 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
+    target: 'esnext',
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor-react'
+            }
+            if (id.includes('recharts')) {
+              return 'vendor-recharts'
+            }
+          }
+        },
+      },
+    },
   },
 })

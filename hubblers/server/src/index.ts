@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import express from 'express'
+import compression from 'compression'
 import helmet from 'helmet'
 import cors from 'cors'
 import rateLimit from 'express-rate-limit'
@@ -17,6 +18,9 @@ import { seedInitialRewards } from './services/rewardService.js'
 import { env } from './config.js'
 
 const app = express()
+
+// Gzip / Deflate compression for ultra-fast API JSON payloads and responses
+app.use(compression())
 
 // Trust reverse proxy (Railway, Render, Cloudflare, etc.) so req.ip reflects actual client IP
 app.set('trust proxy', 1)
@@ -114,10 +118,23 @@ const possibleDistPaths = [
 const distPath = possibleDistPaths.find((p) => fs.existsSync(path.join(p, 'index.html')))
 
 if (distPath) {
-  console.log(`[Server] Serving static frontend from: ${distPath}`)
-  app.use(express.static(distPath))
+  console.log(`[Server] Serving static frontend with high-performance caching from: ${distPath}`)
+  app.use(
+    express.static(distPath, {
+      maxAge: '1y',
+      etag: true,
+      setHeaders: (res, filePath) => {
+        if (filePath.endsWith('index.html')) {
+          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+        } else {
+          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+        }
+      },
+    }),
+  )
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) return next()
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
     res.sendFile(path.join(distPath, 'index.html'))
   })
 } else {
@@ -147,6 +164,24 @@ app.use(
 
 const server = app.listen(env.port, () => {
   console.log(`Hubblers backend listening on http://localhost:${env.port}`)
+
+  // Render & Railway Keep-Alive Self-Ping
+  // Automatically pings every 10 minutes to prevent Render free-tier cold starts
+  const pingUrl = process.env.RENDER_EXTERNAL_URL || process.env.PUBLIC_APP_URL || process.env.SELF_PING_URL
+  if (pingUrl && !pingUrl.includes('localhost')) {
+    const healthEndpoint = `${pingUrl.replace(/\/$/, '')}/api/health`
+    console.log(`[KeepAlive] Configured self-ping to prevent Render cold starts: ${healthEndpoint}`)
+    setInterval(async () => {
+      try {
+        const res = await fetch(healthEndpoint)
+        if (res.ok) {
+          console.log(`[KeepAlive] Heartbeat ping success at ${new Date().toISOString()}`)
+        }
+      } catch (e) {
+        console.warn('[KeepAlive] Heartbeat ping error:', (e as Error).message)
+      }
+    }, 10 * 60 * 1000)
+  }
 })
 
 // Gracefully handle port conflicts (EADDRINUSE) that occur during tsx hot-reload,
