@@ -9,7 +9,7 @@ import type { AppUser } from '../types.js'
 const router = Router()
 
 const profileSchema = z.object({
-  fullName: z.string().min(3).optional(),
+  fullName: z.string().min(2).optional(),
   department: z.string().optional().nullable(),
   rollNumber: z.string().optional().nullable(),
   collegeId: z.string().optional().nullable(),
@@ -19,6 +19,11 @@ const profileSchema = z.object({
   degree: z.string().optional().nullable(),
   branch: z.string().optional().nullable(),
   year: z.string().optional().nullable(),
+  bio: z.string().max(500).optional().nullable(),
+  skills: z.array(z.string()).optional().nullable(),
+  interests: z.array(z.string()).optional().nullable(),
+  linkedinUrl: z.string().url().optional().nullable().or(z.literal('')),
+  githubUrl: z.string().url().optional().nullable().or(z.literal('')),
   profileImageBase64: z.string().optional(),
 })
 
@@ -27,6 +32,42 @@ function bufferFromBase64(imageBase64?: string) {
   const matches = imageBase64.match(/^data:(.+);base64,(.+)$/)
   if (!matches) return null
   return { buffer: Buffer.from(matches[2], 'base64'), type: matches[1] }
+}
+
+export function calculateProfileCompletion(data: Partial<AppUser> & { collegeName?: string | null }): {
+  percentage: number
+  missingFields: string[]
+  completedFields: string[]
+} {
+  const fields = [
+    { key: 'fullName', label: 'Full Name', weight: 15, isFilled: Boolean(data.fullName?.trim()) },
+    { key: 'email', label: 'Email Address', weight: 15, isFilled: Boolean(data.email?.trim()) },
+    { key: 'collegeId', label: 'College / Institution', weight: 15, isFilled: Boolean(data.collegeId || data.collegeName) },
+    { key: 'degree', label: 'Degree / Program', weight: 15, isFilled: Boolean(data.degree?.trim() || data.department?.trim()) },
+    { key: 'year', label: 'Year of Study', weight: 10, isFilled: Boolean(data.year?.trim() || data.endYear) },
+    { key: 'phone', label: 'Phone Number', weight: 10, isFilled: Boolean(data.phone?.trim()) },
+    { key: 'rollNumber', label: 'Roll / Student ID', weight: 10, isFilled: Boolean(data.rollNumber?.trim()) },
+    { key: 'profileImage', label: 'Profile Picture', weight: 10, isFilled: Boolean(data.profileImage?.trim()) },
+  ]
+
+  let percentage = 0
+  const missingFields: string[] = []
+  const completedFields: string[] = []
+
+  for (const field of fields) {
+    if (field.isFilled) {
+      percentage += field.weight
+      completedFields.push(field.label)
+    } else {
+      missingFields.push(field.label)
+    }
+  }
+
+  return {
+    percentage: Math.min(100, percentage),
+    missingFields,
+    completedFields,
+  }
 }
 
 router.get('/profile', verifyFirebaseToken, async (req, res) => {
@@ -52,7 +93,17 @@ router.get('/profile', verifyFirebaseToken, async (req, res) => {
     if (collegeDoc.exists) collegeName = collegeDoc.data()?.collegeName ?? null
   }
 
-  return res.json({ firebaseUid: uid, ...data, hubblerId, privacy, collegeName })
+  const completion = calculateProfileCompletion({ ...data, collegeName })
+
+  return res.json({
+    firebaseUid: uid,
+    ...data,
+    hubblerId,
+    privacy,
+    collegeName,
+    profileCompletion: completion.percentage,
+    missingFields: completion.missingFields,
+  })
 })
 
 router.put('/profile', verifyFirebaseToken, async (req, res) => {
@@ -71,7 +122,7 @@ router.put('/profile', verifyFirebaseToken, async (req, res) => {
 
   const data = parsed.data
   const updates: Record<string, unknown> = {}
-  if (data.fullName) updates.fullName = data.fullName
+  if (data.fullName !== undefined) updates.fullName = data.fullName
   if (data.department !== undefined) updates.department = data.department
   if (data.rollNumber !== undefined) updates.rollNumber = data.rollNumber
   if (data.collegeId !== undefined) updates.collegeId = data.collegeId
@@ -81,6 +132,11 @@ router.put('/profile', verifyFirebaseToken, async (req, res) => {
   if (data.degree !== undefined) updates.degree = data.degree
   if (data.branch !== undefined) updates.branch = data.branch
   if (data.year !== undefined) updates.year = data.year
+  if (data.bio !== undefined) updates.bio = data.bio
+  if (data.skills !== undefined) updates.skills = data.skills
+  if (data.interests !== undefined) updates.interests = data.interests
+  if (data.linkedinUrl !== undefined) updates.linkedinUrl = data.linkedinUrl
+  if (data.githubUrl !== undefined) updates.githubUrl = data.githubUrl
 
   if (data.profileImageBase64) {
     const fileData = bufferFromBase64(data.profileImageBase64)
@@ -98,15 +154,27 @@ router.put('/profile', verifyFirebaseToken, async (req, res) => {
   updates.updatedAt = new Date().toISOString()
   await db.collection('users').doc(uid).update(updates)
 
+  // Fetch updated doc to recalculate profile completion
+  const updatedDoc = await db.collection('users').doc(uid).get()
+  const updatedData = (updatedDoc.data() || {}) as AppUser
+  const completion = calculateProfileCompletion(updatedData)
+
+  // Save profileCompletion score onto the user document for fast leaderboard & dashboard reads
+  await db.collection('users').doc(uid).update({ profileCompletion: completion.percentage })
+
   await logActivity({
     userId: uid,
-    role: 'STUDENT',
+    role: (updatedData.role as 'STUDENT' | 'COLLEGE_ADMIN' | 'SUPPORT' | 'ADMIN') || 'STUDENT',
     type: 'PROFILE_UPDATE',
     description: 'Profile updated',
-    meta: { fields: Object.keys(updates) },
+    meta: { fields: Object.keys(updates), completion: completion.percentage },
   })
 
-  return res.json({ message: 'Profile updated successfully' })
+  return res.json({
+    message: 'Profile updated successfully',
+    profileCompletion: completion.percentage,
+    missingFields: completion.missingFields,
+  })
 })
 
 export default router

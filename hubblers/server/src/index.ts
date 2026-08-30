@@ -16,6 +16,9 @@ import { env } from './config.js'
 
 const app = express()
 
+// Trust reverse proxy (Railway, Render, Cloudflare, etc.) so req.ip reflects actual client IP
+app.set('trust proxy', 1)
+
 // Auto-seed initial store rewards in the background on startup
 seedInitialRewards().catch((err) => console.error('[Server] seedInitialRewards error:', err))
 
@@ -45,11 +48,13 @@ app.use(
 
       const normalizedOrigin = origin.replace(/\/$/, '')
 
-      // Allow if wildcard, explicitly in allowedOrigins list, or any .onrender.com subdomain
+      // Allow if wildcard, explicitly in allowedOrigins list, or any .onrender.com / .railway.app subdomain
       if (
         allowedOrigins.includes('*') ||
         allowedOrigins.includes(normalizedOrigin) ||
         normalizedOrigin.endsWith('.onrender.com') ||
+        normalizedOrigin.endsWith('.railway.app') ||
+        normalizedOrigin.endsWith('.up.railway.app') ||
         devOrigins.includes(normalizedOrigin)
       ) {
         return callback(null, true)
@@ -63,14 +68,27 @@ app.use(
 )
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 120,
-    standardHeaders: true,
-    legacyHeaders: false,
-  }),
-)
+
+// General API Rate Limiter (Scalable for 100+ concurrent active sessions)
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1500,
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+// Specific Auth Limiter to prevent brute-force attacks while avoiding blocking regular navigation
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  message: { error: 'Too many authentication attempts. Please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
+app.use('/api/auth/login', authLimiter)
+app.use('/api/auth/signup', authLimiter)
+app.use('/api/', generalLimiter)
 
 app.use('/api/auth', authRoutes)
 app.use('/api/users', usersRoutes)

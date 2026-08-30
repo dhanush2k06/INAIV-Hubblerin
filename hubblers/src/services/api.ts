@@ -363,7 +363,8 @@ export async function unregisterFromEvent(eventId: string) {
 }
 
 export interface Profile {
-  id?: number
+  id?: number | string
+  firebaseUid?: string
   fullName?: string
   email?: string
   role?: string
@@ -372,13 +373,23 @@ export interface Profile {
   branch?: string
   year?: string
   department?: string
+  collegeId?: string
   collegeName?: string
   username?: string
   accreditationId?: string
   profileImage?: string
+  profileImageBase64?: string
   rollNumber?: string
   startYear?: number
   endYear?: number
+  hubblerId?: string
+  bio?: string
+  skills?: string[]
+  interests?: string[]
+  linkedinUrl?: string
+  githubUrl?: string
+  profileCompletion?: number
+  missingFields?: string[]
 }
 
 export async function fetchProfile() {

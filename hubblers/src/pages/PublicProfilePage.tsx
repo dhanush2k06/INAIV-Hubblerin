@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import {
   fetchPublicProfile,
@@ -18,7 +18,7 @@ export function PublicProfilePage() {
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<'overview' | 'badges' | 'certificates' | 'posts'>('overview')
 
-  const loadData = () => {
+  const loadData = useCallback(() => {
     if (!hubblerId) return
     setLoading(true)
     setError(null)
@@ -26,11 +26,11 @@ export function PublicProfilePage() {
       .then(setProfile)
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load profile'))
       .finally(() => setLoading(false))
-  }
+  }, [hubblerId])
 
   useEffect(() => {
     loadData()
-  }, [hubblerId])
+  }, [loadData, hubblerId])
 
   const handleCopyHandle = () => {
     if (!profile) return

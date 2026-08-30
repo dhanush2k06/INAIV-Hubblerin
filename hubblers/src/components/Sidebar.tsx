@@ -13,6 +13,7 @@ type Sections = Record<RoleKey, SectionItem[]>
 const sections: Sections = {
   STUDENT: [
     { label: '📊 Overview & Events', href: '/dashboard?tab=overview', tabKey: 'overview' },
+    { label: '👤 Profile & Settings', href: '/dashboard?tab=profile', tabKey: 'profile' },
     { label: '⚡ Community Feed', href: '/dashboard?tab=feed', tabKey: 'feed' },
     { label: '🤝 My Connections', href: '/dashboard?tab=connections', tabKey: 'connections' },
     { label: '🏆 Rewards & Badges', href: '/dashboard?tab=rewards', tabKey: 'rewards' },
@@ -23,6 +24,7 @@ const sections: Sections = {
   ],
   COLLEGE_ADMIN: [
     { label: 'Overview', href: '/dashboard?tab=overview', tabKey: 'overview' },
+    { label: '🏛️ College Profile', href: '/dashboard?tab=profile', tabKey: 'profile' },
     { label: '👥 Registration Base (CRM)', href: '/dashboard?tab=registrations', tabKey: 'registrations' },
     { label: '🎪 My Events', href: '/dashboard?tab=events', tabKey: 'events' },
   ],
@@ -43,9 +45,9 @@ export function Sidebar({ role }: SidebarProps) {
   if (!role || !isRoleKey(role)) return null
 
   return (
-    <aside className="hidden w-72 shrink-0 flex-col gap-6 border-r border-slate-800 bg-slate-950 px-4 py-6 lg:flex">
+    <aside className="hidden w-64 shrink-0 flex-col gap-6 border-r border-slate-200 bg-slate-50 px-4 py-6 lg:flex">
       <div className="space-y-2">
-        <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-500 px-2">Navigation</p>
+        <p className="text-xs font-bold uppercase tracking-[0.24em] text-slate-400 px-2">Navigation</p>
         <div className="space-y-1.5 pt-2">
           {sections[role].map((item) => {
             const isActive = currentTab === (item.tabKey || 'overview')
@@ -55,8 +57,8 @@ export function Sidebar({ role }: SidebarProps) {
                 to={item.href}
                 className={`block rounded-2xl border px-4 py-3 text-xs font-bold transition ${
                   isActive
-                    ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400 shadow-sm'
-                    : 'border-slate-800/80 bg-slate-900/60 text-slate-300 hover:border-slate-700 hover:bg-slate-900 hover:text-white'
+                    ? 'border-emerald-500/40 bg-emerald-50 text-emerald-700 shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/50 hover:text-emerald-700'
                 }`}
               >
                 {item.label}

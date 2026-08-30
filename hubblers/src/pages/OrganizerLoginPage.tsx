@@ -86,17 +86,17 @@ export function OrganizerLoginPage({ onLogin }: OrganizerLoginPageProps) {
             </svg>
           </div>
           <h1 className="font-display text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-            Organizer & Institution Portal
+            College & Institution Portal
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400">
-            Sign in to manage your institution&apos;s events, registrations, and student attendance.
+            Sign in to manage your college events, student registrations, and attendance.
           </p>
         </div>
 
         {/* Tab switch */}
         <div className="mb-8 flex rounded-2xl bg-slate-100 p-1 dark:bg-slate-900">
           <Link
-            to="/login"
+            to="/student-login"
             className="flex-1 rounded-xl py-2 text-center text-xs font-semibold text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
           >
             Student Sign In
@@ -105,7 +105,7 @@ export function OrganizerLoginPage({ onLogin }: OrganizerLoginPageProps) {
             type="button"
             className="flex-1 rounded-xl bg-white py-2 text-center text-xs font-bold text-slate-900 shadow-sm dark:bg-slate-800 dark:text-white"
           >
-            Organizer Sign In
+            College Sign In
           </button>
         </div>
 
@@ -113,7 +113,7 @@ export function OrganizerLoginPage({ onLogin }: OrganizerLoginPageProps) {
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-              Official Email Address
+              Official College Email Address
             </label>
             <input
               type="email"
@@ -165,16 +165,16 @@ export function OrganizerLoginPage({ onLogin }: OrganizerLoginPageProps) {
             disabled={loading}
             className="w-full rounded-full bg-emerald-500 px-4 py-4 text-base font-extrabold uppercase tracking-widest text-slate-950 transition hover:scale-[1.02] hover:bg-emerald-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 shadow-lg shadow-emerald-500/20"
           >
-            {loading ? 'Authenticating…' : 'Sign In as Organizer'}
+            {loading ? 'Authenticating…' : 'Sign In as College'}
           </button>
         </form>
 
         {/* Footer links */}
         <div className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400 space-y-2">
           <p>
-            Need to register your institution?{' '}
-            <Link to="/organizer-signup" className="font-semibold text-emerald-600 hover:underline dark:text-emerald-400">
-              Register Institution
+            Need to register your college or institution?{' '}
+            <Link to="/college-signup" className="font-semibold text-emerald-600 hover:underline dark:text-emerald-400">
+              Register College
             </Link>
           </p>
           <p>

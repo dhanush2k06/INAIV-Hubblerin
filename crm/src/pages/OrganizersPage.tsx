@@ -67,13 +67,13 @@ export function OrganizersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-bold text-white">Organizers</h1>
-        <p className="mt-1 text-slate-400">{total} total organizer/college-admin accounts.</p>
+        <h1 className="text-2xl font-bold text-black">Colleges / Organizers</h1>
+        <p className="mt-1 text-sm text-slate-500">{total} total college and organizer accounts.</p>
       </div>
 
       {message && (
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-400">
-          {message}
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-black">
+          ✓ {message}
         </div>
       )}
 
@@ -82,12 +82,12 @@ export function OrganizersPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, email, or institution…"
-          className="flex-1 rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-emerald-500"
+          className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-black"
         />
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
-          className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-emerald-500"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-black"
         >
           <option value="ALL">All statuses</option>
           <option value="VERIFIED">Verified</option>
@@ -97,15 +97,15 @@ export function OrganizersPage() {
         </select>
       </div>
 
-      {error && <p className="text-rose-400">{error}</p>}
+      {error && <p className="text-sm text-red-500">{error}</p>}
       {loading ? (
-        <p className="text-slate-400">Loading…</p>
+        <p className="text-sm text-slate-400">Loading…</p>
       ) : users.length === 0 ? (
-        <p className="text-slate-500">No organizers found.</p>
+        <p className="text-sm text-slate-400">No organizers found.</p>
       ) : (
-        <div className="overflow-hidden rounded-3xl border border-slate-800">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-900/80 text-xs uppercase tracking-wider text-slate-400">
+            <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
@@ -115,24 +115,24 @@ export function OrganizersPage() {
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800 bg-slate-950">
+            <tbody className="divide-y divide-slate-100 bg-white">
               {users.map((u) => (
-                <tr key={u.id} className="transition hover:bg-slate-900/50">
+                <tr key={u.id} className="transition hover:bg-slate-50">
                   <td className="px-4 py-3">
-                    <Link to={`/organizers/${u.id}`} className="font-semibold text-violet-400 hover:underline">
+                    <Link to={`/organizers/${u.id}`} className="font-semibold text-black hover:underline">
                       {u.fullName || '—'}
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-slate-300">{u.email}</td>
-                  <td className="px-4 py-3 text-slate-300">{u.collegeName ?? '—'}</td>
+                  <td className="px-4 py-3 text-slate-600">{u.email}</td>
+                  <td className="px-4 py-3 text-slate-600">{u.collegeName ?? '—'}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                      className={`rounded-md border px-2 py-0.5 text-xs font-bold ${
                         u.verificationStatus === 'VERIFIED'
-                          ? 'bg-emerald-500/10 text-emerald-400'
+                          ? 'border-black bg-black text-white'
                           : u.verificationStatus === 'PENDING' || u.verificationStatus === 'UNVERIFIED'
-                          ? 'bg-amber-500/10 text-amber-400'
-                          : 'bg-rose-500/10 text-rose-400'
+                          ? 'border-slate-300 bg-slate-100 text-slate-700'
+                          : 'border-red-200 bg-red-50 text-red-600'
                       }`}
                     >
                       {u.verificationStatus}
@@ -145,7 +145,7 @@ export function OrganizersPage() {
                         <button
                           onClick={() => handleApprove(u.id, u.fullName || u.email)}
                           disabled={actionLoading === u.id}
-                          className="rounded-xl bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-50"
+                          className="rounded-lg bg-black px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
                         >
                           {actionLoading === u.id ? 'Processing…' : 'Approve'}
                         </button>
@@ -154,7 +154,7 @@ export function OrganizersPage() {
                         <button
                           onClick={() => handleReject(u.id, u.fullName || u.email)}
                           disabled={actionLoading === u.id}
-                          className="rounded-xl bg-rose-500/20 px-3 py-1.5 text-xs font-semibold text-rose-300 transition hover:bg-rose-500/30 disabled:opacity-50"
+                          className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-black hover:text-black disabled:opacity-50"
                         >
                           Reject
                         </button>

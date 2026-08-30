@@ -111,10 +111,10 @@ try {
             Student Sign In
           </button>
           <Link
-            to="/organizer-login"
+            to="/college-login"
             className="flex-1 rounded-xl py-2 text-center text-xs font-semibold text-slate-600 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
           >
-            Organizer Sign In
+            College Sign In
           </Link>
         </div>
         <form className="space-y-6" onSubmit={handleSubmit}>

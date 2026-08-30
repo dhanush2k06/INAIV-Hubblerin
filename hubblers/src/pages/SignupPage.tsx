@@ -14,12 +14,13 @@ export function SignupPage() {
       ),
     },
     {
-      to: '/organizer-signup',
-      title: 'Organizer',
-      description: 'Register your college, club, or organization to host events and engage with the community.',
+      to: '/college-signup',
+      title: 'College',
+      description: 'Register your college or university institution to host campus events, approve clubs, and engage students.',
       icon: (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-10 w-10">
-          <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
+          <path d="M12 .75a8.25 8.25 0 00-4.135 15.38 6.75 6.75 0 017.27 0A8.25 8.25 0 0012 .75z" />
+          <path fillRule="evenodd" d="M1.5 4.875C1.5 3.839 2.34 3 3.375 3h17.25c1.035 0 1.875.84 1.875 1.875v9.75c0 1.036-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 011.5 14.625v-9.75zM8.25 18.75a6.75 6.75 0 017.5 0v3.75a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v-3.75z" clipRule="evenodd" />
         </svg>
       ),
     },

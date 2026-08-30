@@ -74,6 +74,8 @@ function App() {
       >
         <Route index element={<OverviewPage />} />
         <Route path="students" element={<StudentsPage />} />
+        <Route path="colleges" element={<OrganizersPage />} />
+        <Route path="colleges/:id" element={<OrganizerDetailPage />} />
         <Route path="organizers" element={<OrganizersPage />} />
         <Route path="organizers/:id" element={<OrganizerDetailPage />} />
         <Route path="users/:id" element={<UserDetailPage />} />

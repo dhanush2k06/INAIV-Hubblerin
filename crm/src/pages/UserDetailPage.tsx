@@ -50,17 +50,17 @@ export function UserDetailPage() {
     }
   }
 
-  if (loading) return <p className="text-slate-400">Loading…</p>
-  if (error) return <p className="text-rose-400">{error}</p>
-  if (!user) return <p className="text-slate-500">User not found.</p>
+  if (loading) return <p className="text-sm text-slate-400">Loading…</p>
+  if (error) return <p className="text-sm text-red-500">{error}</p>
+  if (!user) return <p className="text-sm text-slate-400">User not found.</p>
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <Link to="/students" className="text-sm text-emerald-400 hover:underline">← Back</Link>
-          <h1 className="font-display mt-2 text-3xl font-bold text-white">{user.fullName || 'User'}</h1>
-          <p className="mt-1 text-slate-400">{user.email}</p>
+          <Link to="/students" className="text-xs font-semibold text-slate-500 hover:text-black">← Back to Students</Link>
+          <h1 className="mt-2 text-2xl font-bold text-black">{user.fullName || 'User'}</h1>
+          <p className="mt-1 text-sm text-slate-500">{user.email}</p>
         </div>
         {user.role === 'COLLEGE_ADMIN' && (
           <div className="flex gap-2">
@@ -68,7 +68,7 @@ export function UserDetailPage() {
               <button
                 onClick={handleApprove}
                 disabled={actionLoading}
-                className="rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-50"
+                className="rounded-lg bg-black px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
               >
                 {actionLoading ? 'Processing…' : 'Approve Account'}
               </button>
@@ -77,7 +77,7 @@ export function UserDetailPage() {
               <button
                 onClick={handleReject}
                 disabled={actionLoading}
-                className="rounded-2xl bg-rose-500/20 px-4 py-2 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/30 disabled:opacity-50"
+                className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 transition hover:border-black hover:text-black disabled:opacity-50"
               >
                 Reject Account
               </button>
@@ -87,34 +87,34 @@ export function UserDetailPage() {
       </div>
 
       {message && (
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-400">
-          {message}
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm font-semibold text-black">
+          ✓ {message}
         </div>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
-          <p className="text-xs uppercase tracking-widest text-slate-500">Role</p>
-          <p className="mt-2 text-lg font-semibold text-white">{user.role}</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Role</p>
+          <p className="mt-2 text-lg font-bold text-black">{user.role}</p>
         </div>
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
-          <p className="text-xs uppercase tracking-widest text-slate-500">XP</p>
-          <p className="mt-2 text-lg font-semibold text-white">{user.xp}</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">XP</p>
+          <p className="mt-2 text-lg font-bold text-black">{user.xp}</p>
         </div>
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
-          <p className="text-xs uppercase tracking-widest text-slate-500">Credits (Lifetime)</p>
-          <p className="mt-2 text-lg font-semibold text-white">{user.lifetimeCredits}</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Credits (Lifetime)</p>
+          <p className="mt-2 text-lg font-bold text-black">{user.lifetimeCredits}</p>
         </div>
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-5">
-          <p className="text-xs uppercase tracking-widest text-slate-500">Verification</p>
-          <p className="mt-2 text-lg font-semibold text-white">{user.verificationStatus}</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Verification</p>
+          <p className="mt-2 text-lg font-bold text-black">{user.verificationStatus}</p>
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6">
-          <h2 className="text-lg font-bold text-white">Profile</h2>
-          <dl className="mt-4 space-y-2 text-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-base font-bold text-black">Profile</h2>
+          <dl className="mt-4 space-y-2 text-sm divide-y divide-slate-100">
             <Row label="College" value={user.collegeName} />
             <Row label="Department" value={user.department} />
             <Row label="Roll Number" value={user.rollNumber} />
@@ -126,15 +126,15 @@ export function UserDetailPage() {
           </dl>
         </div>
 
-        <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6">
-          <h2 className="text-lg font-bold text-white">Registered Events</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <h2 className="text-base font-bold text-black">Registered Events</h2>
           {user.registeredEvents.length === 0 ? (
-            <p className="mt-4 text-sm text-slate-500">No event registrations.</p>
+            <p className="mt-4 text-sm text-slate-400">No event registrations.</p>
           ) : (
             <ul className="mt-4 space-y-2 text-sm">
               {user.registeredEvents.map((ev) => (
-                <li key={ev.id} className="flex items-center justify-between rounded-2xl bg-slate-950 px-4 py-3">
-                  <span className="text-slate-200">{ev.title}</span>
+                <li key={ev.id} className="flex items-center justify-between rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
+                  <span className="font-medium text-black">{ev.title}</span>
                   <span className="text-xs text-slate-500">{ev.startDate || '—'}</span>
                 </li>
               ))}
@@ -143,20 +143,20 @@ export function UserDetailPage() {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-800 bg-slate-900/60 p-6">
-        <h2 className="text-lg font-bold text-white">Activity Timeline</h2>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-base font-bold text-black">Activity Timeline</h2>
         {user.activity.length === 0 ? (
-          <p className="mt-4 text-sm text-slate-500">No activity recorded.</p>
+          <p className="mt-4 text-sm text-slate-400">No activity recorded.</p>
         ) : (
           <div className="mt-4 space-y-3">
             {user.activity.map((entry) => (
-              <div key={entry.id} className="flex items-start gap-3 rounded-2xl bg-slate-950 px-4 py-3">
-                <span className="mt-0.5 shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-400">
+              <div key={entry.id} className="flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50 px-4 py-3">
+                <span className="mt-0.5 shrink-0 rounded-md border border-black bg-black px-2 py-0.5 text-xs font-bold text-white">
                   {entry.type}
                 </span>
                 <div>
-                  <p className="text-sm text-slate-200">{entry.description}</p>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="text-sm text-slate-800">{entry.description}</p>
+                  <p className="mt-0.5 text-xs text-slate-400">
                     {entry.createdAt ? new Date(entry.createdAt).toLocaleString() : '—'}
                   </p>
                 </div>
@@ -171,9 +171,9 @@ export function UserDetailPage() {
 
 function Row({ label, value }: { label: string; value: string | null }) {
   return (
-    <div className="flex justify-between gap-4">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="text-right text-slate-200">{value || '—'}</dd>
+    <div className="flex justify-between gap-4 pt-2">
+      <dt className="text-slate-500 text-xs uppercase tracking-wider">{label}</dt>
+      <dd className="text-right text-slate-900 font-medium">{value || '—'}</dd>
     </div>
   )
 }

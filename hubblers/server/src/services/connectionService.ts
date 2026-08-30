@@ -92,90 +92,98 @@ export async function searchUsers(
   if (!cleanQ) return []
 
   try {
-    const usersSnap = await db.collection('users').where('role', '==', 'STUDENT').get()
-    const matchingDocs = usersSnap.docs.filter((doc) => {
-      if (currentUid && doc.id === currentUid) return false // Skip self in general search
-      const data = doc.data() as AppUser
-      const hId = (data.hubblerId || '').toUpperCase()
-      const name = (data.fullName || '').toUpperCase()
-      const college = (data.collegeName || '').toUpperCase()
+    let matchingDocs: FirebaseFirestore.QueryDocumentSnapshot[] = []
 
-      return hId.includes(cleanQ) || name.includes(cleanQ) || college.includes(cleanQ)
-    })
+    // If searching by direct HubblerID prefix, execute direct indexed query for ultra-low latency
+    if (cleanQ.startsWith('HX-') || cleanQ.startsWith('HX')) {
+      const directSnap = await db
+        .collection('users')
+        .where('hubblerId', '>=', cleanQ)
+        .where('hubblerId', '<=', cleanQ + '\uf8ff')
+        .limit(20)
+        .get()
+      matchingDocs = directSnap.docs
+    }
 
-    // Limit search results to 20 for speed
+    // Otherwise fetch active students up to limit 50 and filter in memory
+    if (matchingDocs.length === 0) {
+      const usersSnap = await db.collection('users').where('role', '==', 'STUDENT').limit(50).get()
+      matchingDocs = usersSnap.docs.filter((doc) => {
+        if (currentUid && doc.id === currentUid) return false // Skip self in general search
+        const data = doc.data() as AppUser
+        const hId = (data.hubblerId || '').toUpperCase()
+        const name = (data.fullName || '').toUpperCase()
+        const college = (data.collegeName || '').toUpperCase()
+
+        return hId.includes(cleanQ) || name.includes(cleanQ) || college.includes(cleanQ)
+      })
+    }
+
+    // Limit search results to 20 for fast response
     const selected = matchingDocs.slice(0, 20)
-    const results: Array<{
-      hubblerId: string
-      fullName: string
-      collegeName: string
-      profileImage: string | null
-      activeTitle: string | null
-      activeFrame: string | null
-      level: number
-      badgeCount: number
-      connectionStatus: ConnectionStatus
-      isRequester: boolean
-      isFollowing: boolean
-      mutualCount: number
-    }> = []
 
-    for (const doc of selected) {
-      const u = doc.data() as AppUser
-      const { hubblerId, privacy } = await ensureUserHubblerId(doc.id, u)
+    const results = await Promise.all(
+      selected.map(async (doc) => {
+        const u = doc.data() as AppUser
+        const { hubblerId, privacy } = await ensureUserHubblerId(doc.id, u)
 
-      if (privacy.profileVisibility === 'PRIVATE') {
-        // Skip private accounts from generic discovery search unless searching exact HubblerID
-        if (cleanQ !== hubblerId.toUpperCase()) {
-          continue
+        if (privacy.profileVisibility === 'PRIVATE') {
+          // Skip private accounts from generic discovery search unless searching exact HubblerID
+          if (cleanQ !== hubblerId.toUpperCase()) {
+            return null
+          }
         }
-      }
 
-      let connectionStatus: ConnectionStatus = 'NONE'
-      let isRequester = false
-      let isFollowing = false
-      let mutualCount = 0
+        let connectionStatus: ConnectionStatus = 'NONE'
+        let isRequester = false
+        let isFollowing = false
 
-      if (currentUid) {
-        const { docId } = canonicalPair(currentUid, doc.id)
-        const [connDoc, followDoc, mutuals] = await Promise.all([
-          db.collection('connections').doc(docId).get(),
-          db.collection('follows').doc(`follow_${currentUid}_${doc.id}`).get(),
-          getMutualFriendUids(currentUid, doc.id),
+        const { docId } = currentUid ? canonicalPair(currentUid, doc.id) : { docId: '' }
+
+        // Parallelize sub-queries for each user item
+        const [connDoc, followDoc, mutuals, badgesSnap] = await Promise.all([
+          currentUid ? db!.collection('connections').doc(docId).get() : Promise.resolve(null),
+          currentUid
+            ? db!.collection('follows').doc(`follow_${currentUid}_${doc.id}`).get()
+            : Promise.resolve(null),
+          currentUid ? getMutualFriendUids(currentUid, doc.id) : Promise.resolve([]),
+          db!.collection('userBadges').where('userId', '==', doc.id).get(),
         ])
 
-        if (connDoc.exists) {
+        if (connDoc && connDoc.exists) {
           const c = connDoc.data() as ConnectionRecord
           connectionStatus = c.status
           isRequester = c.requesterUid === currentUid
         }
-        isFollowing = followDoc.exists
-        mutualCount = mutuals.length
-      }
+        if (followDoc && followDoc.exists) {
+          isFollowing = true
+        }
+        const mutualCount = mutuals.length
 
-      // Count badges
-      const badgesSnap = await db.collection('userBadges').where('userId', '==', doc.id).get()
-      const levelInfo = calculateLevel(u.xp || 0)
+        const levelInfo = calculateLevel(u.xp || 0)
 
-      results.push({
-        hubblerId,
-        fullName: u.fullName || 'Student',
-        collegeName: u.collegeName || 'HubblerX Partner College',
-        profileImage: u.profileImage || null,
-        activeTitle: u.activeTitle || null,
-        activeFrame: u.activeFrame || null,
-        level: levelInfo.level,
-        badgeCount: badgesSnap.size,
-        connectionStatus,
-        isRequester,
-        isFollowing,
-        mutualCount,
-      })
-    }
+        return {
+          hubblerId,
+          fullName: u.fullName || 'Student',
+          collegeName: u.collegeName || 'HubblerX Partner College',
+          profileImage: u.profileImage || null,
+          activeTitle: u.activeTitle || null,
+          activeFrame: u.activeFrame || null,
+          level: levelInfo.level,
+          badgeCount: badgesSnap.size,
+          connectionStatus,
+          isRequester,
+          isFollowing,
+          mutualCount,
+        }
+      }),
+    )
 
-    return results
+    return results.filter(
+      (item): item is NonNullable<typeof item> => item !== null && (!currentUid || item.hubblerId !== currentUid),
+    )
   } catch (error) {
-    console.error('[connectionService] searchUsers failed:', error)
+    console.error('[searchUsers] error:', error)
     return []
   }
 }

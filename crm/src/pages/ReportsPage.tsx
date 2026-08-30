@@ -25,38 +25,38 @@ function fmt(date: string) {
 }
 
 function statusChip(s: string) {
-  if (s === 'PENDING') return 'bg-amber-500/15 text-amber-400 border border-amber-500/30'
-  if (s === 'RESOLVED') return 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-  if (s === 'DISMISSED') return 'bg-slate-700/60 text-slate-400 border border-slate-600/30'
-  return 'bg-slate-800 text-slate-500'
+  if (s === 'PENDING') return 'bg-black text-white border border-black'
+  if (s === 'RESOLVED') return 'bg-slate-100 text-slate-800 border border-slate-300'
+  if (s === 'DISMISSED') return 'bg-slate-50 text-slate-500 border border-slate-200'
+  return 'bg-slate-100 text-slate-600'
 }
 
 function actionTakenChip(action?: string | null) {
   if (!action) return null
   if (action === 'EVENT_DELETED') {
     return (
-      <span className="rounded-full bg-rose-500/15 px-2.5 py-0.5 text-xs font-bold text-rose-400 border border-rose-500/30 flex items-center gap-1">
+      <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-bold text-black flex items-center gap-1">
         🗑️ Event Removed
       </span>
     )
   }
   if (action === 'ORGANIZER_BLOCKED') {
     return (
-      <span className="rounded-full bg-red-500/15 px-2.5 py-0.5 text-xs font-bold text-red-400 border border-red-500/30 flex items-center gap-1">
+      <span className="rounded-md border border-black bg-black px-2 py-0.5 text-xs font-bold text-white flex items-center gap-1">
         🚫 Organizer Blocked
       </span>
     )
   }
   if (action === 'RESOLVED') {
     return (
-      <span className="rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-bold text-emerald-400 border border-emerald-500/30">
+      <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-bold text-black">
         ✓ Resolved
       </span>
     )
   }
   if (action === 'DISMISSED') {
     return (
-      <span className="rounded-full bg-slate-700/60 px-2.5 py-0.5 text-xs font-bold text-slate-400 border border-slate-600/30">
+      <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-bold text-slate-500">
         ✕ Dismissed
       </span>
     )
@@ -64,12 +64,8 @@ function actionTakenChip(action?: string | null) {
   return null
 }
 
-function categoryChip(c: string) {
-  if (c === 'SCAM' || c === 'FAKE_EVENT') return 'bg-rose-500/15 text-rose-400'
-  if (c === 'SPAM') return 'bg-orange-500/15 text-orange-400'
-  if (c === 'MISLEADING') return 'bg-amber-500/15 text-amber-400'
-  if (c === 'INAPPROPRIATE') return 'bg-violet-500/15 text-violet-400'
-  return 'bg-slate-700/60 text-slate-400'
+function categoryChip(_c: string) {
+  return 'rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-semibold text-slate-700'
 }
 
 type ModalAction = 'DELETE_EVENT' | 'BLOCK_ORGANIZER' | 'RESOLVE' | 'DISMISSED'
@@ -180,21 +176,40 @@ export function ReportsPage() {
               : r,
           ),
         )
-      } else if (type === 'RESOLVE' || type === 'DISMISSED') {
+      } else if (type === 'RESOLVE') {
         const res = await resolveReport(report.id, {
-          status: type === 'RESOLVE' ? 'RESOLVED' : 'DISMISSED',
-          resolution: reasonInput,
+          resolution: reasonInput || 'Resolved by admin.',
+          status: 'RESOLVED',
           notifyReporter,
         })
-        setSuccess(res.message || `Report marked as ${type}.`)
+        setSuccess(res.message || 'Report marked as resolved.')
         setReports((prev) =>
           prev.map((r) =>
             r.id === report.id
               ? {
                   ...r,
-                  status: type === 'RESOLVE' ? 'RESOLVED' : 'DISMISSED',
-                  actionTaken: type === 'RESOLVE' ? 'RESOLVED' : 'DISMISSED',
-                  resolution: reasonInput,
+                  status: 'RESOLVED',
+                  actionTaken: 'RESOLVED',
+                  resolution: reasonInput || 'Resolved by admin.',
+                }
+              : r,
+          ),
+        )
+      } else if (type === 'DISMISSED') {
+        const res = await resolveReport(report.id, {
+          resolution: reasonInput || 'Dismissed by admin.',
+          status: 'DISMISSED',
+          notifyReporter: false,
+        })
+        setSuccess(res.message || 'Report dismissed.')
+        setReports((prev) =>
+          prev.map((r) =>
+            r.id === report.id
+              ? {
+                  ...r,
+                  status: 'DISMISSED',
+                  actionTaken: 'DISMISSED',
+                  resolution: reasonInput || 'Dismissed by admin.',
                 }
               : r,
           ),
@@ -208,7 +223,6 @@ export function ReportsPage() {
     }
   }
 
-  /* pending count for badge */
   const pendingCount = reports.filter((r) => r.status === 'PENDING').length
 
   return (
@@ -216,11 +230,11 @@ export function ReportsPage() {
       {/* ── page header ─────────────────────────────────────────── */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold text-white">Event &amp; Account Reports</h1>
-          <p className="mt-1 text-slate-400">
+          <h1 className="text-2xl font-bold text-black">Event &amp; Account Reports</h1>
+          <p className="mt-1 text-sm text-slate-500">
             {total} report{total !== 1 ? 's' : ''} total
             {pendingCount > 0 && (
-              <span className="ml-2 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-400 border border-amber-500/30">
+              <span className="ml-2 rounded-md border border-black bg-black px-2 py-0.5 text-xs font-bold text-white">
                 {pendingCount} pending moderation
               </span>
             )}
@@ -230,13 +244,13 @@ export function ReportsPage() {
 
       {/* ── success / error banners ──────────────────────────────── */}
       {success && (
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-4 text-sm font-semibold text-emerald-400 flex items-center gap-2">
+        <div className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-semibold text-black flex items-center gap-2">
           <span>✓</span>
           <span>{success}</span>
         </div>
       )}
       {error && (
-        <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-5 py-4 text-sm text-rose-400 flex items-center gap-2">
+        <div className="rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm text-red-600 flex items-center gap-2">
           <span>⚠️</span>
           <span>{error}</span>
         </div>
@@ -248,12 +262,12 @@ export function ReportsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search event, organizer, reporter, reason…"
-          className="flex-1 rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-rose-500 transition"
+          className="flex-1 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-black transition"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-rose-500 transition"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-black transition"
         >
           <option value="ALL">All statuses</option>
           <option value="PENDING">Pending</option>
@@ -263,7 +277,7 @@ export function ReportsPage() {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-rose-500 transition"
+          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm text-black outline-none focus:border-black transition"
         >
           <option value="ALL">All categories</option>
           <option value="SPAM">Spam</option>
@@ -278,23 +292,18 @@ export function ReportsPage() {
       {/* ── table / list ─────────────────────────────────────────── */}
       {loading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-rose-500 border-t-transparent" />
+          <p className="text-sm text-slate-400">Loading reports…</p>
         </div>
       ) : reports.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-800 bg-slate-900/40 py-20">
-          <span className="text-5xl">📭</span>
-          <p className="mt-4 text-slate-400">No reports found.</p>
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white py-16">
+          <p className="text-sm text-slate-400">No reports found.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {reports.map((report) => (
             <div
               key={report.id}
-              className={`rounded-3xl border bg-slate-900/60 transition ${
-                report.status === 'PENDING'
-                  ? 'border-amber-500/30 shadow-lg shadow-amber-500/5'
-                  : 'border-slate-800'
-              }`}
+              className="rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:border-black"
             >
               {/* ── report summary row ───────────────────────────── */}
               <button
@@ -304,55 +313,55 @@ export function ReportsPage() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${categoryChip(report.category)}`}>
+                      <span className={categoryChip(report.category)}>
                         {report.category.replace('_', ' ')}
                       </span>
-                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${statusChip(report.status)}`}>
+                      <span className={`rounded-md px-2 py-0.5 text-xs font-bold ${statusChip(report.status)}`}>
                         {report.status}
                       </span>
                       {actionTakenChip(report.actionTaken)}
                     </div>
-                    <p className="text-base font-semibold text-white truncate">🎪 {report.eventTitle || 'Unknown event'}</p>
-                    <p className="text-xs text-slate-400 mt-1">
-                      Reported by <span className="text-slate-200 font-medium">{report.reporterName || report.reporterEmail}</span>
+                    <p className="text-sm font-bold text-black truncate">🎪 {report.eventTitle || 'Unknown event'}</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Reported by <span className="text-black font-semibold">{report.reporterName || report.reporterEmail}</span>
                       {report.reporterCollege && <> · {report.reporterCollege}</>}
-                      {report.organizerName && <> | Organizer: <span className="text-rose-300 font-medium">{report.organizerName}</span></>}
+                      {report.organizerName && <> | Organizer: <span className="text-black font-semibold">{report.organizerName}</span></>}
                     </p>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
-                    <span className="text-xs text-slate-500">{fmt(report.createdAt)}</span>
-                    <span className="text-slate-500 text-sm">{expanded === report.id ? '▲' : '▼'}</span>
+                    <span className="text-xs text-slate-400">{fmt(report.createdAt)}</span>
+                    <span className="text-slate-400 text-xs">{expanded === report.id ? '▲' : '▼'}</span>
                   </div>
                 </div>
               </button>
 
               {/* ── expanded detail ──────────────────────────────── */}
               {expanded === report.id && (
-                <div className="border-t border-slate-800 px-5 py-5 space-y-5 bg-slate-950/40">
+                <div className="border-t border-slate-100 px-5 py-5 space-y-5 bg-slate-50 rounded-b-2xl">
                   {/* reporter & event info */}
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 space-y-1.5">
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-1.5">
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Reporter Info (Student)</p>
-                      <p className="text-sm font-semibold text-slate-200">{report.reporterName || '—'}</p>
-                      <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                      <p className="text-sm font-bold text-black">{report.reporterName || '—'}</p>
+                      <p className="text-xs text-slate-600 flex items-center gap-1.5">
                         <span>✉️</span> {report.reporterEmail}
                       </p>
                       {report.reporterCollege && (
-                        <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                        <p className="text-xs text-slate-600 flex items-center gap-1.5">
                           <span>🏛️</span> {report.reporterCollege}
                         </p>
                       )}
                     </div>
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 space-y-1.5">
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-1.5">
                       <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Reported Organizer &amp; Event</p>
-                      <p className="text-sm font-semibold text-slate-200">{report.eventTitle || '—'}</p>
+                      <p className="text-sm font-bold text-black">{report.eventTitle || '—'}</p>
                       {report.organizerName && (
-                        <p className="text-xs text-rose-300 font-medium flex items-center gap-1.5">
+                        <p className="text-xs text-slate-700 font-medium flex items-center gap-1.5">
                           <span>👤</span> Organizer: {report.organizerName}
                         </p>
                       )}
                       {report.collegeName && (
-                        <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                        <p className="text-xs text-slate-600 flex items-center gap-1.5">
                           <span>🏛️</span> {report.collegeName}
                         </p>
                       )}
@@ -360,67 +369,63 @@ export function ReportsPage() {
                   </div>
 
                   {/* reason */}
-                  <div className="rounded-2xl border border-rose-500/20 bg-rose-950/10 p-4">
-                    <p className="text-xs font-bold uppercase tracking-wider text-rose-400 mb-1.5 flex items-center gap-1.5">
-                      <span>🚩</span> Reason Reported
+                  <div className="rounded-xl border border-slate-200 bg-white p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                      Reason Reported
                     </p>
-                    <p className="text-sm text-slate-300 leading-relaxed">{report.reason}</p>
+                    <p className="text-sm text-slate-800 leading-relaxed">{report.reason}</p>
                   </div>
 
                   {/* resolution if exists */}
                   {report.resolution && (
-                    <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/10 p-4 space-y-1">
+                    <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-1">
                       <div className="flex items-center justify-between">
-                        <p className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                          <span>✓</span> Resolution Note &amp; Actions Taken
+                        <p className="text-xs font-bold uppercase tracking-wider text-black">
+                          Resolution Note
                         </p>
                         {report.updatedAt && (
-                          <span className="text-xs text-slate-500">{fmt(report.updatedAt)}</span>
+                          <span className="text-xs text-slate-400">{fmt(report.updatedAt)}</span>
                         )}
                       </div>
-                      <p className="text-sm text-slate-300 leading-relaxed">{report.resolution}</p>
+                      <p className="text-sm text-slate-800 leading-relaxed">{report.resolution}</p>
                     </div>
                   )}
 
                   {/* action buttons */}
                   {report.status === 'PENDING' && (
-                    <div className="pt-2 border-t border-slate-800/80">
-                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Admin Moderation Actions</p>
+                    <div className="pt-2 border-t border-slate-200">
+                      <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Moderation Actions</p>
                       <div className="flex flex-wrap items-center gap-3">
                         <button
                           onClick={() => openActionModal(report, 'DELETE_EVENT')}
                           disabled={actionLoading === report.id}
-                          className="rounded-2xl bg-rose-500/10 border border-rose-500/30 px-4 py-2.5 text-xs font-bold text-rose-400 hover:bg-rose-500/20 hover:border-rose-500 transition flex items-center gap-1.5 disabled:opacity-50"
+                          className="rounded-lg bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition disabled:opacity-50"
                         >
-                          <span>🗑️</span>
-                          <span>Delete Event &amp; Acknowledge Organizer</span>
+                          Delete Event
                         </button>
 
                         <button
                           onClick={() => openActionModal(report, 'BLOCK_ORGANIZER')}
                           disabled={actionLoading === report.id}
-                          className="rounded-2xl bg-red-600/10 border border-red-500/40 px-4 py-2.5 text-xs font-bold text-red-400 hover:bg-red-600/25 hover:border-red-500 transition flex items-center gap-1.5 disabled:opacity-50"
+                          className="rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-xs font-semibold text-red-700 hover:bg-red-100 transition disabled:opacity-50"
                         >
-                          <span>🚫</span>
-                          <span>Block Organizer Account &amp; Acknowledge Student</span>
+                          Block Organizer
                         </button>
 
                         <button
                           onClick={() => openActionModal(report, 'RESOLVE')}
                           disabled={actionLoading === report.id}
-                          className="rounded-2xl bg-emerald-500/10 border border-emerald-500/30 px-4 py-2.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20 transition flex items-center gap-1.5 disabled:opacity-50"
+                          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-black hover:border-black transition disabled:opacity-50"
                         >
-                          <span>✓</span>
-                          <span>Resolve with Note</span>
+                          Resolve
                         </button>
 
                         <button
                           onClick={() => openActionModal(report, 'DISMISSED')}
                           disabled={actionLoading === report.id}
-                          className="rounded-2xl border border-slate-700 bg-slate-900 px-4 py-2.5 text-xs font-bold text-slate-400 hover:border-slate-500 hover:text-white transition flex items-center gap-1.5 disabled:opacity-50"
+                          className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-500 hover:text-black transition disabled:opacity-50"
                         >
-                          <span>✕</span>
-                          <span>Dismiss Report</span>
+                          Dismiss
                         </button>
                       </div>
                     </div>
@@ -434,114 +439,61 @@ export function ReportsPage() {
 
       {/* ── MODERATION ACTION MODAL ───────────────────────────────── */}
       {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-xl rounded-3xl border border-slate-800 bg-slate-900 p-6 sm:p-8 shadow-2xl space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-2xl space-y-6">
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-2xl">
-                  {activeModal.type === 'DELETE_EVENT'
-                    ? '🗑️'
-                    : activeModal.type === 'BLOCK_ORGANIZER'
-                    ? '🚫'
-                    : activeModal.type === 'RESOLVE'
-                    ? '✓'
-                    : '✕'}
-                </span>
+                <h2 className="text-lg font-bold text-black">
+                  {activeModal.type === 'DELETE_EVENT' && 'Delete Event'}
+                  {activeModal.type === 'BLOCK_ORGANIZER' && 'Block Organizer Account'}
+                  {activeModal.type === 'RESOLVE' && 'Mark Report as Resolved'}
+                  {activeModal.type === 'DISMISSED' && 'Dismiss Report'}
+                </h2>
                 <button
                   onClick={closeModal}
-                  className="rounded-full p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                  className="rounded-full p-1.5 text-slate-400 hover:text-black transition"
                 >
                   ✕
                 </button>
               </div>
 
-              <h2 className="mt-3 text-xl font-bold text-white">
-                {activeModal.type === 'DELETE_EVENT' && 'Delete Event & Notify Organizer via Mail'}
-                {activeModal.type === 'BLOCK_ORGANIZER' && 'Block Organizer Account & Acknowledge Student via Mail'}
-                {activeModal.type === 'RESOLVE' && 'Mark Report as Resolved'}
-                {activeModal.type === 'DISMISSED' && 'Dismiss Report'}
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-xs text-slate-500">
                 {activeModal.type === 'DELETE_EVENT' &&
-                  `This will permanently remove "${activeModal.report.eventTitle}" and send an official notice to ${activeModal.report.organizerName || 'the organizer'}.`}
+                  `Permanently remove "${activeModal.report.eventTitle}".`}
                 {activeModal.type === 'BLOCK_ORGANIZER' &&
-                  `This will suspend ${activeModal.report.organizerName || "the organizer"}'s account and send an acknowledgment confirmation email to ${activeModal.report.reporterEmail}.`}
+                  `Suspend ${activeModal.report.organizerName || "the organizer"}'s account.`}
                 {activeModal.type === 'RESOLVE' &&
-                  `This will resolve the report and optionally send an update email to ${activeModal.report.reporterEmail}.`}
+                  `Resolve the report with an optional note.`}
                 {activeModal.type === 'DISMISSED' &&
-                  `This will dismiss the report with an optional resolution explanation.`}
+                  `Dismiss this report.`}
               </p>
-            </div>
-
-            {/* Target context */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Reported Event:</span>
-                <span className="font-semibold text-slate-200">{activeModal.report.eventTitle}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Organizer:</span>
-                <span className="font-semibold text-rose-300">{activeModal.report.organizerName || '—'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Reporter Student:</span>
-                <span className="font-semibold text-slate-200">
-                  {activeModal.report.reporterName} ({activeModal.report.reporterEmail})
-                </span>
-              </div>
             </div>
 
             {/* Form inputs */}
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                  {activeModal.type === 'DELETE_EVENT'
-                    ? 'Notice / Reason for Event Deletion (Included in Organizer Email)'
-                    : activeModal.type === 'BLOCK_ORGANIZER'
-                    ? 'Reason for Account Suspension (Included in Notification Emails)'
-                    : 'Resolution Note / Action Explanation'}
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
+                  Resolution Note / Reason
                 </label>
                 <textarea
                   value={reasonInput}
                   onChange={(e) => setReasonInput(e.target.value)}
                   rows={3}
-                  placeholder={
-                    activeModal.type === 'DELETE_EVENT'
-                      ? 'e.g. This event was removed following community reports regarding inaccurate location and deceptive fees.'
-                      : activeModal.type === 'BLOCK_ORGANIZER'
-                      ? 'e.g. The organizer account has been suspended for fraudulent activities and non-compliance.'
-                      : 'Add any specific notes on how this report was handled…'
-                  }
-                  className="w-full resize-none rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none focus:border-rose-500 transition"
+                  placeholder="Add specific notes on this action…"
+                  className="w-full resize-none rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-black outline-none focus:border-black transition"
                 />
               </div>
 
-              {/* Checkboxes */}
               <div className="space-y-2">
-                <label className="flex items-center gap-3 text-sm text-slate-300 cursor-pointer">
+                <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={notifyReporter}
                     onChange={(e) => setNotifyReporter(e.target.checked)}
-                    className="h-4 w-4 rounded border-slate-700 bg-slate-950 text-rose-500 focus:ring-rose-500"
+                    className="h-4 w-4 rounded border-slate-300"
                   />
-                  <span>
-                    Send acknowledgment &amp; update email to student (<strong>{activeModal.report.reporterEmail}</strong>)
-                  </span>
+                  <span>Send notification email to student</span>
                 </label>
-
-                {activeModal.type === 'BLOCK_ORGANIZER' && (
-                  <label className="flex items-center gap-3 text-sm text-slate-300 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={deleteEvents}
-                      onChange={(e) => setDeleteEvents(e.target.checked)}
-                      className="h-4 w-4 rounded border-slate-700 bg-slate-950 text-rose-500 focus:ring-rose-500"
-                    />
-                    <span>Also delete all active events published by this organizer</span>
-                  </label>
-                )}
               </div>
             </div>
 
@@ -550,7 +502,7 @@ export function ReportsPage() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex-1 rounded-2xl border border-slate-700 bg-slate-950 py-3 text-sm font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                className="flex-1 rounded-lg border border-slate-200 py-2.5 text-xs font-semibold text-slate-600 hover:border-black transition"
               >
                 Cancel
               </button>
@@ -558,29 +510,9 @@ export function ReportsPage() {
                 type="button"
                 onClick={handleExecuteAction}
                 disabled={actionLoading !== null}
-                className={`flex-1 rounded-2xl py-3 text-sm font-bold shadow-lg transition disabled:opacity-50 ${
-                  activeModal.type === 'DELETE_EVENT'
-                    ? 'bg-rose-500 text-slate-950 hover:bg-rose-400 shadow-rose-500/20'
-                    : activeModal.type === 'BLOCK_ORGANIZER'
-                    ? 'bg-red-600 text-white hover:bg-red-500 shadow-red-600/20'
-                    : activeModal.type === 'RESOLVE'
-                    ? 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-emerald-500/20'
-                    : 'bg-slate-700 text-white hover:bg-slate-600'
-                }`}
+                className="flex-1 rounded-lg bg-black py-2.5 text-xs font-bold text-white transition hover:bg-slate-800 disabled:opacity-50"
               >
-                {actionLoading !== null ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    <span>Processing &amp; Sending Mail…</span>
-                  </span>
-                ) : (
-                  <span>
-                    {activeModal.type === 'DELETE_EVENT' && 'Confirm & Delete Event'}
-                    {activeModal.type === 'BLOCK_ORGANIZER' && 'Confirm & Block Organizer'}
-                    {activeModal.type === 'RESOLVE' && 'Mark as Resolved'}
-                    {activeModal.type === 'DISMISSED' && 'Confirm Dismissal'}
-                  </span>
-                )}
+                {actionLoading !== null ? 'Processing…' : 'Confirm Action'}
               </button>
             </div>
           </div>

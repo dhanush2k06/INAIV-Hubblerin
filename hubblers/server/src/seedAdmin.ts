@@ -1,16 +1,17 @@
+import './config.js'
 import { auth as firebaseAuth, db } from './firebase.js'
 
 /**
  * Seed a default ADMIN account for the CRM dashboard.
  *
- * Usage:
- *   ADMIN_EMAIL="admin@hubblerx.com" ADMIN_PASSWORD="ChangeMe123!" npm run seed:admin
+ * Usage (PowerShell):
+ *   $env:ADMIN_EMAIL="admin@hubblerx.com"; $env:ADMIN_PASSWORD="ChangeMe123!"; npm run seed:admin
  *
- * It creates (or updates) a Firebase Auth user and a Firestore `users/{uid}`
- * document with role `ADMIN`, then sets the custom claims `{ role: 'ADMIN' }`.
+ * Or set ADMIN_EMAIL and ADMIN_PASSWORD in your hubblers/server/.env file and run:
+ *   npm run seed:admin
  */
 async function seedAdmin() {
-const email = process.env.ADMIN_EMAIL
+  const email = process.env.ADMIN_EMAIL
   const password = process.env.ADMIN_PASSWORD
   const fullName = process.env.ADMIN_NAME ?? 'HubblerX Admin'
 

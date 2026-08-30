@@ -33,6 +33,7 @@ import { ReferralModal } from '../components/rewards/ReferralModal'
 import { CertificateModal } from '../components/rewards/CertificateModal'
 import { ConnectionsHub } from '../components/connections/ConnectionsHub'
 import { CommunityFeed } from '../components/feed/CommunityFeed'
+import { UserProfileTab } from '../components/profile/UserProfileTab'
 import type { StudentRewardsSummary, RewardItem, Certificate } from '../types'
 import { exportRegistrationsToCsv } from '../utils/excelExport'
 
@@ -55,6 +56,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
   const activeTab = searchParams.get('tab') || 'overview'
 
   const [dashboard, setDashboard] = useState<DashboardData | null>(null)
+  const [hideProfileReminder, setHideProfileReminder] = useState(false)
   const [rewardsSummary, setRewardsSummary] = useState<StudentRewardsSummary | null>(null)
   const [storeRewards, setStoreRewards] = useState<RewardItem[]>([])
   const [feedbackEvent, setFeedbackEvent] = useState<{ id: string; title: string } | null>(null)
@@ -361,6 +363,40 @@ export function DashboardPage({ role }: DashboardPageProps) {
             )}
           </div>
 
+          {/* Profile Completion Reminder Banner */}
+          {role === 'STUDENT' && ((dashboard?.profileCompletion ?? 0) < 100) && !hideProfileReminder && activeTab !== 'profile' && (
+            <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent p-5 shadow-sm dark:border-emerald-500/20 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500 text-slate-950 font-black text-sm shadow-md shadow-emerald-500/20">
+                  {dashboard?.profileCompletion ?? 30}%
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">
+                    {dashboard?.profileCompletion ?? 30}% Profile Completed — Complete your profile!
+                  </p>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                    Fill in your college, department, roll number, and phone to unlock verified event certificates, XP rewards, and networking!
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                <button
+                  onClick={() => setSearchParams({ tab: 'profile' })}
+                  className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-slate-950 shadow-sm transition hover:bg-emerald-400"
+                >
+                  Complete Profile →
+                </button>
+                <button
+                  onClick={() => setHideProfileReminder(true)}
+                  className="rounded-xl p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  title="Dismiss reminder"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Student Tab Navigation Bar */}
           {role === 'STUDENT' && (
             <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-slate-200 dark:border-slate-800">
@@ -373,6 +409,23 @@ export function DashboardPage({ role }: DashboardPageProps) {
                 }`}
               >
                 📊 Overview
+              </button>
+              <button
+                onClick={() => setSearchParams({ tab: 'profile' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${
+                  activeTab === 'profile'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <span>👤 Profile</span>
+                {(dashboard?.profileCompletion ?? 0) < 100 && (
+                  <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-black ${
+                    activeTab === 'profile' ? 'bg-slate-950 text-emerald-400' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                  }`}>
+                    {dashboard?.profileCompletion ?? 30}%
+                  </span>
+                )}
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'feed' })}
@@ -454,7 +507,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
             </div>
           )}
 
-          {/* Organizer Tab Navigation Bar */}
+          {/* Organizer / College Tab Navigation Bar */}
           {role === 'COLLEGE_ADMIN' && (
             <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-slate-200 dark:border-slate-800">
               <button
@@ -466,6 +519,16 @@ export function DashboardPage({ role }: DashboardPageProps) {
                 }`}
               >
                 📊 Overview
+              </button>
+              <button
+                onClick={() => setSearchParams({ tab: 'profile' })}
+                className={`shrink-0 whitespace-nowrap rounded-2xl px-5 py-2.5 text-sm font-bold transition ${
+                  activeTab === 'profile'
+                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                }`}
+              >
+                🏛️ College Profile
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'registrations' })}
@@ -672,6 +735,11 @@ export function DashboardPage({ role }: DashboardPageProps) {
               </div>
             )}
 
+            {/* TAB: PROFILE */}
+            {activeTab === 'profile' && (
+              <UserProfileTab onProfileUpdated={() => loadDashboardData()} />
+            )}
+
             {/* TAB: COMMUNITY FEED */}
             {activeTab === 'feed' && (
               <CommunityFeed currentHubblerId={rewardsSummary?.hubblerId || dashboard.hubblerId} />
@@ -744,6 +812,11 @@ export function DashboardPage({ role }: DashboardPageProps) {
         {/* ORGANIZER / COLLEGE_ADMIN VIEW */}
         {role === 'COLLEGE_ADMIN' ? (
           <div className="space-y-8">
+            {/* TAB: PROFILE */}
+            {activeTab === 'profile' && (
+              <UserProfileTab onProfileUpdated={() => loadDashboardData()} />
+            )}
+
             {/* TAB 1: OVERVIEW */}
             {activeTab === 'overview' && (
               <div className="space-y-8">

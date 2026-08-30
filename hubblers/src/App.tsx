@@ -20,7 +20,6 @@ import './index.css'
 function App() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('hubblers_token'))
   const [role, setRole] = useState<string | null>(() => localStorage.getItem('hubblers_role'))
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => (localStorage.getItem('hubblers_theme') as 'light' | 'dark') || 'light')
 
   useEffect(() => {
     if (token) localStorage.setItem('hubblers_token', token)
@@ -33,13 +32,9 @@ function App() {
   }, [role])
 
   useEffect(() => {
-    localStorage.setItem('hubblers_theme', theme)
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [theme])
+    localStorage.removeItem('hubblers_theme')
+    document.documentElement.classList.remove('dark')
+  }, [])
 
   useEffect(() => {
     const storedToken = localStorage.getItem('hubblers_token')
@@ -69,18 +64,19 @@ function App() {
     firebaseSignOut().catch(() => {})
   }
 
-  const toggleTheme = () => setTheme(prev => prev === 'dark' ? 'light' : 'dark')
-
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-white text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100">
-        <Navbar role={role} onLogout={handleLogout} theme={theme} toggleTheme={toggleTheme} />
+      <div className="min-h-screen bg-white text-slate-900 transition-colors duration-300">
+        <Navbar role={role} onLogout={handleLogout} />
         <Routes>
           <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} />} />
           <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+          <Route path="/student-login" element={<LoginPage onLogin={handleLogin} />} />
+          <Route path="/college-login" element={<OrganizerLoginPage onLogin={handleLogin} />} />
           <Route path="/organizer-login" element={<OrganizerLoginPage onLogin={handleLogin} />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/student-signup" element={<StudentSignupPage />} />
+          <Route path="/college-signup" element={<OrganizerSignupPage />} />
           <Route path="/organizer-signup" element={<OrganizerSignupPage />} />
           <Route
             path="/events"

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   fetchSocialFeed,
   toggleLikePost,
@@ -28,17 +28,17 @@ export function CommunityFeed({ currentHubblerId: _currentHubblerId }: Community
   // Share feedback
   const [copiedPostId, setCopiedPostId] = useState<string | null>(null)
 
-  const loadFeed = (selectedFilter = filter) => {
+  const loadFeed = useCallback((selectedFilter = filter) => {
     setLoading(true)
     fetchSocialFeed(selectedFilter)
       .then((res) => setPosts(res.posts))
       .catch(() => setPosts([]))
       .finally(() => setLoading(false))
-  }
+  }, [filter])
 
   useEffect(() => {
     loadFeed(filter)
-  }, [filter])
+  }, [loadFeed, filter])
 
   const handleLike = async (postId: string) => {
     try {
