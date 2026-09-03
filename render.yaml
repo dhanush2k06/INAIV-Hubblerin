@@ -10,8 +10,8 @@ services:
     name: hubblerx-backend
     runtime: node
     plan: free
-    buildCommand: cd hubblers && npm install && npx tsc -p server/tsconfig.json
-    startCommand: cd hubblers && node dist-server/index.js
+    buildCommand: sh build-server.sh
+    startCommand: sh start-server.sh
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
