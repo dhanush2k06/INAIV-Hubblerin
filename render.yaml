@@ -5,15 +5,13 @@
 services:
   # ─────────────────────────────────────────────────────────────
   # 1. Backend Express API (Web Service)
-  #    Render dashboard → Root Directory: hubblers
   # ─────────────────────────────────────────────────────────────
   - type: web
     name: hubblerx-backend
     runtime: node
     plan: free
-    rootDir: hubblers
-    buildCommand: npm install && npx tsc -p server/tsconfig.json
-    startCommand: node dist-server/index.js
+    buildCommand: cd hubblers && npm install && npx tsc -p server/tsconfig.json
+    startCommand: cd hubblers && node dist-server/index.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
