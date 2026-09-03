@@ -8,12 +8,11 @@
     "crm"
   ],
   "scripts": {
-    "postinstall": "cd hubblers && npm install",
-    "build": "cd hubblers && npm install && npm run build",
-    "build:all": "cd hubblers && npm install && npm run build && cd ../crm && npm install && npm run build",
-    "build:backend": "cd hubblers && npm install && npx tsc -p server/tsconfig.json",
-    "build:frontend": "cd hubblers && npm install && npm run build",
-    "build:crm": "cd crm && npm install && npm run build",
+    "build": "cd hubblers && npm run build",
+    "build:all": "cd hubblers && npm run build && cd ../crm && npm run build",
+    "build:backend": "cd hubblers && npx tsc -p server/tsconfig.json",
+    "build:frontend": "cd hubblers && npm run build",
+    "build:crm": "cd crm && npm run build",
     "start": "cd hubblers && node dist-server/index.js",
     "start:server": "cd hubblers && node dist-server/index.js"
   }
