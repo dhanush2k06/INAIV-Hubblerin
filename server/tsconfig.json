@@ -4,7 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "nodenext",
     "rootDir": "../hubblers/server/src",
-    "outDir": "../dist-server",
+    "outDir": "../hubblers/dist-server",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
