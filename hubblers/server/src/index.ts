@@ -54,13 +54,11 @@ app.use(
 
       const normalizedOrigin = origin.replace(/\/$/, '')
 
-      // Allow if wildcard, explicitly in allowedOrigins list, or any .onrender.com / .railway.app subdomain
+      // Allow if wildcard, explicitly in allowedOrigins list, or any .onrender.com subdomain
       if (
         allowedOrigins.includes('*') ||
         allowedOrigins.includes(normalizedOrigin) ||
         normalizedOrigin.endsWith('.onrender.com') ||
-        normalizedOrigin.endsWith('.railway.app') ||
-        normalizedOrigin.endsWith('.up.railway.app') ||
         devOrigins.includes(normalizedOrigin)
       ) {
         return callback(null, true)
@@ -165,22 +163,23 @@ app.use(
 const server = app.listen(env.port, () => {
   console.log(`Hubblers backend listening on http://localhost:${env.port}`)
 
-  // Render & Railway Keep-Alive Self-Ping
-  // Automatically pings every 10 minutes to prevent Render free-tier cold starts
-  const pingUrl = process.env.RENDER_EXTERNAL_URL || process.env.PUBLIC_APP_URL || process.env.SELF_PING_URL
+  // Render Keep-Alive Self-Ping
+  // Pings every 4 minutes to stay well under Render's 15-minute inactivity sleep threshold.
+  // RENDER_EXTERNAL_URL is automatically injected by Render on all web services.
+  const pingUrl = process.env.RENDER_EXTERNAL_URL || process.env.SELF_PING_URL
   if (pingUrl && !pingUrl.includes('localhost')) {
     const healthEndpoint = `${pingUrl.replace(/\/$/, '')}/api/health`
-    console.log(`[KeepAlive] Configured self-ping to prevent Render cold starts: ${healthEndpoint}`)
+    console.log(`[KeepAlive] Self-ping configured → ${healthEndpoint} (every 4 min)`)
     setInterval(async () => {
       try {
         const res = await fetch(healthEndpoint)
         if (res.ok) {
-          console.log(`[KeepAlive] Heartbeat ping success at ${new Date().toISOString()}`)
+          console.log(`[KeepAlive] Heartbeat OK at ${new Date().toISOString()}`)
         }
       } catch (e) {
-        console.warn('[KeepAlive] Heartbeat ping error:', (e as Error).message)
+        console.warn('[KeepAlive] Heartbeat error:', (e as Error).message)
       }
-    }, 10 * 60 * 1000)
+    }, 4 * 60 * 1000)
   }
 })
 

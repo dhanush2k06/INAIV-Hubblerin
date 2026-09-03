@@ -165,8 +165,8 @@ npm run build
 npm run preview   # serves the built app locally to verify
 ```
 
-- The build output goes to `crm/dist/`, which you can deploy to any static host
-  (Netlify, Vercel, Firebase Hosting, etc.).
+- The build output goes to `crm/dist/`, which you can deploy to Render as a
+  **Static Site** (see `render.yaml` in the project root — `hubblerx-crm` service).
 - The backend `/api` must be reachable. Point the CRM at your deployed backend
   by setting the `VITE_API_BASE` env var to the full backend URL, e.g.:
 

@@ -1,22 +1,34 @@
 # Render Blueprint configuration for HubblerX
 # Docs: https://render.com/docs/blueprint-spec
+# Deploy all 3 services at once: Dashboard → New → Blueprint → connect repo
 
 services:
   # ─────────────────────────────────────────────────────────────
   # 1. Backend Express API (Web Service)
+  #    Render dashboard → Root Directory: hubblers
   # ─────────────────────────────────────────────────────────────
   - type: web
     name: hubblerx-backend
     runtime: node
     plan: free
     rootDir: hubblers
-    buildCommand: if [ -d "hubblers" ]; then cd hubblers && npm install && npx tsc -p server/tsconfig.json; else npm install && npx tsc -p server/tsconfig.json; fi
-    startCommand: if [ -d "hubblers" ]; then cd hubblers && node dist-server/index.js; else node dist-server/index.js; fi
+    buildCommand: npm install && npx tsc -p server/tsconfig.json
+    startCommand: node dist-server/index.js
+    healthCheckPath: /api/health
     envVars:
-      - key: PORT
-        value: 4000
+      - key: NODE_ENV
+        value: production
       - key: NODE_VERSION
         value: 20
+      - key: PORT
+        value: 4000
+      # RENDER_EXTERNAL_URL is auto-injected by Render — activates the self-ping keep-alive
+      - key: RENDER_EXTERNAL_URL
+        fromService:
+          type: web
+          name: hubblerx-backend
+          property: host
+      # ── Secrets — fill these in Render dashboard → Environment ──
       - key: JWT_SECRET
         sync: false
       - key: FIREBASE_PROJECT_ID
@@ -46,18 +58,22 @@ services:
 
   # ─────────────────────────────────────────────────────────────
   # 2. Main Frontend App (Static Site)
+  #    Render dashboard → Root Directory: hubblers
   # ─────────────────────────────────────────────────────────────
   - type: web
     name: hubblerx-app
     runtime: static
+    plan: free
     rootDir: hubblers
-    buildCommand: if [ -d "hubblers" ]; then cd hubblers && npm install && npm run build && cp -r dist ..; else npm install && npm run build; fi
+    buildCommand: npm install && npm run build
     staticPublishPath: dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: VITE_API_BASE
         sync: false
       - key: VITE_FIREBASE_API_KEY
@@ -76,19 +92,23 @@ services:
         sync: false
 
   # ─────────────────────────────────────────────────────────────
-  # 3. CRM Dashboard (Static Site)
+  # 3. CRM Admin Dashboard (Static Site)
+  #    Render dashboard → Root Directory: crm
   # ─────────────────────────────────────────────────────────────
   - type: web
     name: hubblerx-crm
     runtime: static
+    plan: free
     rootDir: crm
-    buildCommand: if [ -d "crm" ]; then cd crm && npm install && npm run build && cp -r dist ..; else npm install && npm run build; fi
+    buildCommand: npm install && npm run build
     staticPublishPath: dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: VITE_API_BASE
         sync: false
       - key: VITE_FIREBASE_API_KEY

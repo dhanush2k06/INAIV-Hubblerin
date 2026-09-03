@@ -8,6 +8,7 @@
 
 ```
 Project - HubblerX/
+├── CHANGELOG.md               # Centralized change & task tracking log
 ├── hubblers/                  # Main application
 │   ├── src/                   # React frontend (Vite + TypeScript + Tailwind)
 │   │   ├── pages/             # Home, Login, Signup, Dashboard, Events, etc.
@@ -30,6 +31,8 @@ Project - HubblerX/
 │   └── .env.example           # CRM env var template
 └── .gitignore                 # Root-level gitignore
 ```
+
+> 📖 **Project History & Task Tracking**: See [CHANGELOG.md](./CHANGELOG.md) for a centralized record of all changes, features, bug fixes, and development milestones.
 
 ## ✨ Features
 
