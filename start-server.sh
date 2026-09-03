@@ -1,7 +1,10 @@
 #!/usr/bin/env sh
 # Render backend start script
-# Runs from the repo root — navigates into hubblers/ and starts the compiled server
+# Handles both cases: running from repo root or running inside hubblers/
 set -e
 
-cd hubblers
+if [ -d "hubblers" ]; then
+  cd hubblers
+fi
+
 exec node dist-server/index.js

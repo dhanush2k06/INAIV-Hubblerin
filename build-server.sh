@@ -1,13 +1,17 @@
 #!/usr/bin/env sh
 # Render backend build script
-# Runs from the repo root — navigates into hubblers/ and compiles the server TS
+# Handles both cases: running from repo root or running inside hubblers/
 set -e
 
-echo "[build-server] Installing dependencies..."
-cd hubblers
+if [ -d "hubblers" ]; then
+  echo "[build-server] Moving into hubblers directory..."
+  cd hubblers
+fi
+
+echo "[build-server] Installing dependencies in $(pwd)..."
 npm install
 
 echo "[build-server] Compiling TypeScript server..."
 npx tsc -p server/tsconfig.json
 
-echo "[build-server] Done. Output → hubblers/dist-server/"
+echo "[build-server] Build successful. Output in $(pwd)/dist-server"
