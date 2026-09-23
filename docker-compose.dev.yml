@@ -1,0 +1,81 @@
+services:
+  # ─────────────────────────────────────────────────────────────
+  # 1. Express Backend (Live TSX Watch Reloading)
+  # ─────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./hubblers
+      dockerfile: Dockerfile.backend.dev
+    container_name: hubblerx-backend-dev
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+    volumes:
+      - ./hubblers/server:/app/server
+      - /app/node_modules
+    env_file:
+      - path: ./hubblers/server/.env
+        required: false
+      - path: ./.env
+        required: false
+    networks:
+      - hubblerx-network
+
+  # ─────────────────────────────────────────────────────────────
+  # 2. Main Frontend (Vite HMR Live Reload)
+  # ─────────────────────────────────────────────────────────────
+  app:
+    build:
+      context: ./hubblers
+      dockerfile: Dockerfile.dev
+    container_name: hubblerx-app-dev
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./hubblers/src:/app/src
+      - ./hubblers/public:/app/public
+      - ./hubblers/index.html:/app/index.html
+      - /app/node_modules
+    depends_on:
+      - backend
+    env_file:
+      - path: ./hubblers/.env
+        required: false
+      - path: ./.env
+        required: false
+    networks:
+      - hubblerx-network
+
+  # ─────────────────────────────────────────────────────────────
+  # 3. CRM Dashboard (Vite HMR Live Reload)
+  # ─────────────────────────────────────────────────────────────
+  crm:
+    build:
+      context: ./crm
+      dockerfile: Dockerfile.dev
+    container_name: hubblerx-crm-dev
+    restart: unless-stopped
+    ports:
+      - "5174:5174"
+    volumes:
+      - ./crm/src:/app/src
+      - ./crm/public:/app/public
+      - ./crm/index.html:/app/index.html
+      - /app/node_modules
+    depends_on:
+      - backend
+    env_file:
+      - path: ./crm/.env
+        required: false
+      - path: ./.env
+        required: false
+    networks:
+      - hubblerx-network
+
+networks:
+  hubblerx-network:
+    driver: bridge

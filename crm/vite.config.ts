@@ -7,6 +7,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5174,
+    host: true,
     proxy: {
       // Proxy API calls to the Express backend during development so the
       // browser never hits CORS (requests stay same-origin).

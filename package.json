@@ -8,12 +8,20 @@
     "crm"
   ],
   "scripts": {
-    "build": "cd hubblers && npm run build",
-    "build:all": "cd hubblers && npm run build && cd ../crm && npm run build",
-    "build:backend": "cd hubblers && npx tsc -p server/tsconfig.json",
-    "build:frontend": "cd hubblers && npm run build",
-    "build:crm": "cd crm && npm run build",
-    "start": "cd hubblers && node dist-server/index.js",
-    "start:server": "cd hubblers && node dist-server/index.js"
+    "dev": "npm run --prefix hubblers dev",
+    "dev:all": "npm run --prefix hubblers dev:all",
+    "dev:crm": "npm run --prefix crm dev",
+    "dev:server": "npm run --prefix hubblers dev:server",
+    "build": "npm run --prefix hubblers build",
+    "build:all": "npm run --prefix hubblers build && npm run --prefix crm build",
+    "build:backend": "npm run --prefix hubblers build:backend",
+    "build:frontend": "npm run --prefix hubblers build:client",
+    "build:crm": "npm run --prefix crm build",
+    "start": "npm run --prefix hubblers start:server",
+    "start:server": "npm run --prefix hubblers start:server",
+    "seed:admin": "npm run --prefix hubblers seed:admin",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:dev": "docker compose -f docker-compose.dev.yml up --build"
   }
 }

@@ -1,0 +1,43 @@
+# ==============================================================
+# HubblerX Backend API — Dockerfile
+# ==============================================================
+
+# ── Stage 1: Build & Compile TypeScript ──
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install all dependencies (including devDependencies for TypeScript)
+COPY package*.json ./
+RUN npm ci
+
+# Copy backend source files
+COPY server/ ./server/
+
+# Compile TypeScript to dist-server
+RUN npx tsc -p server/tsconfig.json
+
+# ── Stage 2: Production Runtime ──
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=4000
+
+# Install production-only dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+# Copy compiled backend code from builder stage
+COPY --from=builder /app/dist-server ./dist-server
+
+# Expose backend port
+EXPOSE 4000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:4000/api/health || exit 1
+
+# Start production server
+CMD ["node", "dist-server/index.js"]

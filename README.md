@@ -76,7 +76,27 @@ Project - HubblerX/
 | **Validation** | Zod |
 | **QR Codes** | `qrcode` library |
 
-## 🚀 Getting Started
+## 🐳 Run with Docker (Zero Local Setup)
+
+To run the entire HubblerX ecosystem (Backend, Main App, and CRM) on **any machine without installing Node.js or npm**:
+
+```bash
+# 1. Copy the unified environment template
+cp .env.example .env
+
+# 2. Start all services via Docker Compose
+docker compose up --build
+```
+
+- **Main App**: [http://localhost:5173](http://localhost:5173)
+- **CRM Dashboard**: [http://localhost:5174](http://localhost:5174)
+- **Backend API**: [http://localhost:4000](http://localhost:4000)
+
+See [DOCKER.md](./DOCKER.md) for complete Docker setup instructions and live development mode (`docker compose -f docker-compose.dev.yml up`).
+
+---
+
+## 🚀 Local Development (Without Docker)
 
 ### Prerequisites
 
@@ -87,8 +107,8 @@ Project - HubblerX/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/HubblerX.git
-cd HubblerX
+git clone https://github.com/dhanush2k06/INAIV-Hubblerin.git
+cd INAIV-Hubblerin
 ```
 
 ### 2. Install dependencies

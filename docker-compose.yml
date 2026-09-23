@@ -1,0 +1,68 @@
+services:
+  # ─────────────────────────────────────────────────────────────
+  # 1. Express Backend REST API
+  # ─────────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./hubblers
+      dockerfile: Dockerfile.backend
+    container_name: hubblerx-backend
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+    env_file:
+      - path: ./hubblers/server/.env
+        required: false
+      - path: ./.env
+        required: false
+    networks:
+      - hubblerx-network
+
+  # ─────────────────────────────────────────────────────────────
+  # 2. HubblerX Main Frontend (Students & Organizers)
+  # ─────────────────────────────────────────────────────────────
+  app:
+    build:
+      context: ./hubblers
+      dockerfile: Dockerfile
+    container_name: hubblerx-app
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    env_file:
+      - path: ./hubblers/.env
+        required: false
+      - path: ./.env
+        required: false
+    networks:
+      - hubblerx-network
+
+  # ─────────────────────────────────────────────────────────────
+  # 3. HubblerX Admin CRM Dashboard
+  # ─────────────────────────────────────────────────────────────
+  crm:
+    build:
+      context: ./crm
+      dockerfile: Dockerfile
+    container_name: hubblerx-crm
+    restart: unless-stopped
+    ports:
+      - "5174:5174"
+    depends_on:
+      - backend
+    env_file:
+      - path: ./crm/.env
+        required: false
+      - path: ./.env
+        required: false
+    networks:
+      - hubblerx-network
+
+networks:
+  hubblerx-network:
+    driver: bridge

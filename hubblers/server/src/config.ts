@@ -6,7 +6,21 @@ import { fileURLToPath } from 'url'
 const serverRoot = path.dirname(fileURLToPath(import.meta.url))
 const serverDir = path.resolve(serverRoot, '..')
 
-dotenv.config({ path: path.resolve(serverDir, '.env') })
+// Search for .env files across common project locations (dev tsx, compiled dist-server, repo root, etc.)
+const envCandidates = [
+  path.resolve(serverDir, 'server', '.env'),
+  path.resolve(serverDir, '.env'),
+  path.resolve(serverRoot, '..', 'server', '.env'),
+  path.resolve(process.cwd(), 'hubblers', 'server', '.env'),
+  path.resolve(process.cwd(), 'server', '.env'),
+  path.resolve(process.cwd(), '.env'),
+]
+
+for (const envPath of envCandidates) {
+  if (existsSync(envPath)) {
+    dotenv.config({ path: envPath })
+  }
+}
 
 function normalizePrivateKey(raw: string): string {
   if (!raw) return ''
@@ -59,18 +73,32 @@ function resolveServiceAccountPath(): string | null {
   const configured = process.env.FIREBASE_SERVICE_ACCOUNT_PATH
   if (!configured) return null
 
-  const resolved = path.isAbsolute(configured)
-    ? configured
-    : path.resolve(serverDir, configured)
+  const candidates = [
+    path.isAbsolute(configured) ? configured : null,
+    path.resolve(process.cwd(), configured),
+    path.resolve(serverDir, configured),
+    path.resolve(serverDir, 'server', configured),
+    path.resolve(serverRoot, '..', configured),
+    path.resolve(serverRoot, '..', 'server', configured),
+    path.resolve(process.cwd(), 'hubblers', configured),
+    path.resolve(process.cwd(), 'hubblers', 'server', configured),
+  ].filter((p): p is string => Boolean(p))
 
-  return existsSync(resolved) ? resolved : null
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate
+  }
+
+  return null
 }
 
 const serviceAccountPath = resolveServiceAccountPath()
 
+if (!process.env.CORS_ORIGIN) {
+  process.env.CORS_ORIGIN = 'http://localhost:5173'
+}
+
 const required = [
   'FIREBASE_STORAGE_BUCKET',
-  'CORS_ORIGIN',
 ]
 
 if (!serviceAccountPath) {
@@ -79,9 +107,9 @@ if (!serviceAccountPath) {
 
 const missing = required.filter((key) => !process.env[key])
 if (missing.length > 0) {
-  throw new Error(
-    `Missing required environment variables on startup: [${missing.join(', ')}].\n` +
-    'Please add them in your Render service Environment tab or local .env file.'
+  console.warn(
+    `[Server Config] Warning: Missing environment variables on startup: [${missing.join(', ')}].\n` +
+    'The server will operate, but Firebase services will run in fallback/demo mode until configured.'
   )
 }
 
@@ -94,9 +122,9 @@ export const env = {
     privateKey: process.env.FIREBASE_PRIVATE_KEY
       ? normalizePrivateKey(process.env.FIREBASE_PRIVATE_KEY)
       : '',
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET!,
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET ?? '',
   },
-corsOrigin: process.env.CORS_ORIGIN!,
+  corsOrigin: process.env.CORS_ORIGIN ?? 'http://localhost:5173',
   corsOrigins: (process.env.CORS_ORIGINS ?? '')
     .split(',')
     .map((s) => s.trim())
