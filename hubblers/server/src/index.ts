@@ -1,220 +1,62 @@
-import path from 'path'
-import fs from 'fs'
-import express from 'express'
-import compression from 'compression'
-import helmet from 'helmet'
-import cors from 'cors'
-import rateLimit from 'express-rate-limit'
-import authRoutes from './routes/auth.js'
-import usersRoutes from './routes/users.js'
-import collegesRoutes from './routes/colleges.js'
-import dashboardRoutes from './routes/dashboard.js'
-import eventsRoutes from './routes/events.js'
-import crmRoutes from './routes/crm.js'
-import rewardsRoutes from './routes/rewards.js'
-import connectionsRoutes from './routes/connections.js'
-import postsRoutes from './routes/posts.js'
-import { seedInitialRewards } from './services/rewardService.js'
+import { app } from './app.js'
 import { env } from './config.js'
 
-const app = express()
+export { app }
+export default app
 
-// Gzip / Deflate compression for ultra-fast API JSON payloads and responses
-app.use(compression())
+// Only start the standalone HTTP listener when NOT running in a serverless environment (e.g. Vercel)
+if (!process.env.VERCEL) {
+  const server = app.listen(env.port, () => {
+    console.log(`Hubblers backend listening on http://localhost:${env.port}`)
 
-// Trust reverse proxy (Railway, Render, Cloudflare, etc.) so req.ip reflects actual client IP
-app.set('trust proxy', 1)
-
-// Auto-seed initial store rewards in the background on startup
-seedInitialRewards().catch((err) => console.error('[Server] seedInitialRewards error:', err))
-
-app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-  }),
-)
-
-// Local development and common production origins
-const devOrigins = [
-  'http://localhost:5173',
-  'http://127.0.0.1:5173',
-  'http://localhost:5174',
-  'http://127.0.0.1:5174',
-]
-
-const allowedOrigins = [env.corsOrigin, ...env.corsOrigins, ...devOrigins]
-  .filter(Boolean)
-  .map((o) => o.replace(/\/$/, ''))
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow server-to-server, curl, or mobile app requests (no origin)
-      if (!origin) return callback(null, true)
-
-      const normalizedOrigin = origin.replace(/\/$/, '')
-
-      // Allow if wildcard, explicitly in allowedOrigins list, or any .onrender.com subdomain
-      if (
-        allowedOrigins.includes('*') ||
-        allowedOrigins.includes(normalizedOrigin) ||
-        normalizedOrigin.endsWith('.onrender.com') ||
-        devOrigins.includes(normalizedOrigin)
-      ) {
-        return callback(null, true)
-      }
-
-      console.warn(`[CORS] Blocked request from unauthorized origin: ${origin}`)
-      return callback(new Error(`Not allowed by CORS: ${origin}`))
-    },
-    credentials: true,
-  }),
-)
-app.use(express.json({ limit: '10mb' }))
-app.use(express.urlencoded({ extended: true, limit: '10mb' }))
-
-// General API Rate Limiter (Scalable for 100+ concurrent active sessions)
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 1500,
-  standardHeaders: true,
-  legacyHeaders: false,
-})
-
-// Specific Auth Limiter to prevent brute-force attacks while avoiding blocking regular navigation
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 60,
-  message: { error: 'Too many authentication attempts. Please try again later.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-})
-
-app.use('/api/auth/login', authLimiter)
-app.use('/api/auth/signup', authLimiter)
-app.use('/api/', generalLimiter)
-
-app.use('/api/auth', authRoutes)
-app.use('/api/users', usersRoutes)
-app.use('/api/colleges', collegesRoutes)
-app.use('/api/dashboard', dashboardRoutes)
-app.use('/api/events', eventsRoutes)
-app.use('/api/crm', crmRoutes)
-app.use('/api/rewards', rewardsRoutes)
-app.use('/api/connections', connectionsRoutes)
-app.use('/api/posts', postsRoutes)
-
-app.get('/api/health', (_req, res) => res.json({ message: 'Hubblers API is running' }))
-
-// Serve static frontend assets if built dist folder exists (Single-service Railway deployment)
-const possibleDistPaths = [
-  path.join(process.cwd(), 'dist'),
-  path.join(process.cwd(), 'hubblers', 'dist'),
-  path.join(process.cwd(), '..', 'dist'),
-]
-
-const distPath = possibleDistPaths.find((p) => fs.existsSync(path.join(p, 'index.html')))
-
-if (distPath) {
-  console.log(`[Server] Serving static frontend with high-performance caching from: ${distPath}`)
-  app.use(
-    express.static(distPath, {
-      maxAge: '1y',
-      etag: true,
-      setHeaders: (res, filePath) => {
-        if (filePath.endsWith('index.html')) {
-          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-        } else {
-          res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    // Keep-Alive Self-Ping for platforms like Render
+    const pingUrl = process.env.RENDER_EXTERNAL_URL || process.env.SELF_PING_URL
+    if (pingUrl && !pingUrl.includes('localhost')) {
+      const healthEndpoint = `${pingUrl.replace(/\/$/, '')}/api/health`
+      console.log(`[KeepAlive] Self-ping configured → ${healthEndpoint} (every 4 min)`)
+      setInterval(async () => {
+        try {
+          const res = await fetch(healthEndpoint)
+          if (res.ok) {
+            console.log(`[KeepAlive] Heartbeat OK at ${new Date().toISOString()}`)
+          }
+        } catch (e) {
+          console.warn('[KeepAlive] Heartbeat error:', (e as Error).message)
         }
-      },
-    }),
-  )
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) return next()
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
-    res.sendFile(path.join(distPath, 'index.html'))
-  })
-} else {
-  app.use('/api', (_req, res) => {
-    res.status(404).json({ error: 'API route not found' })
-  })
-}
-
-// Global error handler — catches any error thrown in a route (including async
-// handlers) and returns a 500 instead of letting the process crash, which is
-// what previously caused the Vite proxy to fail with ECONNREFUSED.
-app.use(
-  (
-    err: unknown,
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction,
-  ) => {
-    void _next
-    console.error('[Global error handler]', err)
-    const message = err instanceof Error ? err.message : String(err)
-    if (!res.headersSent) {
-      res.status(500).json({ error: 'Internal server error', details: message })
+      }, 4 * 60 * 1000)
     }
-  },
-)
-
-const server = app.listen(env.port, () => {
-  console.log(`Hubblers backend listening on http://localhost:${env.port}`)
-
-  // Render Keep-Alive Self-Ping
-  // Pings every 4 minutes to stay well under Render's 15-minute inactivity sleep threshold.
-  // RENDER_EXTERNAL_URL is automatically injected by Render on all web services.
-  const pingUrl = process.env.RENDER_EXTERNAL_URL || process.env.SELF_PING_URL
-  if (pingUrl && !pingUrl.includes('localhost')) {
-    const healthEndpoint = `${pingUrl.replace(/\/$/, '')}/api/health`
-    console.log(`[KeepAlive] Self-ping configured → ${healthEndpoint} (every 4 min)`)
-    setInterval(async () => {
-      try {
-        const res = await fetch(healthEndpoint)
-        if (res.ok) {
-          console.log(`[KeepAlive] Heartbeat OK at ${new Date().toISOString()}`)
-        }
-      } catch (e) {
-        console.warn('[KeepAlive] Heartbeat error:', (e as Error).message)
-      }
-    }, 4 * 60 * 1000)
-  }
-})
-
-// Gracefully handle port conflicts (EADDRINUSE) that occur during tsx hot-reload,
-// instead of crashing the process and requiring a manual restart.
-server.on('error', (err: NodeJS.ErrnoException) => {
-  if (err.code === 'EADDRINUSE') {
-    console.error(
-      `[Server] Port ${env.port} is already in use. ` +
-        'Another instance may still be shutting down — retrying in 1 s...',
-    )
-    setTimeout(() => {
-      server.close()
-      server.listen(env.port)
-    }, 1000)
-  } else {
-    console.error('[Server] Unexpected server error:', err)
-  }
-})
-
-// Release the port cleanly when tsx sends SIGTERM/SIGINT during file-watch restarts.
-function shutdown(signal: string) {
-  console.log(`[Server] ${signal} received — closing HTTP server...`)
-  server.close(() => {
-    console.log('[Server] HTTP server closed.')
-    process.exit(0)
   })
-  // Force-exit if the server hasn't closed within 3 seconds.
-  setTimeout(() => process.exit(1), 3000).unref()
-}
-process.on('SIGTERM', () => shutdown('SIGTERM'))
-process.on('SIGINT', () => shutdown('SIGINT'))
 
-// Keep the server alive even if an unhandled promise rejection or uncaught
-// exception occurs; log it instead of silently dying.
+  // Gracefully handle port conflicts (EADDRINUSE) that occur during tsx hot-reload
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(
+        `[Server] Port ${env.port} is already in use. ` +
+          'Another instance may still be shutting down — retrying in 1 s...',
+      )
+      setTimeout(() => {
+        server.close()
+        server.listen(env.port)
+      }, 1000)
+    } else {
+      console.error('[Server] Unexpected server error:', err)
+    }
+  })
+
+  // Release the port cleanly when tsx sends SIGTERM/SIGINT during file-watch restarts.
+  function shutdown(signal: string) {
+    console.log(`[Server] ${signal} received — closing HTTP server...`)
+    server.close(() => {
+      console.log('[Server] HTTP server closed.')
+      process.exit(0)
+    })
+    setTimeout(() => process.exit(1), 3000).unref()
+  }
+  process.on('SIGTERM', () => shutdown('SIGTERM'))
+  process.on('SIGINT', () => shutdown('SIGINT'))
+}
+
+// Keep the server alive even if an unhandled promise rejection or uncaught exception occurs
 process.on('unhandledRejection', (reason) => {
   console.error('[unhandledRejection]', reason)
 })
