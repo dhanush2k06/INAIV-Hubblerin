@@ -1,48 +1,83 @@
 export function AboutPage() {
   return (
-    <main className="mx-auto min-h-[calc(100dvh-88px)] max-w-7xl px-4 py-12 sm:px-6 lg:px-8 transition-colors duration-300">
-      <header className="mb-16 text-center">
-<p className="text-sm uppercase tracking-[0.3em] text-emerald-500 font-bold">Our Journey</p>
-        <h1 className="mt-4 text-4xl font-bold text-slate-900 dark:text-white sm:text-6xl">About INAIV</h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-          INAIV empowers students to explore activities beyond their studies while giving organizers an effortless way to plan, run, and manage events.
-        </p>
-      </header>
+    <main className="min-h-[calc(100dvh-88px)] bg-white py-10 sm:py-16">
+      <div className="mx-auto max-w-[1240px] px-4 sm:px-7">
+        <header className="mb-12 text-center sm:mb-16">
+          <p className="font-[Manrope] text-xs font-semibold uppercase tracking-widest text-[var(--hx-green)]">
+            Our Journey & Purpose
+          </p>
+          <h1 className="mt-2 font-[Manrope] text-3xl font-extrabold text-[var(--hx-text-primary)] sm:text-5xl">
+            About HubblerX
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl font-['DM_Sans'] text-base text-[var(--hx-text-muted)] sm:text-lg">
+            Empowering students to learn beyond the classroom through campus experiences, verified participation, and collaborative growth.
+          </p>
+        </header>
 
-      <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
-        <div className="space-y-8">
-          <section>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">The INAIV Vision</h2>
-            <p className="mt-4 text-lg leading-relaxed text-slate-600 dark:text-slate-300">
-              College is more than just lectures and exams. INAIV creates a space where students can grow beyond the classroom — joining workshops, fests, and activities that build real skills and memorable experiences — while automating the busywork so organizers can focus on what matters.
-            </p>
-          </section>
+        <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div className="space-y-8">
+            <section>
+              <h2 className="font-[Manrope] text-2xl font-bold text-[var(--hx-text-primary)] sm:text-3xl">
+                The HubblerX Vision
+              </h2>
+              <p className="mt-4 font-['DM_Sans'] text-base leading-relaxed text-[var(--hx-text-muted)]">
+                College is far more than lectures and exams. HubblerX bridges the gap between campus events and lifelong student achievements — giving students a unified passport to discover workshops, hackathons, fests, and volunteering drives while earning verifiable skills, credentials, and rewards.
+              </p>
+            </section>
 
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8 transition-colors dark:border-slate-800 dark:bg-slate-900/50">
-              <div className="text-3xl">🎯</div>
-              <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Our Mission</h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">To give students a platform that encourages activities and growth beyond their college studies.</p>
-            </div>
-            <div className="rounded-[2rem] border border-slate-200 bg-slate-50 p-8 transition-colors dark:border-slate-800 dark:bg-slate-900/50">
-              <div className="text-3xl">🚀</div>
-              <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">Our Goal</h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">To help organizers automate their regular event process — from registration to attendance.</p>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="rounded-card border border-[var(--hx-green-160)] bg-[var(--hx-surface)] p-6 transition hover:border-[var(--hx-green)]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-btn bg-[var(--hx-green-40)] font-[Manrope] text-lg text-[var(--hx-green)]">
+                  🎯
+                </div>
+                <h3 className="mt-4 font-[Manrope] text-base font-bold text-[var(--hx-text-primary)]">
+                  Our Mission
+                </h3>
+                <p className="mt-1.5 font-['DM_Sans'] text-sm leading-relaxed text-[var(--hx-text-muted)]">
+                  To inspire and recognize student growth beyond traditional coursework through active extracurricular participation.
+                </p>
+              </div>
+
+              <div className="rounded-card border border-[var(--hx-green-160)] bg-[var(--hx-surface)] p-6 transition hover:border-[var(--hx-green)]">
+                <div className="flex h-10 w-10 items-center justify-center rounded-btn bg-[var(--hx-green-40)] font-[Manrope] text-lg text-[var(--hx-green)]">
+                  ⚡
+                </div>
+                <h3 className="mt-4 font-[Manrope] text-base font-bold text-[var(--hx-text-primary)]">
+                  Organizer Automation
+                </h3>
+                <p className="mt-1.5 font-['DM_Sans'] text-sm leading-relaxed text-[var(--hx-text-muted)]">
+                  To provide campus organizers with seamless CRM tools, QR check-ins, automated certificates, and actionable attendee analytics.
+                </p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="relative group">
-          <div className="absolute -inset-1 rounded-[3rem] bg-gradient-to-r from-emerald-500 to-cyan-500 opacity-20 blur transition duration-1000 group-hover:opacity-30"></div>
-          <div className="relative rounded-[2.5rem] border border-slate-200 bg-white p-4 shadow-2xl dark:border-slate-800 dark:bg-slate-900/80">
-            <img 
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800" 
-              alt="Team INAIV" 
-              className="rounded-[2rem] object-cover aspect-video w-full" 
-            />
+          <div className="relative overflow-hidden rounded-hero border border-[var(--hx-green-160)] bg-[var(--hx-green-40)] p-6 sm:p-8">
+            <div className="flex flex-col gap-6">
+              <div className="flex items-center justify-between border-b border-[var(--hx-green-160)] pb-4">
+                <span className="font-[Manrope] text-xs font-bold uppercase tracking-wider text-[var(--hx-green)]">
+                  The Experience Cycle
+                </span>
+                <span className="hx-tag">Campus Verified</span>
+              </div>
+              <div className="space-y-4 font-['DM_Sans']">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--hx-green)] text-xs font-bold text-white">1</span>
+                  <p className="text-sm text-[var(--hx-text-primary)]"><strong className="font-[Manrope]">Discover:</strong> Browse vetted competitions, workshops, fests, and community drives.</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--hx-green)] text-xs font-bold text-white">2</span>
+                  <p className="text-sm text-[var(--hx-text-primary)]"><strong className="font-[Manrope]">Participate:</strong> 1-click registration with instant QR codes for hassle-free check-ins.</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--hx-green)] text-xs font-bold text-white">3</span>
+                  <p className="text-sm text-[var(--hx-text-primary)]"><strong className="font-[Manrope]">Achieve & Grow:</strong> Earn verified certificates, build your Activity Passport, and level up your XP.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </main>
   )
-}
+}

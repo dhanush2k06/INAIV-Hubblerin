@@ -1,83 +1,124 @@
 export function ContactPage() {
   return (
-    <main className="mx-auto min-h-[calc(100dvh-88px)] max-w-7xl px-4 py-12 sm:px-6 lg:px-8 transition-colors duration-300">
-      <header className="mb-16 text-center">
-<p className="text-sm uppercase tracking-[0.3em] text-emerald-500 font-bold">Connect With Us</p>
-        <h1 className="mt-4 text-4xl font-bold text-slate-900 dark:text-white sm:text-6xl">Contact INAIV</h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-          Whether you're a student, an event organizer, or just curious about our platform, we're here to help. Reach out and let's start a conversation.
-        </p>
-      </header>
+    <main className="min-h-[calc(100dvh-88px)] bg-white py-10 sm:py-16">
+      <div className="mx-auto max-w-[1240px] px-4 sm:px-7">
+        <header className="mb-12 text-center sm:mb-16">
+          <p className="font-[Manrope] text-xs font-semibold uppercase tracking-widest text-[var(--hx-green)]">
+            Connect With Us
+          </p>
+          <h1 className="mt-2 font-[Manrope] text-3xl font-extrabold text-[var(--hx-text-primary)] sm:text-5xl">
+            Get in Touch
+          </h1>
+          <p className="mx-auto mt-4 max-w-2xl font-['DM_Sans'] text-base text-[var(--hx-text-muted)] sm:text-lg">
+            Whether you're a student, campus club organizer, or university partner, we're here to help you get the most out of HubblerX.
+          </p>
+        </header>
 
-      <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-[3rem] border border-slate-200 bg-white p-8 shadow-2xl transition-colors dark:border-slate-800 dark:bg-slate-900/50 lg:p-12">
-          <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">First Name</label>
-                <input 
-                  type="text" 
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-slate-900 outline-none transition focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
-                  placeholder="Jane"
+        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
+          {/* Contact form card */}
+          <div className="rounded-hero border border-[var(--hx-green-160)] bg-[var(--hx-surface)] p-6 sm:p-10">
+            <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label className="block font-[Manrope] text-xs font-semibold uppercase tracking-wide text-[var(--hx-text-muted)]">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-1.5 w-full rounded-btn border border-[var(--hx-green-160)] bg-white px-3.5 py-2.5 font-['DM_Sans'] text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-90)]"
+                    placeholder="Alex"
+                  />
+                </div>
+                <div>
+                  <label className="block font-[Manrope] text-xs font-semibold uppercase tracking-wide text-[var(--hx-text-muted)]">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    className="mt-1.5 w-full rounded-btn border border-[var(--hx-green-160)] bg-white px-3.5 py-2.5 font-['DM_Sans'] text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-90)]"
+                    placeholder="Rivers"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-[Manrope] text-xs font-semibold uppercase tracking-wide text-[var(--hx-text-muted)]">
+                  College / Institutional Email
+                </label>
+                <input
+                  type="email"
+                  className="mt-1.5 w-full rounded-btn border border-[var(--hx-green-160)] bg-white px-3.5 py-2.5 font-['DM_Sans'] text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-90)]"
+                  placeholder="alex@university.edu"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Last Name</label>
-                <input 
-                  type="text" 
-                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-slate-900 outline-none transition focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
-                  placeholder="Smith"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">College Email</label>
-              <input 
-                type="email" 
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-slate-900 outline-none transition focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
-                placeholder="jane@university.edu"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">How can we help?</label>
-              <textarea 
-                rows={5} 
-                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-slate-900 outline-none transition focus:border-emerald-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white" 
-                placeholder="Tell us about your inquiry..."
-              ></textarea>
-            </div>
-            <button className="w-full rounded-full bg-emerald-500 py-5 text-lg font-bold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400 hover:scale-[1.01] active:scale-95">
-              Send Message ➤
-            </button>
-          </form>
-        </div>
 
-        <div className="flex flex-col space-y-12 lg:justify-center lg:pl-8">
-          <div className="space-y-6">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white">Contact Information</h3>
-            <div className="space-y-8">
-              <div className="flex gap-5">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
+              <div>
+                <label className="block font-[Manrope] text-xs font-semibold uppercase tracking-wide text-[var(--hx-text-muted)]">
+                  Message / Inquiry
+                </label>
+                <textarea
+                  rows={4}
+                  className="mt-1.5 w-full resize-none rounded-btn border border-[var(--hx-green-160)] bg-white px-3.5 py-2.5 font-['DM_Sans'] text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-90)]"
+                  placeholder="Tell us how we can help..."
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                className="btn-primary w-full justify-center py-3 text-sm"
+              >
+                Send Message
+              </button>
+            </form>
+          </div>
+
+          {/* Contact Details */}
+          <div className="flex flex-col gap-6">
+            <div className="rounded-card border border-[var(--hx-green-160)] bg-[var(--hx-surface)] p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-btn bg-[var(--hx-green-40)] font-[Manrope] text-base text-[var(--hx-green)]">
                   📍
                 </div>
                 <div>
-<h4 className="font-bold text-slate-900 dark:text-white">Our Headquarters</h4>
-                  <p className="mt-1 text-slate-600 dark:text-slate-400">INAIV Campus Connect Center<br/>Community for Student Activities</p>
+                  <h3 className="font-[Manrope] text-base font-bold text-[var(--hx-text-primary)]">
+                    Campus Network Headquarters
+                  </h3>
+                  <p className="mt-1 font-['DM_Sans'] text-sm leading-relaxed text-[var(--hx-text-muted)]">
+                    HubblerX Learning Ecosystem<br />
+                    Supporting universities, student clubs, and campus events.
+                  </p>
                 </div>
               </div>
-              <div className="flex gap-5">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500">
+            </div>
+
+            <div className="rounded-card border border-[var(--hx-green-160)] bg-[var(--hx-surface)] p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-btn bg-[var(--hx-green-40)] font-[Manrope] text-base text-[var(--hx-green)]">
                   ✉️
                 </div>
                 <div>
-<h4 className="font-bold text-slate-900 dark:text-white">Email Us</h4>
-                  <p className="mt-1 text-slate-600 dark:text-slate-400">support@inaiv.com<br/>partners@inaiv.com</p>
+                  <h3 className="font-[Manrope] text-base font-bold text-[var(--hx-text-primary)]">
+                    Email Support
+                  </h3>
+                  <p className="mt-1 font-['DM_Sans'] text-sm leading-relaxed text-[var(--hx-text-muted)]">
+                    General: <span className="font-semibold text-[var(--hx-green)]">support@hubblerx.com</span><br />
+                    Partnerships: <span className="font-semibold text-[var(--hx-green)]">partners@hubblerx.com</span>
+                  </p>
                 </div>
               </div>
+            </div>
+
+            <div className="rounded-card border border-[var(--hx-green-160)] bg-[var(--hx-green-40)] p-6">
+              <h4 className="font-[Manrope] text-xs font-bold uppercase tracking-wider text-[var(--hx-green)]">
+                Quick Response
+              </h4>
+              <p className="mt-2 font-['DM_Sans'] text-sm text-[var(--hx-text-primary)]">
+                Our campus coordination team responds to all student and organizer inquiries within 24 hours.
+              </p>
             </div>
           </div>
         </div>
       </div>
     </main>
   )
-}
+}

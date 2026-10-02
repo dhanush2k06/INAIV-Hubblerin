@@ -23,12 +23,13 @@ function PageLoadingFallback() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">
       <div className="flex flex-col items-center gap-3">
-        <div className="h-7 w-7 animate-spin rounded-full border-2 border-slate-300 border-t-black" />
-        <p className="text-xs font-medium text-slate-400">Loading…</p>
+        <div className="hx-spinner" />
+        <p className="font-[Manrope] text-xs font-medium text-[var(--hx-text-muted)]">Loading…</p>
       </div>
     </div>
   )
 }
+
 
 export function App() {
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('hubblers_token'))
@@ -84,7 +85,7 @@ export function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-white text-slate-900 transition-colors duration-300">
+      <div className="min-h-screen bg-[var(--hx-bg)] text-[var(--hx-text-primary)] transition-colors duration-300">
         <Navbar role={role} onLogout={handleLogout} />
         <Suspense fallback={<PageLoadingFallback />}>
           <Routes>
@@ -115,11 +116,12 @@ export function App() {
 
 function DashboardLayout({ role }: { role: string | null }) {
   return (
-    <div className="grid min-h-[calc(100dvh-88px)] grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)]">
+    <div className="grid min-h-[calc(100dvh-88px)] grid-cols-1 bg-[var(--hx-bg)] lg:grid-cols-[264px_minmax(0,1fr)]">
       <Sidebar role={role} />
       <DashboardPage role={role} />
     </div>
   )
 }
+
 
 export default App
