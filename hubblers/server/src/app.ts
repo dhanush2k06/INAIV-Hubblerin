@@ -69,7 +69,12 @@ app.use(
         allowedOrigins.includes(normalizedOrigin) ||
         normalizedOrigin.endsWith('.onrender.com') ||
         normalizedOrigin.endsWith('.vercel.app') ||
-        devOrigins.includes(normalizedOrigin)
+        devOrigins.includes(normalizedOrigin) ||
+        // Allow private network origins in dev (192.168.x.x, 10.x.x.x, 172.16-31.x.x)
+        (env.nodeEnv !== 'production' &&
+          /^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+|127\.0\.0\.1|localhost)(:\d+)?$/.test(
+            normalizedOrigin,
+          ))
       ) {
         return callback(null, true)
       }

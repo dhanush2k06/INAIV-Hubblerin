@@ -1,7 +1,27 @@
 // Use a relative base by default so requests go through the Vite dev proxy
 // (same-origin, no CORS failures). Set VITE_API_BASE to a full URL (e.g. the
 // deployed backend) to call the API directly instead.
-const API_BASE = import.meta.env.VITE_API_BASE ?? ''
+function resolveApiBase(): string {
+  const envBase = import.meta.env.VITE_API_BASE
+  if (!envBase) return ''
+  
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    const host = window.location.hostname
+    if (host !== 'localhost' && host !== '127.0.0.1') {
+      try {
+        const url = new URL(envBase, window.location.origin)
+        if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+          return ''
+        }
+      } catch {
+        return ''
+      }
+    }
+  }
+  return envBase
+}
+
+const API_BASE = resolveApiBase()
 
 export function parseApiError(error: unknown): string {
   if (!(error instanceof Error)) return 'Something went wrong'
