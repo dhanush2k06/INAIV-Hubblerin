@@ -33,17 +33,17 @@ export function BadgeGallery({ unlockedBadges, allBadges }: BadgeGalleryProps) {
   const totalCount = allBadges.length
 
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/95">
+    <section className="rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-[var(--hx-green-160)] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Badge Gallery</h2>
-            <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-600 dark:text-amber-400 border border-amber-500/20">
+            <h2 className="font-[Manrope] text-xl font-bold text-[var(--hx-text-primary)]">Badge Gallery</h2>
+            <span className="hx-tag">
               {unlockedCount} / {totalCount} Unlocked
             </span>
           </div>
-          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 font-['DM_Sans'] text-xs text-[var(--hx-text-muted)]">
             Earn badges by participating in events, winning competitions, submitting feedback, and referring friends.
           </p>
         </div>
@@ -64,10 +64,10 @@ export function BadgeGallery({ unlockedBadges, allBadges }: BadgeGalleryProps) {
             <button
               key={t.key}
               onClick={() => setFilter(t.key)}
-              className={`shrink-0 whitespace-nowrap rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+              className={`shrink-0 whitespace-nowrap rounded-btn px-3 py-1.5 font-[Manrope] text-xs font-semibold transition ${
                 filter === t.key
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
+                  ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                  : 'bg-[var(--hx-surface)] text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)] border border-[var(--hx-green-160)]'
               }`}
             >
               {t.label}
@@ -87,33 +87,33 @@ export function BadgeGallery({ unlockedBadges, allBadges }: BadgeGalleryProps) {
               key={badge.id}
               className={`relative overflow-hidden rounded-2xl border p-4 transition-all duration-300 ${
                 isUnlocked
-                  ? 'border-emerald-500/30 bg-gradient-to-b from-emerald-500/5 to-slate-900/40 shadow-md shadow-emerald-500/10 hover:border-emerald-400 dark:border-emerald-500/30'
-                  : 'border-slate-200 bg-slate-50/70 opacity-75 hover:opacity-100 dark:border-slate-800 dark:bg-slate-900/40'
+                  ? 'border-[var(--hx-green-350)] bg-[var(--hx-surface)] shadow-sm hover:border-[var(--hx-green)]'
+                  : 'border-[var(--hx-green-160)] bg-white opacity-70 hover:opacity-100'
               }`}
             >
               {/* Category Indicator Pill */}
               <div className="flex items-center justify-between">
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${
+                  className={`rounded-tag px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider font-[Manrope] ${
                     badge.category === 'RANKING'
-                      ? 'bg-amber-500/20 text-amber-500 dark:text-amber-400 border border-amber-500/30'
+                      ? 'bg-amber-100 text-amber-800 border border-amber-200'
                       : badge.category === 'MONTHLY'
-                      ? 'bg-cyan-500/20 text-cyan-500 dark:text-cyan-400 border border-cyan-500/30'
+                      ? 'bg-teal-50 text-teal-800 border border-teal-200'
                       : badge.category === 'EXCLUSIVE'
-                      ? 'bg-fuchsia-500/20 text-fuchsia-500 dark:text-fuchsia-400 border border-fuchsia-500/30'
-                      : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                      ? 'bg-purple-50 text-purple-800 border border-purple-200'
+                      : 'bg-[var(--hx-green-40)] text-[var(--hx-green)] border border-[var(--hx-green-160)]'
                   }`}
                 >
                   {badge.category}
                 </span>
 
                 {isUnlocked ? (
-                  <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-500 dark:text-emerald-400">
+                  <span className="flex items-center gap-1 text-[11px] font-bold text-[var(--hx-green)] font-[Manrope]">
                     <span>✓</span>
                     <span>Unlocked</span>
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 text-[11px] font-semibold text-slate-400">
+                  <span className="flex items-center gap-1 text-[11px] font-semibold text-[var(--hx-text-muted)] font-[Manrope]">
                     <span>🔒</span>
                     <span>Locked</span>
                   </span>
@@ -125,33 +125,33 @@ export function BadgeGallery({ unlockedBadges, allBadges }: BadgeGalleryProps) {
                 <div
                   className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-2xl shadow-inner ${
                     isUnlocked
-                      ? 'border border-emerald-400/40 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 shadow-emerald-500/20 scale-105'
-                      : 'border border-slate-300 bg-slate-200 text-slate-400 grayscale dark:border-slate-800 dark:bg-slate-800'
+                      ? 'border border-[var(--hx-green-350)] bg-[var(--hx-green-40)] text-[var(--hx-green)] scale-105'
+                      : 'border border-gray-200 bg-gray-100 text-gray-400 grayscale'
                   }`}
                 >
                   {badge.icon}
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-white">{badge.name}</h3>
-                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                  <h3 className="font-[Manrope] text-sm font-bold text-[var(--hx-text-primary)]">{badge.name}</h3>
+                  <p className="mt-0.5 font-['DM_Sans'] text-xs text-[var(--hx-text-muted)] line-clamp-2">
                     {badge.description}
                   </p>
                 </div>
               </div>
 
               {/* Unlock criteria or Awarded date */}
-              <div className="mt-4 rounded-xl bg-slate-100/80 p-2.5 text-xs text-slate-600 dark:bg-slate-950/70 dark:text-slate-400">
+              <div className="mt-4 rounded-xl bg-white border border-[var(--hx-green-160)] p-2.5 text-xs text-[var(--hx-text-muted)]">
                 {isUnlocked ? (
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">Earned on:</span>
-                    <span className="font-semibold text-slate-200">
+                  <div className="flex items-center justify-between text-[11px] font-['DM_Sans']">
+                    <span className="text-[var(--hx-text-muted)]">Earned on:</span>
+                    <span className="font-semibold text-[var(--hx-text-primary)]">
                       {unlocked?.awardedAt ? new Date(unlocked.awardedAt).toLocaleDateString() : 'Active'}
                     </span>
                   </div>
                 ) : (
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">How to unlock:</span>
-                    <p className="mt-0.5 font-medium text-slate-700 dark:text-slate-300">{badge.criteria}</p>
+                    <span className="font-[Manrope] text-[10px] font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">How to unlock:</span>
+                    <p className="mt-0.5 font-['DM_Sans'] font-medium text-[var(--hx-text-primary)]">{badge.criteria}</p>
                   </div>
                 )}
               </div>
@@ -161,7 +161,7 @@ export function BadgeGallery({ unlockedBadges, allBadges }: BadgeGalleryProps) {
       </div>
 
       {filteredBadges.length === 0 && (
-        <div className="py-12 text-center text-slate-400">
+        <div className="py-12 text-center text-[var(--hx-text-muted)] font-['DM_Sans']">
           <p className="text-3xl">🎖️</p>
           <p className="mt-2 text-sm">No badges found matching this filter.</p>
         </div>

@@ -195,6 +195,14 @@ router.post('/login', async (req, res) => {
       const user = userDoc.data() as AppUser
       const effectiveRole: Role = (user.role as string) === 'ORGANIZER' ? 'COLLEGE_ADMIN' : user.role
 
+      // Enforce role separation
+      if (data.requiredRole === 'STUDENT' && effectiveRole !== 'STUDENT') {
+        return res.status(403).json({ error: 'College organizer accounts cannot sign in through Student Login. Please use the College Login portal.' })
+      }
+      if (data.requiredRole === 'COLLEGE_ADMIN' && effectiveRole === 'STUDENT') {
+        return res.status(403).json({ error: 'Student accounts cannot sign in through College Login. Please use the Student Login portal.' })
+      }
+
       // Check organizer / college admin approval status
       if (effectiveRole === 'COLLEGE_ADMIN') {
         let status = user.verificationStatus ?? 'UNVERIFIED'
@@ -253,6 +261,33 @@ router.post('/login', async (req, res) => {
     }
 
     if (data.email && data.password) {
+      // Check if student login attempted with college credentials or vice versa
+      if (data.requiredRole === 'STUDENT') {
+        const collegeCheck = await db
+          .collection('users')
+          .where('email', '==', data.email)
+          .where('role', 'in', ['COLLEGE_ADMIN', 'ORGANIZER', 'SUPPORT', 'ADMIN'])
+          .limit(1)
+          .get()
+        if (!collegeCheck.empty) {
+          return res.status(403).json({ error: 'College organizer accounts cannot sign in through Student Login. Please use the College Login portal.' })
+        }
+        return res.status(400).json({ error: 'Invalid student credentials.' })
+      }
+
+      // If requiredRole is COLLEGE_ADMIN, verify that the email is not a student
+      if (data.requiredRole === 'COLLEGE_ADMIN') {
+        const studentCheck = await db
+          .collection('users')
+          .where('email', '==', data.email)
+          .where('role', '==', 'STUDENT')
+          .limit(1)
+          .get()
+        if (!studentCheck.empty) {
+          return res.status(403).json({ error: 'Student accounts cannot sign in through College Login. Please use the Student Login portal.' })
+        }
+      }
+
       // Support, Admin, and Organizer/College-Admin accounts authenticate via email/password + custom token.
       const emailSnapshot = await db
         .collection('users')

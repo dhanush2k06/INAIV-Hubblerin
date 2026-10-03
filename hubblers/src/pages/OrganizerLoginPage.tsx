@@ -23,7 +23,12 @@ export function OrganizerLoginPage({ onLogin }: OrganizerLoginPageProps) {
 
   async function completeLogin(idToken: string) {
     try {
-      const response = await loginWithFirebaseIdToken(idToken)
+      const response = await loginWithFirebaseIdToken(idToken, 'COLLEGE_ADMIN')
+      if (response.role === 'STUDENT') {
+        await firebaseSignOut().catch(() => {})
+        setError('Student accounts cannot sign in through College Login. Please use the Student Login portal.')
+        return
+      }
       const freshToken = (await getFreshIdToken()) || response.token || idToken
       onLogin(freshToken, response.role)
       navigate('/dashboard')
@@ -46,13 +51,14 @@ export function OrganizerLoginPage({ onLogin }: OrganizerLoginPageProps) {
       } catch (firebaseError) {
         // 2. Fall back to backend custom token sign-in (for staff / organizers)
         try {
-          const response = await loginSupport(email, password)
+          const response = await loginSupport(email, password, 'COLLEGE_ADMIN')
           const idToken = await signInWithSupportCustomToken(response.token)
           await completeLogin(idToken)
           return
         } catch (backendError) {
           const msg = parseApiError(backendError)
           if (
+            /student/i.test(msg) ||
             /pending approval/i.test(msg) ||
             /rejected/i.test(msg) ||
             /blocked/i.test(msg) ||
@@ -149,6 +155,13 @@ export function OrganizerLoginPage({ onLogin }: OrganizerLoginPageProps) {
                   : 'border-red-500 bg-red-50 text-red-700'
               }`}>
                 <p>{error}</p>
+                {/student/i.test(error) && (
+                  <span className="mt-2 block">
+                    <Link to="/login" className="font-[Manrope] font-bold text-[var(--hx-green)] hover:underline inline-flex items-center gap-1">
+                      Go to Student Login →
+                    </Link>
+                  </span>
+                )}
                 {error.includes('pending approval') && (
                   <p className="mt-1 text-xs opacity-80">
                     Once the CRM administrator approves your institution, you'll be able to log in.

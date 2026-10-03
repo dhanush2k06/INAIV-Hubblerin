@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logo from '../assets/inaiv_logo.png'
 
 interface NavbarProps {
@@ -9,26 +9,28 @@ interface NavbarProps {
 
 export function Navbar({ role, onLogout }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const location = useLocation()
+  const navigate = useNavigate()
 
-  const navLinks = [
-    { label: 'Discover',        href: '/events' },
-    { label: 'Competitions',    href: '/events?category=competitions' },
-    { label: 'Workshops',       href: '/events?category=workshops' },
-    { label: 'College Fests',   href: '/events?category=college-fests' },
-    { label: 'Volunteering',    href: '/events?category=volunteering' },
-  ]
+  const isActive = (path: string) => {
+    if (path === '/') return location.pathname === '/'
+    return location.pathname.startsWith(path)
+  }
 
-  const isActive = (href: string) => {
-    const base = href.split('?')[0]
-    if (base === '/') return location.pathname === '/'
-    return location.pathname.startsWith(base)
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/events?search=${encodeURIComponent(searchQuery.trim())}`)
+    } else {
+      navigate('/events')
+    }
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-[var(--hx-green-160)]">
-      {/* Top bar: Logo + Search + Auth */}
-      <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-3 px-4 py-3 sm:gap-4 sm:px-7">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[var(--hx-green-160)]">
+      {/* Top bar: Logo + Nav + Search + Auth */}
+      <div className="mx-auto flex max-w-[1240px] items-center justify-between gap-3 px-4 py-3 sm:gap-6 sm:px-7">
 
         {/* Brand */}
         <Link to="/" className="flex items-center gap-2 shrink-0 group">
@@ -39,16 +41,61 @@ export function Navbar({ role, onLogout }: NavbarProps) {
           />
         </Link>
 
+        {/* Desktop Nav Links */}
+        <nav className="hidden md:flex items-center gap-1">
+          <Link
+            to="/events"
+            className={`rounded-tag px-3.5 py-1.5 text-sm font-[Manrope] font-medium transition-all duration-150 ${
+              isActive('/events')
+                ? 'bg-[var(--hx-green)] text-white font-semibold'
+                : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
+            }`}
+          >
+            Events
+          </Link>
+          <Link
+            to="/about"
+            className={`rounded-tag px-3.5 py-1.5 text-sm font-[Manrope] font-medium transition-all duration-150 ${
+              isActive('/about')
+                ? 'bg-[var(--hx-green)] text-white font-semibold'
+                : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
+            }`}
+          >
+            About
+          </Link>
+          {!role && (
+            <Link
+              to="/organizer-login"
+              className={`rounded-tag px-3.5 py-1.5 text-sm font-[Manrope] font-medium transition-all duration-150 ${
+                isActive('/organizer-login')
+                  ? 'bg-[var(--hx-green)] text-white font-semibold'
+                  : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
+              }`}
+            >
+              For Organizers
+            </Link>
+          )}
+        </nav>
+
         {/* Search bar */}
-        <div className="hidden md:flex flex-1 max-w-md items-center gap-2 rounded-btn border border-[var(--hx-green-160)] bg-[var(--hx-green-40)] px-3 py-2 text-sm text-[var(--hx-text-muted)] hover:border-[var(--hx-green)] transition-colors">
+        <form
+          onSubmit={handleSearch}
+          className="hidden md:flex flex-1 max-w-sm items-center gap-2 rounded-btn border border-[var(--hx-green-160)] bg-[var(--hx-green-40)] px-3 py-1.5 text-sm text-[var(--hx-text-muted)] focus-within:border-[var(--hx-green)] focus-within:bg-white transition-colors"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 text-[var(--hx-green-650)]" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
-          <span className="font-['DM_Sans'] text-sm text-[var(--hx-text-muted)]">Search events, workshops…</span>
-        </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search events, workshops…"
+            className="w-full bg-transparent font-['DM_Sans'] text-sm text-[var(--hx-text-primary)] placeholder-[var(--hx-text-muted)] focus:outline-none"
+          />
+        </form>
 
         {/* Location pill */}
-        <div className="hidden lg:flex items-center gap-1 text-sm text-[var(--hx-text-muted)]">
+        <div className="hidden xl:flex items-center gap-1 text-sm text-[var(--hx-text-muted)]">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[var(--hx-green)]" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
             <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 0 1 15 0Z" />
@@ -115,59 +162,77 @@ export function Navbar({ role, onLogout }: NavbarProps) {
         </div>
       </div>
 
-      {/* Secondary nav: category links */}
-      <div className="hidden md:block border-t border-[var(--hx-green-160)] bg-white">
-        <div className="mx-auto flex max-w-[1240px] items-center gap-0.5 px-4 py-1 sm:px-7">
-          {navLinks.map((link) => (
+      {/* Mobile Drawer */}
+      {isMenuOpen && (
+        <div className="border-t border-[var(--hx-green-160)] bg-white px-4 py-4 md:hidden animate-fadeIn">
+          {/* Mobile search bar */}
+          <form
+            onSubmit={(e) => {
+              handleSearch(e)
+              setIsMenuOpen(false)
+            }}
+            className="mb-3 flex items-center gap-2 rounded-btn border border-[var(--hx-green-160)] bg-[var(--hx-green-40)] px-3 py-2 text-sm text-[var(--hx-text-muted)] focus-within:border-[var(--hx-green)] focus-within:bg-white transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 text-[var(--hx-green-650)]" fill="none" viewBox="0 0 24 24" strokeWidth="1.8" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search events, workshops…"
+              className="w-full bg-transparent font-['DM_Sans'] text-sm text-[var(--hx-text-primary)] placeholder-[var(--hx-text-muted)] focus:outline-none"
+            />
+          </form>
+
+          <nav className="flex flex-col gap-1">
             <Link
-              key={link.label}
-              to={link.href}
-              className={`rounded-tag px-3.5 py-1.5 text-sm font-[Manrope] font-medium transition-all duration-150 ${
-                isActive(link.href)
+              to="/events"
+              onClick={() => setIsMenuOpen(false)}
+              className={`rounded-btn px-4 py-2.5 text-sm font-[Manrope] font-medium transition ${
+                isActive('/events')
                   ? 'bg-[var(--hx-green)] text-white font-semibold'
                   : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
               }`}
             >
-              {link.label}
+              Events
             </Link>
-          ))}
-          <div className="ml-auto flex items-center gap-0.5">
+
+            <Link
+              to="/about"
+              onClick={() => setIsMenuOpen(false)}
+              className={`rounded-btn px-4 py-2.5 text-sm font-[Manrope] font-medium transition ${
+                isActive('/about')
+                  ? 'bg-[var(--hx-green)] text-white font-semibold'
+                  : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
+              }`}
+            >
+              About
+            </Link>
+
+            <Link
+              to="/contact"
+              onClick={() => setIsMenuOpen(false)}
+              className={`rounded-btn px-4 py-2.5 text-sm font-[Manrope] font-medium transition ${
+                isActive('/contact')
+                  ? 'bg-[var(--hx-green)] text-white font-semibold'
+                  : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
+              }`}
+            >
+              Contact
+            </Link>
+
             <Link
               to="/organizer-login"
-              className="rounded-tag px-3.5 py-1.5 text-sm font-[Manrope] font-medium text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)] transition-all duration-150"
+              onClick={() => setIsMenuOpen(false)}
+              className={`rounded-btn px-4 py-2.5 text-sm font-[Manrope] font-medium transition ${
+                isActive('/organizer-login')
+                  ? 'bg-[var(--hx-green)] text-white font-semibold'
+                  : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
+              }`}
             >
               For Organizers
             </Link>
-            {role && (
-              <Link
-                to="/dashboard?tab=tickets"
-                className="rounded-tag px-3.5 py-1.5 text-sm font-[Manrope] font-medium text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)] transition-all duration-150"
-              >
-                My Tickets
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Drawer */}
-      {isMenuOpen && (
-        <div className="border-t border-[var(--hx-green-160)] bg-white px-4 py-4 md:hidden animate-fadeIn">
-          <nav className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.label}
-                to={link.href}
-                onClick={() => setIsMenuOpen(false)}
-                className={`rounded-btn px-4 py-2.5 text-sm font-[Manrope] font-medium transition ${
-                  isActive(link.href)
-                    ? 'bg-[var(--hx-green)] text-white font-semibold'
-                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
 
             <div className="my-2 h-px bg-[var(--hx-green-160)]" />
 
@@ -198,6 +263,13 @@ export function Navbar({ role, onLogout }: NavbarProps) {
                   Dashboard
                 </Link>
                 <Link
+                  to="/dashboard?tab=tickets"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="btn-secondary w-full justify-center py-2.5"
+                >
+                  My Tickets
+                </Link>
+                <Link
                   to="/dashboard?tab=profile"
                   onClick={() => setIsMenuOpen(false)}
                   className="btn-secondary w-full justify-center py-2.5"
@@ -218,3 +290,4 @@ export function Navbar({ role, onLogout }: NavbarProps) {
     </header>
   )
 }
+

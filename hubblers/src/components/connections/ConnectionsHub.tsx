@@ -181,37 +181,37 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
   return (
     <div className="space-y-6">
       {/* Top Banner: My HubblerID & Share Profile */}
-      <div className="relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950/40 p-6 shadow-xl">
+      <div className="relative overflow-hidden rounded-card border border-[#07573F]/30 bg-gradient-to-br from-[#043324] via-[#07573F] to-[#022016] p-6 shadow-xl text-white">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-0.5 text-xs font-bold text-emerald-400">
+              <span className="rounded-full bg-white/15 border border-white/20 px-3 py-0.5 text-xs font-bold text-emerald-200 backdrop-blur-sm">
                 ⭐ Verified Student Passport
               </span>
-              <span className="text-xs text-slate-400">Permanent Public Handle</span>
+              <span className="text-xs text-white/70">Permanent Public Handle</span>
             </div>
             <h2 className="text-2xl font-black text-white">Hubbler Network & Connections</h2>
-            <p className="max-w-xl text-xs text-slate-300">
+            <p className="max-w-xl text-xs text-white/80">
               Connect with fellow students across colleges, build your campus network, view verified achievements, and collaborate on events.
             </p>
           </div>
 
           {/* HubblerID Action Card */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/90 p-3 shadow-md backdrop-blur-md">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-3 shadow-md backdrop-blur-md">
             <div className="px-3 py-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">My HubblerID</p>
-              <p className="font-mono text-base font-black text-emerald-400">{currentHubblerId || 'HX-000000'}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-white/70">My HubblerID</p>
+              <p className="font-mono text-base font-black text-emerald-300">{currentHubblerId || 'HX-000000'}</p>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleCopyHubblerId}
-                className="flex-1 sm:flex-initial rounded-xl bg-slate-800 px-3.5 py-2 text-xs font-bold text-slate-200 transition hover:bg-slate-700 hover:text-white"
+                className="flex-1 sm:flex-initial rounded-xl bg-white/15 border border-white/20 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-white/25"
               >
                 {copiedId ? '✓ Copied ID' : '📋 Copy ID'}
               </button>
               <button
                 onClick={handleShareProfile}
-                className="flex-1 sm:flex-initial rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-slate-950 transition hover:bg-emerald-400 shadow-md"
+                className="flex-1 sm:flex-initial rounded-xl bg-white px-4 py-2 text-xs font-bold text-[#07573F] transition hover:bg-emerald-50 shadow-md"
               >
                 {copiedLink ? '✓ Link Copied' : '🔗 Share Profile'}
               </button>
@@ -221,33 +221,33 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
 
         {/* Quick Stats Strip */}
         {data && (
-          <div className="mt-6 grid grid-cols-2 gap-3 border-t border-slate-800/80 pt-4 sm:grid-cols-4">
-            <div className="rounded-xl bg-slate-950/60 p-3 text-center border border-slate-800/50">
-              <p className="text-[10px] font-bold uppercase text-slate-400">Friends (Connected)</p>
-              <p className="text-lg font-black text-emerald-400">{data.counts.friends}</p>
+          <div className="mt-6 grid grid-cols-2 gap-3 border-t border-white/15 pt-4 sm:grid-cols-4">
+            <div className="rounded-xl bg-white/10 p-3 text-center border border-white/10 backdrop-blur-sm">
+              <p className="text-[10px] font-bold uppercase text-white/70">Friends (Connected)</p>
+              <p className="text-lg font-black text-emerald-200">{data.counts.friends}</p>
             </div>
-            <div className="rounded-xl bg-slate-950/60 p-3 text-center border border-slate-800/50">
-              <p className="text-[10px] font-bold uppercase text-slate-400">Pending Requests</p>
-              <p className="text-lg font-black text-amber-400">{data.counts.pendingIncoming}</p>
+            <div className="rounded-xl bg-white/10 p-3 text-center border border-white/10 backdrop-blur-sm">
+              <p className="text-[10px] font-bold uppercase text-white/70">Pending Requests</p>
+              <p className="text-lg font-black text-amber-300">{data.counts.pendingIncoming}</p>
             </div>
-            <div className="rounded-xl bg-slate-950/60 p-3 text-center border border-slate-800/50">
-              <p className="text-[10px] font-bold uppercase text-slate-400">Followers</p>
-              <p className="text-lg font-black text-indigo-400">{data.counts.followers}</p>
+            <div className="rounded-xl bg-white/10 p-3 text-center border border-white/10 backdrop-blur-sm">
+              <p className="text-[10px] font-bold uppercase text-white/70">Followers</p>
+              <p className="text-lg font-black text-indigo-200">{data.counts.followers}</p>
             </div>
-            <div className="rounded-xl bg-slate-950/60 p-3 text-center border border-slate-800/50">
-              <p className="text-[10px] font-bold uppercase text-slate-400">Following</p>
-              <p className="text-lg font-black text-cyan-400">{data.counts.following}</p>
+            <div className="rounded-xl bg-white/10 p-3 text-center border border-white/10 backdrop-blur-sm">
+              <p className="text-[10px] font-bold uppercase text-white/70">Following</p>
+              <p className="text-lg font-black text-cyan-200">{data.counts.following}</p>
             </div>
           </div>
         )}
       </div>
 
       {/* Live Search & Discover Hubblers Bar */}
-      <div className="rounded-3xl border border-slate-800 bg-slate-950/70 p-4 sm:p-6 shadow-md">
+      <div className="rounded-card border border-[rgba(7,87,63,0.14)] bg-white p-4 sm:p-6 shadow-sm">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300">🔍 Discover & Search Hubblers</h3>
-            <span className="text-xs text-slate-500">Search by HubblerID (e.g. HX-849201), Name or College</span>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-[#111a16]">🔍 Discover & Search Hubblers</h3>
+            <span className="text-xs text-[rgba(7,87,63,0.65)]">Search by HubblerID, Name or College</span>
           </div>
 
           <div className="relative">
@@ -255,29 +255,29 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search students by HubblerID handle, student name, or institution..."
-              className="w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+              placeholder="Search students by HubblerID handle (e.g. HX-849201), student name, or institution..."
+              className="w-full rounded-2xl border border-[rgba(7,87,63,0.18)] bg-[var(--hx-surface)] px-4 py-3 text-sm text-[#111a16] placeholder-[rgba(7,87,63,0.45)] focus:border-[#07573F] focus:outline-none focus:ring-2 focus:ring-[#07573F]/20"
             />
             {searching && (
-              <div className="absolute right-4 top-3.5 h-5 w-5 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+              <div className="absolute right-4 top-3.5 h-5 w-5 animate-spin rounded-full border-2 border-[#07573F] border-t-transparent" />
             )}
           </div>
 
           {/* Search Results Preview */}
           {searchResults.length > 0 && (
-            <div className="mt-4 space-y-2 rounded-2xl border border-slate-800 bg-slate-900/90 p-3">
-              <p className="text-xs font-bold text-slate-400 px-2">Search Results ({searchResults.length})</p>
+            <div className="mt-4 space-y-2 rounded-2xl border border-[rgba(7,87,63,0.14)] bg-[var(--hx-surface)] p-3">
+              <p className="text-xs font-bold text-[#111a16] px-2">Search Results ({searchResults.length})</p>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {searchResults.map((user) => (
                   <div
                     key={user.hubblerId}
-                    className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/80 p-3 transition hover:border-slate-700"
+                    className="flex items-center justify-between rounded-xl border border-[rgba(7,87,63,0.12)] bg-white p-3 transition hover:border-[#07573F]/40 shadow-xs"
                   >
                     <div
                       onClick={() => setSelectedHubblerId(user.hubblerId)}
                       className="flex cursor-pointer items-center gap-3"
                     >
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-sm font-black text-emerald-400">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[rgba(7,87,63,0.1)] text-sm font-black text-[#07573F]">
                         {user.profileImage ? (
                           <img src={user.profileImage} alt={user.fullName} className="h-full w-full rounded-xl object-cover" />
                         ) : (
@@ -286,40 +286,40 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className="truncate text-xs font-bold text-white hover:text-emerald-400">{user.fullName}</p>
-                          <span className="rounded bg-slate-800 px-1.5 py-0.2 text-[9px] font-bold text-amber-400">
+                          <p className="truncate text-xs font-bold text-[#111a16] hover:text-[#07573F]">{user.fullName}</p>
+                          <span className="rounded bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.2 text-[9px] font-bold text-amber-800">
                             Lvl {user.level}
                           </span>
                         </div>
-                        <p className="truncate text-[10px] text-slate-400">{user.collegeName}</p>
-                        <p className="font-mono text-[9px] text-emerald-400/80">🆔 {user.hubblerId}</p>
+                        <p className="truncate text-[10px] text-[rgba(7,87,63,0.7)]">{user.collegeName}</p>
+                        <p className="font-mono text-[9px] text-[#07573F] font-bold">🆔 {user.hubblerId}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => handleToggleSearchFollow(user.hubblerId)}
-                        className={`rounded-lg px-2 py-1 text-[10px] font-bold transition ${
+                        className={`rounded-lg px-2.5 py-1 text-[10px] font-bold transition ${
                           user.isFollowing
-                            ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                            : 'bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50'
+                            ? 'bg-[rgba(7,87,63,0.08)] text-[#07573F] hover:bg-[rgba(7,87,63,0.15)]'
+                            : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
                         }`}
                       >
                         {user.isFollowing ? 'Following' : '+ Follow'}
                       </button>
 
                       {user.connectionStatus === 'ACCEPTED' ? (
-                        <span className="rounded-lg bg-emerald-500/10 px-2 py-1 text-[10px] font-bold text-emerald-400">
+                        <span className="rounded-lg bg-[rgba(7,87,63,0.1)] border border-[rgba(7,87,63,0.2)] px-2.5 py-1 text-[10px] font-bold text-[#07573F]">
                           ✓ Friend
                         </span>
                       ) : user.connectionStatus === 'PENDING' ? (
-                        <span className="rounded-lg bg-amber-500/10 px-2 py-1 text-[10px] font-bold text-amber-400">
+                        <span className="rounded-lg bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 text-[10px] font-bold text-amber-800">
                           Pending
                         </span>
                       ) : (
                         <button
                           onClick={() => handleSendSearchConnect(user.hubblerId)}
-                          className="rounded-lg bg-emerald-500 px-2.5 py-1 text-[10px] font-bold text-slate-950 transition hover:bg-emerald-400"
+                          className="rounded-lg bg-[#07573F] px-2.5 py-1 text-[10px] font-bold text-white transition hover:bg-[#064e38]"
                         >
                           Connect
                         </button>
@@ -332,25 +332,25 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
           )}
 
           {searchQuery && !searching && searchResults.length === 0 && (
-            <p className="text-center text-xs text-slate-500 py-3">No Hubbler found matching "{searchQuery}". Try exact HubblerID.</p>
+            <p className="text-center text-xs text-[rgba(7,87,63,0.6)] py-3">No Hubbler found matching "{searchQuery}". Try exact HubblerID.</p>
           )}
         </div>
       </div>
 
       {/* Main Tab Navigation */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-slate-800">
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-[rgba(7,87,63,0.1)]">
         <button
           onClick={() => setActiveTab('friends')}
           className={`shrink-0 whitespace-nowrap flex items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-bold transition ${
             activeTab === 'friends'
-              ? 'bg-emerald-500 text-slate-950 shadow-md'
-              : 'border border-slate-800 bg-slate-900/60 text-slate-300 hover:bg-slate-900 hover:text-white'
+              ? 'bg-[#07573F] text-white shadow-sm'
+              : 'border border-[rgba(7,87,63,0.14)] bg-white text-[#111a16] hover:bg-[var(--hx-surface)]'
           }`}
         >
           <span>🤝 My Friends</span>
           {data && (
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${
-              activeTab === 'friends' ? 'bg-slate-950 text-emerald-400' : 'bg-slate-800 text-slate-300'
+              activeTab === 'friends' ? 'bg-white text-[#07573F]' : 'bg-[rgba(7,87,63,0.08)] text-[#07573F]'
             }`}>
               {data.counts.friends}
             </span>
@@ -361,8 +361,8 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
           onClick={() => setActiveTab('pending')}
           className={`shrink-0 whitespace-nowrap flex items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-bold transition ${
             activeTab === 'pending'
-              ? 'bg-emerald-500 text-slate-950 shadow-md'
-              : 'border border-slate-800 bg-slate-900/60 text-slate-300 hover:bg-slate-900 hover:text-white'
+              ? 'bg-[#07573F] text-white shadow-sm'
+              : 'border border-[rgba(7,87,63,0.14)] bg-white text-[#111a16] hover:bg-[var(--hx-surface)]'
           }`}
         >
           <span>📬 Pending Requests</span>
@@ -377,8 +377,8 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
           onClick={() => setActiveTab('network')}
           className={`shrink-0 whitespace-nowrap flex items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-bold transition ${
             activeTab === 'network'
-              ? 'bg-emerald-500 text-slate-950 shadow-md'
-              : 'border border-slate-800 bg-slate-900/60 text-slate-300 hover:bg-slate-900 hover:text-white'
+              ? 'bg-[#07573F] text-white shadow-sm'
+              : 'border border-[rgba(7,87,63,0.14)] bg-white text-[#111a16] hover:bg-[var(--hx-surface)]'
           }`}
         >
           <span>👥 Followers & Following</span>
@@ -388,8 +388,8 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
           onClick={() => setActiveTab('privacy')}
           className={`shrink-0 whitespace-nowrap flex items-center gap-2 rounded-2xl px-5 py-2.5 text-xs font-bold transition ${
             activeTab === 'privacy'
-              ? 'bg-emerald-500 text-slate-950 shadow-md'
-              : 'border border-slate-800 bg-slate-900/60 text-slate-300 hover:bg-slate-900 hover:text-white'
+              ? 'bg-[#07573F] text-white shadow-sm'
+              : 'border border-[rgba(7,87,63,0.14)] bg-white text-[#111a16] hover:bg-[var(--hx-surface)]'
           }`}
         >
           <span>🔒 Privacy Settings</span>
@@ -401,13 +401,13 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
         <div>
           {loading ? (
             <div className="flex h-48 items-center justify-center">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#07573F] border-t-transparent" />
             </div>
           ) : !data || data.friends.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-800 bg-slate-950/40 p-12 text-center">
+            <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-[rgba(7,87,63,0.2)] bg-[var(--hx-surface)] p-12 text-center">
               <span className="text-4xl">🤝</span>
-              <h4 className="mt-3 text-base font-bold text-white">No Friends Connected Yet</h4>
-              <p className="mt-1 max-w-sm text-xs text-slate-400">
+              <h4 className="mt-3 text-base font-bold text-[#111a16]">No Friends Connected Yet</h4>
+              <p className="mt-1 max-w-sm text-xs text-[rgba(7,87,63,0.7)]">
                 Use the search bar above to find students by HubblerID or name and send connection requests!
               </p>
             </div>
@@ -416,7 +416,7 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
               {data.friends.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col justify-between rounded-3xl border border-slate-800 bg-slate-950/80 p-5 transition hover:border-slate-700 hover:shadow-lg"
+                  className="flex flex-col justify-between rounded-card border border-[rgba(7,87,63,0.14)] bg-white p-5 transition hover:border-[#07573F]/40 hover:shadow-md"
                 >
                   <div>
                     <div className="flex items-start justify-between">
@@ -425,52 +425,52 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
                         className="flex cursor-pointer items-center gap-3"
                       >
                         <div className="relative">
-                          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-700 bg-slate-800 text-base font-black text-emerald-400">
+                          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-2xl border-2 border-[rgba(7,87,63,0.15)] bg-[rgba(7,87,63,0.08)] text-base font-black text-[#07573F]">
                             {item.user.profileImage ? (
                               <img src={item.user.profileImage} alt={item.user.fullName} className="h-full w-full object-cover" />
                             ) : (
                               item.user.fullName.charAt(0).toUpperCase()
                             )}
                           </div>
-                          <span className="absolute -bottom-1 -right-1 rounded-full bg-emerald-500 px-1 text-[8px] font-black text-slate-950">
+                          <span className="absolute -bottom-1 -right-1 rounded-full bg-[#07573F] px-1 text-[8px] font-black text-white">
                             L{item.user.level}
                           </span>
                         </div>
 
                         <div>
-                          <p className="font-bold text-white hover:text-emerald-400 text-sm">{item.user.fullName}</p>
-                          <p className="font-mono text-[10px] text-emerald-400">🆔 {item.user.hubblerId}</p>
+                          <p className="font-bold text-[#111a16] hover:text-[#07573F] text-sm">{item.user.fullName}</p>
+                          <p className="font-mono text-[10px] text-[#07573F] font-semibold">🆔 {item.user.hubblerId}</p>
                         </div>
                       </div>
 
                       <button
                         onClick={() => handleRemove(item.user.hubblerId, item.user.fullName)}
-                        className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-900 hover:text-rose-400 text-xs"
+                        className="rounded-lg p-1.5 text-[rgba(7,87,63,0.5)] hover:bg-rose-50 hover:text-rose-600 text-xs"
                         title="Remove friend"
                       >
                         ✕
                       </button>
                     </div>
 
-                    <p className="mt-3 text-xs text-slate-400 truncate">🏛️ {item.user.collegeName}</p>
+                    <p className="mt-3 text-xs text-[rgba(7,87,63,0.7)] truncate">🏛️ {item.user.collegeName}</p>
 
                     {item.user.activeTitle && (
-                      <span className="mt-2 inline-block rounded-full bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 text-[10px] font-bold text-indigo-300">
+                      <span className="mt-2 inline-block rounded-full bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 text-[10px] font-bold text-indigo-700">
                         🏷️ {item.user.activeTitle}
                       </span>
                     )}
 
                     {item.mutualCount && item.mutualCount > 0 ? (
-                      <p className="mt-2 text-[10px] font-semibold text-emerald-400">
+                      <p className="mt-2 text-[10px] font-semibold text-[#07573F]">
                         👥 {item.mutualCount} mutual connection{item.mutualCount > 1 ? 's' : ''}
                       </p>
                     ) : null}
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between">
+                  <div className="mt-4 pt-3 border-t border-[rgba(7,87,63,0.1)] flex items-center justify-between">
                     <button
                       onClick={() => setSelectedHubblerId(item.user.hubblerId)}
-                      className="w-full rounded-xl bg-slate-900 py-2 text-xs font-bold text-slate-200 transition hover:bg-slate-800 hover:text-white"
+                      className="w-full rounded-xl bg-[var(--hx-surface)] py-2 text-xs font-bold text-[#07573F] border border-[rgba(7,87,63,0.14)] transition hover:bg-[#07573F] hover:text-white"
                     >
                       View Profile
                     </button>
@@ -485,13 +485,13 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
       {/* Tab 2: Pending Requests */}
       {activeTab === 'pending' && data && (
         <div className="space-y-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar border-b border-slate-800 text-xs font-bold">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar border-b border-[rgba(7,87,63,0.1)] text-xs font-bold">
             <button
               onClick={() => setPendingSubTab('incoming')}
               className={`shrink-0 whitespace-nowrap rounded-xl px-4 py-2 transition ${
                 pendingSubTab === 'incoming'
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#07573F] text-white shadow-xs'
+                  : 'text-[rgba(7,87,63,0.7)] hover:text-[#111a16]'
               }`}
             >
               📥 Incoming Requests ({data.pendingIncoming.length})
@@ -500,8 +500,8 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
               onClick={() => setPendingSubTab('outgoing')}
               className={`shrink-0 whitespace-nowrap rounded-xl px-4 py-2 transition ${
                 pendingSubTab === 'outgoing'
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#07573F] text-white shadow-xs'
+                  : 'text-[rgba(7,87,63,0.7)] hover:text-[#111a16]'
               }`}
             >
               📤 Outgoing Requests Sent ({data.pendingOutgoing.length})
@@ -511,7 +511,7 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
           {pendingSubTab === 'incoming' ? (
             <div>
               {data.pendingIncoming.length === 0 ? (
-                <div className="rounded-3xl border border-dashed border-slate-800 bg-slate-950/40 p-8 text-center text-xs text-slate-500">
+                <div className="rounded-card border border-dashed border-[rgba(7,87,63,0.2)] bg-[var(--hx-surface)] p-8 text-center text-xs text-[rgba(7,87,63,0.65)]">
                   No incoming connection requests.
                 </div>
               ) : (
@@ -519,13 +519,13 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
                   {data.pendingIncoming.map((item) => (
                     <div
                       key={item.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-4"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[rgba(7,87,63,0.14)] bg-white p-4 shadow-xs"
                     >
                       <div
                         onClick={() => setSelectedHubblerId(item.user.hubblerId)}
                         className="flex cursor-pointer items-center gap-3"
                       >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-800 font-bold text-emerald-400">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[rgba(7,87,63,0.1)] font-bold text-[#07573F]">
                           {item.user.profileImage ? (
                             <img src={item.user.profileImage} alt={item.user.fullName} className="h-full w-full rounded-xl object-cover" />
                           ) : (
@@ -533,22 +533,22 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
                           )}
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-white hover:text-emerald-400">{item.user.fullName}</p>
-                          <p className="text-[10px] text-slate-400">{item.user.collegeName}</p>
-                          <p className="font-mono text-[9px] text-emerald-400">🆔 {item.user.hubblerId}</p>
+                          <p className="text-xs font-bold text-[#111a16] hover:text-[#07573F]">{item.user.fullName}</p>
+                          <p className="text-[10px] text-[rgba(7,87,63,0.7)]">{item.user.collegeName}</p>
+                          <p className="font-mono text-[9px] text-[#07573F] font-bold">🆔 {item.user.hubblerId}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => handleAccept(item.id)}
-                          className="flex-1 sm:flex-initial rounded-xl bg-emerald-500 px-3.5 py-1.5 text-xs font-bold text-slate-950 hover:bg-emerald-400 shadow-sm text-center"
+                          className="flex-1 sm:flex-initial rounded-xl bg-[#07573F] px-3.5 py-1.5 text-xs font-bold text-white hover:bg-[#064e38] shadow-xs text-center"
                         >
                           Accept
                         </button>
                         <button
                           onClick={() => handleReject(item.id)}
-                          className="flex-1 sm:flex-initial rounded-xl bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-slate-700 text-center"
+                          className="flex-1 sm:flex-initial rounded-xl border border-[rgba(7,87,63,0.14)] bg-[var(--hx-surface)] px-3 py-1.5 text-xs font-bold text-[#111a16] hover:bg-rose-50 hover:text-rose-600 text-center"
                         >
                           Decline
                         </button>
@@ -561,7 +561,7 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
           ) : (
             <div>
               {data.pendingOutgoing.length === 0 ? (
-                <div className="rounded-3xl border border-dashed border-slate-800 bg-slate-950/40 p-8 text-center text-xs text-slate-500">
+                <div className="rounded-card border border-dashed border-[rgba(7,87,63,0.2)] bg-[var(--hx-surface)] p-8 text-center text-xs text-[rgba(7,87,63,0.65)]">
                   No outgoing pending requests.
                 </div>
               ) : (
@@ -569,25 +569,25 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
                   {data.pendingOutgoing.map((item) => (
                     <div
                       key={item.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-4"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[rgba(7,87,63,0.14)] bg-white p-4 shadow-xs"
                     >
                       <div
                         onClick={() => setSelectedHubblerId(item.user.hubblerId)}
                         className="flex cursor-pointer items-center gap-3"
                       >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-800 font-bold text-emerald-400">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[rgba(7,87,63,0.1)] font-bold text-[#07573F]">
                           {item.user.fullName.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-white hover:text-emerald-400">{item.user.fullName}</p>
-                          <p className="text-[10px] text-slate-400">{item.user.collegeName}</p>
-                          <p className="font-mono text-[9px] text-emerald-400">🆔 {item.user.hubblerId}</p>
+                          <p className="text-xs font-bold text-[#111a16] hover:text-[#07573F]">{item.user.fullName}</p>
+                          <p className="text-[10px] text-[rgba(7,87,63,0.7)]">{item.user.collegeName}</p>
+                          <p className="font-mono text-[9px] text-[#07573F] font-bold">🆔 {item.user.hubblerId}</p>
                         </div>
                       </div>
 
                       <button
                         onClick={() => handleCancel(item.user.hubblerId)}
-                        className="rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-bold text-slate-300 hover:bg-slate-700 hover:text-rose-400"
+                        className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-100"
                       >
                         Cancel Request
                       </button>
@@ -603,13 +603,13 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
       {/* Tab 3: Followers & Following */}
       {activeTab === 'network' && data && (
         <div className="space-y-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar border-b border-slate-800 text-xs font-bold">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar border-b border-[rgba(7,87,63,0.1)] text-xs font-bold">
             <button
               onClick={() => setNetworkSubTab('following')}
               className={`shrink-0 whitespace-nowrap rounded-xl px-4 py-2 transition ${
                 networkSubTab === 'following'
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#07573F] text-white shadow-xs'
+                  : 'text-[rgba(7,87,63,0.7)] hover:text-[#111a16]'
               }`}
             >
               Following ({data.following.length})
@@ -618,8 +618,8 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
               onClick={() => setNetworkSubTab('followers')}
               className={`shrink-0 whitespace-nowrap rounded-xl px-4 py-2 transition ${
                 networkSubTab === 'followers'
-                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#07573F] text-white shadow-xs'
+                  : 'text-[rgba(7,87,63,0.7)] hover:text-[#111a16]'
               }`}
             >
               Followers ({data.followers.length})
@@ -629,28 +629,28 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
           {networkSubTab === 'following' ? (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {data.following.length === 0 ? (
-                <p className="text-xs text-slate-500 col-span-full py-8 text-center">You are not following any students yet.</p>
+                <p className="text-xs text-[rgba(7,87,63,0.6)] col-span-full py-8 text-center">You are not following any students yet.</p>
               ) : (
                 data.following.map((user) => (
                   <div
                     key={user.hubblerId}
-                    className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/80 p-4"
+                    className="flex items-center justify-between rounded-2xl border border-[rgba(7,87,63,0.14)] bg-white p-4 shadow-xs"
                   >
                     <div
                       onClick={() => setSelectedHubblerId(user.hubblerId)}
                       className="flex cursor-pointer items-center gap-3"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 font-bold text-emerald-400">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(7,87,63,0.1)] font-bold text-[#07573F]">
                         {user.fullName.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-white hover:text-emerald-400">{user.fullName}</p>
-                        <p className="font-mono text-[9px] text-emerald-400">🆔 {user.hubblerId}</p>
+                        <p className="text-xs font-bold text-[#111a16] hover:text-[#07573F]">{user.fullName}</p>
+                        <p className="font-mono text-[9px] text-[#07573F] font-bold">🆔 {user.hubblerId}</p>
                       </div>
                     </div>
                     <button
                       onClick={() => toggleFollowUser(user.hubblerId).then(loadConnections)}
-                      className="rounded-lg bg-slate-800 px-3 py-1 text-xs font-bold text-slate-300 hover:bg-slate-700"
+                      className="rounded-lg border border-[rgba(7,87,63,0.15)] bg-[var(--hx-surface)] px-3 py-1 text-xs font-bold text-[rgba(7,87,63,0.8)] hover:bg-rose-50 hover:text-rose-600"
                     >
                       Unfollow
                     </button>
@@ -661,28 +661,28 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
           ) : (
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {data.followers.length === 0 ? (
-                <p className="text-xs text-slate-500 col-span-full py-8 text-center">No followers yet. Share your profile to get discovered!</p>
+                <p className="text-xs text-[rgba(7,87,63,0.6)] col-span-full py-8 text-center">No followers yet. Share your profile to get discovered!</p>
               ) : (
                 data.followers.map((user) => (
                   <div
                     key={user.hubblerId}
-                    className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/80 p-4"
+                    className="flex items-center justify-between rounded-2xl border border-[rgba(7,87,63,0.14)] bg-white p-4 shadow-xs"
                   >
                     <div
                       onClick={() => setSelectedHubblerId(user.hubblerId)}
                       className="flex cursor-pointer items-center gap-3"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 font-bold text-emerald-400">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgba(7,87,63,0.1)] font-bold text-[#07573F]">
                         {user.fullName.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-white hover:text-emerald-400">{user.fullName}</p>
-                        <p className="font-mono text-[9px] text-emerald-400">🆔 {user.hubblerId}</p>
+                        <p className="text-xs font-bold text-[#111a16] hover:text-[#07573F]">{user.fullName}</p>
+                        <p className="font-mono text-[9px] text-[#07573F] font-bold">🆔 {user.hubblerId}</p>
                       </div>
                     </div>
                     <button
                       onClick={() => setSelectedHubblerId(user.hubblerId)}
-                      className="rounded-lg bg-slate-900 px-3 py-1 text-xs font-bold text-slate-300 hover:bg-slate-800"
+                      className="rounded-lg bg-[#07573F] px-3 py-1 text-xs font-bold text-white hover:bg-[#064e38]"
                     >
                       Profile
                     </button>
@@ -696,23 +696,23 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
 
       {/* Tab 4: Privacy Settings */}
       {activeTab === 'privacy' && (
-        <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-6 shadow-md max-w-2xl space-y-6">
+        <div className="rounded-card border border-[rgba(7,87,63,0.14)] bg-white p-6 shadow-sm max-w-2xl space-y-6">
           <div>
-            <h3 className="text-lg font-black text-white">🔒 Profile & Connection Privacy Settings</h3>
-            <p className="text-xs text-slate-400">
+            <h3 className="text-lg font-black text-[#111a16]">🔒 Profile & Connection Privacy Settings</h3>
+            <p className="text-xs text-[rgba(7,87,63,0.7)]">
               Customize who can view your profile, XP, achievements, verified certificates, and send you connection requests.
             </p>
           </div>
 
           {/* Profile Visibility */}
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Profile Visibility</label>
+            <label className="text-xs font-bold uppercase tracking-wider text-[rgba(7,87,63,0.7)]">Profile Visibility</label>
             <select
               value={privacy.profileVisibility}
               onChange={(e) =>
                 setPrivacy({ ...privacy, profileVisibility: e.target.value as 'PUBLIC' | 'FRIENDS_ONLY' | 'PRIVATE' })
               }
-              className="w-full rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-xs font-bold text-white focus:border-emerald-500 focus:outline-none"
+              className="w-full rounded-2xl border border-[rgba(7,87,63,0.18)] bg-[var(--hx-surface)] px-4 py-3 text-xs font-bold text-[#111a16] focus:border-[#07573F] focus:outline-none"
             >
               <option value="PUBLIC">🌍 Public — Anyone can view your profile, badges & level</option>
               <option value="FRIENDS_ONLY">🤝 Friends Only — Only connected peers can view full details</option>
@@ -721,75 +721,75 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
           </div>
 
           {/* Toggle Switches */}
-          <div className="space-y-4 border-t border-slate-800/80 pt-4">
+          <div className="space-y-4 border-t border-[rgba(7,87,63,0.1)] pt-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-white">Display XP & Progress</p>
-                <p className="text-[11px] text-slate-400">Allow viewers to see your total XP score and level progress</p>
+                <p className="text-xs font-bold text-[#111a16]">Display XP & Progress</p>
+                <p className="text-[11px] text-[rgba(7,87,63,0.7)]">Allow viewers to see your total XP score and level progress</p>
               </div>
               <input
                 type="checkbox"
                 checked={privacy.showXp}
                 onChange={(e) => setPrivacy({ ...privacy, showXp: e.target.checked })}
-                className="h-5 w-5 accent-emerald-500 cursor-pointer rounded"
+                className="h-5 w-5 accent-[#07573F] cursor-pointer rounded"
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-white">Display Verified Certificates</p>
-                <p className="text-[11px] text-slate-400">Show official event credentials on your public profile</p>
+                <p className="text-xs font-bold text-[#111a16]">Display Verified Certificates</p>
+                <p className="text-[11px] text-[rgba(7,87,63,0.7)]">Show official event credentials on your public profile</p>
               </div>
               <input
                 type="checkbox"
                 checked={privacy.showCertificates}
                 onChange={(e) => setPrivacy({ ...privacy, showCertificates: e.target.checked })}
-                className="h-5 w-5 accent-emerald-500 cursor-pointer rounded"
+                className="h-5 w-5 accent-[#07573F] cursor-pointer rounded"
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-white">Display Event Participation History</p>
-                <p className="text-[11px] text-slate-400">Show count of campus events attended</p>
+                <p className="text-xs font-bold text-[#111a16]">Display Event Participation History</p>
+                <p className="text-[11px] text-[rgba(7,87,63,0.7)]">Show count of campus events attended</p>
               </div>
               <input
                 type="checkbox"
                 checked={privacy.showEventHistory}
                 onChange={(e) => setPrivacy({ ...privacy, showEventHistory: e.target.checked })}
-                className="h-5 w-5 accent-emerald-500 cursor-pointer rounded"
+                className="h-5 w-5 accent-[#07573F] cursor-pointer rounded"
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-white">Allow Connection Requests</p>
-                <p className="text-[11px] text-slate-400">Let other Hubblers discover you and send friend requests</p>
+                <p className="text-xs font-bold text-[#111a16]">Allow Connection Requests</p>
+                <p className="text-[11px] text-[rgba(7,87,63,0.7)]">Let other Hubblers discover you and send friend requests</p>
               </div>
               <input
                 type="checkbox"
                 checked={privacy.allowConnectionRequests}
                 onChange={(e) => setPrivacy({ ...privacy, allowConnectionRequests: e.target.checked })}
-                className="h-5 w-5 accent-emerald-500 cursor-pointer rounded"
+                className="h-5 w-5 accent-[#07573F] cursor-pointer rounded"
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-white">Auto-Post Verified Achievements</p>
-                <p className="text-[11px] text-slate-400">Automatically publish verified milestone badges and certificates to Social Feed</p>
+                <p className="text-xs font-bold text-[#111a16]">Auto-Post Verified Achievements</p>
+                <p className="text-[11px] text-[rgba(7,87,63,0.7)]">Automatically publish verified milestone badges and certificates to Social Feed</p>
               </div>
               <input
                 type="checkbox"
                 checked={privacy.autoPostAchievements}
                 onChange={(e) => setPrivacy({ ...privacy, autoPostAchievements: e.target.checked })}
-                className="h-5 w-5 accent-emerald-500 cursor-pointer rounded"
+                className="h-5 w-5 accent-[#07573F] cursor-pointer rounded"
               />
             </div>
           </div>
 
           {privacyMessage && (
-            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-3 text-center text-xs font-bold text-emerald-400">
+            <div className="rounded-xl bg-[rgba(7,87,63,0.1)] border border-[rgba(7,87,63,0.25)] p-3 text-center text-xs font-bold text-[#07573F]">
               {privacyMessage}
             </div>
           )}
@@ -798,7 +798,7 @@ export function ConnectionsHub({ currentHubblerId }: ConnectionsHubProps) {
             <button
               onClick={handleSavePrivacy}
               disabled={savingPrivacy}
-              className="w-full rounded-2xl bg-emerald-500 py-3 text-xs font-black text-slate-950 transition hover:bg-emerald-400 shadow-md"
+              className="w-full rounded-2xl bg-[#07573F] py-3 text-xs font-black text-white transition hover:bg-[#064e38] shadow-md"
             >
               {savingPrivacy ? 'Saving Preferences...' : 'Save Privacy Preferences'}
             </button>

@@ -214,35 +214,35 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center rounded-3xl border border-slate-200 bg-white p-12 dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex min-h-[400px] items-center justify-center rounded-card border border-[var(--hx-green-160)] bg-white p-12 shadow-sm font-['DM_Sans']">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
-          <p className="text-sm font-semibold text-slate-500">Loading your profile details...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--hx-green)] border-t-transparent" />
+          <p className="text-sm font-semibold text-[var(--hx-text-muted)]">Loading your profile details...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 font-['DM_Sans'] text-[var(--hx-text-primary)]">
       {/* Profile Overview Card */}
-      <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white p-6 shadow-sm transition-all dark:border-slate-800 dark:bg-slate-900 sm:p-8">
+      <div className="relative overflow-hidden rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm transition-all sm:p-8">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center text-center sm:text-left">
             {/* Avatar */}
             <div className="relative group">
-              <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-emerald-500/30 bg-slate-100 dark:bg-slate-800 shadow-md">
+              <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-[var(--hx-green-40)] bg-[var(--hx-surface)] shadow-md">
                 {avatarPreview ? (
                   <img src={avatarPreview} alt="Profile" className="h-full w-full object-cover" />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center font-bold text-2xl text-emerald-500">
+                  <div className="flex h-full w-full items-center justify-center font-[Manrope] font-bold text-2xl text-[var(--hx-green)]">
                     {(fullName || 'U').charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
               <label
                 htmlFor="avatar-upload"
-                className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-emerald-500 p-2 text-slate-950 shadow-md transition hover:scale-110 hover:bg-emerald-400"
+                className="absolute bottom-0 right-0 cursor-pointer rounded-full bg-[var(--hx-green)] p-2 text-white shadow-md transition hover:scale-110 hover:bg-[var(--hx-green-hover)]"
                 title="Upload new avatar"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -261,18 +261,18 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
             {/* Basic Info */}
             <div className="space-y-1">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">
+                <h2 className="font-[Manrope] text-2xl font-extrabold text-[var(--hx-text-primary)]">
                   {fullName || 'Student User'}
                 </h2>
-                <span className="rounded-full bg-emerald-500/10 px-3 py-0.5 text-xs font-bold text-emerald-500 dark:text-emerald-400 border border-emerald-500/20">
+                <span className="rounded-full bg-[var(--hx-green-40)] px-3 py-0.5 text-xs font-bold text-[var(--hx-green)] border border-[var(--hx-green-160)]">
                   {profile?.role || 'STUDENT'}
                 </span>
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-[var(--hx-text-muted)]">
                 {profile?.email || 'No email provided'}
               </p>
               {collegeName && (
-                <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <p className="text-xs font-semibold text-[var(--hx-text-muted)]">
                   🏛️ {collegeName}
                 </p>
               )}
@@ -280,13 +280,13 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
               {/* HubblerID Pill */}
               {profile?.hubblerId && (
                 <div className="pt-2 flex items-center justify-center sm:justify-start gap-2">
-                  <span className="font-mono text-xs font-bold bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-xl text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-slate-700">
+                  <span className="font-mono text-xs font-bold bg-[var(--hx-surface)] px-3 py-1 rounded-xl text-[var(--hx-green)] border border-[var(--hx-green-160)]">
                     🆔 {profile.hubblerId}
                   </span>
                   <button
                     type="button"
                     onClick={handleCopyHubblerId}
-                    className="text-xs font-medium text-slate-500 hover:text-emerald-500 dark:text-slate-400 dark:hover:text-emerald-400 transition"
+                    className="text-xs font-medium text-[var(--hx-text-muted)] hover:text-[var(--hx-green)] transition"
                   >
                     {copiedId ? '✓ Copied' : 'Copy ID'}
                   </button>
@@ -294,7 +294,7 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                     href={`/profile/${profile.hubblerId}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:underline"
+                    className="text-xs font-medium text-[var(--hx-green)] hover:underline"
                   >
                     View Public ↗
                   </a>
@@ -304,12 +304,12 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
           </div>
 
           {/* Profile Completion Meter */}
-          <div className="flex flex-col items-center md:items-end justify-center gap-2 rounded-2xl bg-slate-50 p-4 border border-slate-100 dark:bg-slate-950/60 dark:border-slate-800">
+          <div className="flex flex-col items-center md:items-end justify-center gap-2 rounded-2xl bg-[var(--hx-surface)] p-4 border border-[var(--hx-green-160)]">
             <div className="flex items-center gap-3">
               <div className="relative flex h-16 w-16 items-center justify-center">
                 <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
                   <path
-                    className="text-slate-200 dark:text-slate-800"
+                    className="text-gray-200"
                     strokeWidth="3.5"
                     stroke="currentColor"
                     fill="none"
@@ -318,10 +318,10 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                   <path
                     className={
                       completionScore === 100
-                        ? 'text-emerald-500'
+                        ? 'text-[var(--hx-green)]'
                         : completionScore >= 60
                         ? 'text-amber-500'
-                        : 'text-rose-500'
+                        : 'text-red-500'
                     }
                     strokeDasharray={`${completionScore}, 100`}
                     strokeWidth="3.5"
@@ -331,18 +331,18 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   />
                 </svg>
-                <span className="absolute text-sm font-extrabold text-slate-900 dark:text-white">
+                <span className="absolute text-sm font-extrabold font-[Manrope] text-[var(--hx-text-primary)]">
                   {completionScore}%
                 </span>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Profile Status</p>
-                <p className="text-sm font-bold text-slate-900 dark:text-white">
+                <p className="text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">Profile Status</p>
+                <p className="text-sm font-bold font-[Manrope] text-[var(--hx-text-primary)]">
                   {completionScore === 100
                     ? '✨ 100% Completed'
                     : `${completionScore}% Completed`}
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[var(--hx-text-muted)]">
                   {completionScore === 100
                     ? 'All required details verified'
                     : `${missingItems.length} required fields remaining`}
@@ -355,12 +355,12 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
 
       {/* Messages */}
       {message && (
-        <div className="rounded-2xl border-l-4 border-emerald-500 bg-emerald-50 p-4 text-sm font-semibold text-emerald-900 shadow-sm dark:bg-emerald-950/40 dark:text-emerald-300">
+        <div className="rounded-2xl border-l-4 border-[var(--hx-green)] bg-[var(--hx-green-40)] p-4 text-sm font-semibold text-[var(--hx-green)] shadow-sm">
           ✓ {message}
         </div>
       )}
       {errorMessage && (
-        <div className="rounded-2xl border-l-4 border-rose-500 bg-rose-50 p-4 text-sm font-semibold text-rose-900 shadow-sm dark:bg-rose-950/40 dark:text-rose-300">
+        <div className="rounded-2xl border-l-4 border-red-500 bg-red-50 p-4 text-sm font-semibold text-red-700 shadow-sm">
           ⚠️ {errorMessage}
         </div>
       )}
@@ -368,23 +368,23 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
       {/* Profile Form */}
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Section 1: Personal Details */}
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-          <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+        <div className="rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-6 flex items-center justify-between border-b border-[var(--hx-green-160)] pb-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="font-[Manrope] text-lg font-bold text-[var(--hx-text-primary)]">
                 1. Personal Details
               </h3>
-              <p className="text-xs text-slate-500">Fields marked with <span className="text-rose-500 font-bold">*</span> are required.</p>
+              <p className="text-xs text-[var(--hx-text-muted)]">Fields marked with <span className="text-red-500 font-bold">*</span> are required.</p>
             </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+            <span className="rounded-full bg-[var(--hx-surface)] border border-[var(--hx-green-160)] px-3 py-1 text-xs font-semibold text-[var(--hx-text-muted)]">
               Identity
             </span>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Full Name <span className="text-rose-500">*</span>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
+                Full Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -392,30 +392,30 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="John Doe"
                 required
-                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition dark:bg-slate-950 dark:text-white ${
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition ${
                   errors.fullName
-                    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                    : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700'
+                    ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : 'border-[var(--hx-green-160)] focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]'
                 }`}
               />
-              {errors.fullName && <p className="mt-1 text-xs text-rose-500">{errors.fullName}</p>}
+              {errors.fullName && <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Email Address <span className="text-slate-400">(Linked Auth)</span>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
+                Email Address <span className="text-gray-400">(Linked Auth)</span>
               </label>
               <input
                 type="email"
                 value={profile?.email || ''}
                 disabled
-                className="w-full rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-500 outline-none dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-500 cursor-not-allowed"
+                className="w-full rounded-2xl border border-[var(--hx-green-160)] bg-[var(--hx-surface)] px-4 py-3 text-sm text-[var(--hx-text-muted)] outline-none cursor-not-allowed"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Phone Number <span className="text-rose-500">*</span>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
+                Phone Number <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
@@ -423,17 +423,17 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 98765 43210"
                 required
-                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition dark:bg-slate-950 dark:text-white ${
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition ${
                   errors.phone
-                    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                    : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700'
+                    ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : 'border-[var(--hx-green-160)] focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]'
                 }`}
               />
-              {errors.phone && <p className="mt-1 text-xs text-rose-500">{errors.phone}</p>}
+              {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
                 Bio & About
               </label>
               <input
@@ -442,30 +442,30 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 onChange={(e) => setBio(e.target.value)}
                 placeholder="Passionate tech enthusiast and competitive programmer"
                 maxLength={500}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-2xl border border-[var(--hx-green-160)] bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]"
               />
             </div>
           </div>
         </div>
 
         {/* Section 2: Academic Details */}
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-          <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+        <div className="rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-6 flex items-center justify-between border-b border-[var(--hx-green-160)] pb-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="font-[Manrope] text-lg font-bold text-[var(--hx-text-primary)]">
                 2. Academic & College Information
               </h3>
-              <p className="text-xs text-slate-500">Essential for verified student event certificates & networking.</p>
+              <p className="text-xs text-[var(--hx-text-muted)]">Essential for verified student event certificates & networking.</p>
             </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+            <span className="rounded-full bg-[var(--hx-surface)] border border-[var(--hx-green-160)] px-3 py-1 text-xs font-semibold text-[var(--hx-text-muted)]">
               Institution
             </span>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                College / Institution Name <span className="text-rose-500">*</span>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
+                College / Institution Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -473,18 +473,18 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 onChange={(e) => setCollegeName(e.target.value)}
                 placeholder="Indian Institute of Technology / University"
                 required
-                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition dark:bg-slate-950 dark:text-white ${
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition ${
                   errors.collegeName
-                    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                    : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700'
+                    ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : 'border-[var(--hx-green-160)] focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]'
                 }`}
               />
-              {errors.collegeName && <p className="mt-1 text-xs text-rose-500">{errors.collegeName}</p>}
+              {errors.collegeName && <p className="mt-1 text-xs text-red-500">{errors.collegeName}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Degree / Program <span className="text-rose-500">*</span>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
+                Degree / Program <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -492,18 +492,18 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 onChange={(e) => setDegree(e.target.value)}
                 placeholder="B.Tech, B.E., BCA, B.Sc, MBA"
                 required
-                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition dark:bg-slate-950 dark:text-white ${
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition ${
                   errors.degree
-                    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                    : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700'
+                    ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : 'border-[var(--hx-green-160)] focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]'
                 }`}
               />
-              {errors.degree && <p className="mt-1 text-xs text-rose-500">{errors.degree}</p>}
+              {errors.degree && <p className="mt-1 text-xs text-red-500">{errors.degree}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Department / Branch <span className="text-rose-500">*</span>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
+                Department / Branch <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -511,27 +511,27 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 onChange={(e) => setBranch(e.target.value)}
                 placeholder="Computer Science & Engineering"
                 required
-                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition dark:bg-slate-950 dark:text-white ${
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition ${
                   errors.branch
-                    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                    : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700'
+                    ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : 'border-[var(--hx-green-160)] focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]'
                 }`}
               />
-              {errors.branch && <p className="mt-1 text-xs text-rose-500">{errors.branch}</p>}
+              {errors.branch && <p className="mt-1 text-xs text-red-500">{errors.branch}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Year of Study <span className="text-rose-500">*</span>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
+                Year of Study <span className="text-red-500">*</span>
               </label>
               <select
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
                 required
-                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition dark:bg-slate-950 dark:text-white ${
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition ${
                   errors.year
-                    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                    : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700'
+                    ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : 'border-[var(--hx-green-160)] focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]'
                 }`}
               >
                 <option value="">Select Year</option>
@@ -542,12 +542,12 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 <option value="Postgraduate">Postgraduate</option>
                 <option value="Alumni">Alumni</option>
               </select>
-              {errors.year && <p className="mt-1 text-xs text-rose-500">{errors.year}</p>}
+              {errors.year && <p className="mt-1 text-xs text-red-500">{errors.year}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Roll Number / Student ID <span className="text-rose-500">*</span>
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
+                Roll Number / Student ID <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -555,17 +555,17 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 onChange={(e) => setRollNumber(e.target.value)}
                 placeholder="21CS042"
                 required
-                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-slate-900 outline-none transition dark:bg-slate-950 dark:text-white ${
+                className={`w-full rounded-2xl border bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition ${
                   errors.rollNumber
-                    ? 'border-rose-500 focus:ring-2 focus:ring-rose-500/20'
-                    : 'border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700'
+                    ? 'border-red-500 focus:ring-2 focus:ring-red-500/20'
+                    : 'border-[var(--hx-green-160)] focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]'
                 }`}
               />
-              {errors.rollNumber && <p className="mt-1 text-xs text-rose-500">{errors.rollNumber}</p>}
+              {errors.rollNumber && <p className="mt-1 text-xs text-red-500">{errors.rollNumber}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
                 Batch Start Year
               </label>
               <input
@@ -575,12 +575,12 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 value={startYear}
                 onChange={(e) => setStartYear(e.target.value ? Number(e.target.value) : '')}
                 placeholder="2022"
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-2xl border border-[var(--hx-green-160)] bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
                 Graduation / End Year
               </label>
               <input
@@ -590,29 +590,29 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 value={endYear}
                 onChange={(e) => setEndYear(e.target.value ? Number(e.target.value) : '')}
                 placeholder="2026"
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-2xl border border-[var(--hx-green-160)] bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]"
               />
             </div>
           </div>
         </div>
 
         {/* Section 3: Skills & Social Links */}
-        <div className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-8">
-          <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+        <div className="rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-6 flex items-center justify-between border-b border-[var(--hx-green-160)] pb-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h3 className="font-[Manrope] text-lg font-bold text-[var(--hx-text-primary)]">
                 3. Skills, Interests & Networking
               </h3>
-              <p className="text-xs text-slate-500">Showcase your capabilities on your Hubbler profile.</p>
+              <p className="text-xs text-[var(--hx-text-muted)]">Showcase your capabilities on your Hubbler profile.</p>
             </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+            <span className="rounded-full bg-[var(--hx-surface)] border border-[var(--hx-green-160)] px-3 py-1 text-xs font-semibold text-[var(--hx-text-muted)]">
               Social
             </span>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
                 Skills (Comma separated)
               </label>
               <input
@@ -620,12 +620,12 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 value={skillsText}
                 onChange={(e) => setSkillsText(e.target.value)}
                 placeholder="React, TypeScript, Python, UI/UX"
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-2xl border border-[var(--hx-green-160)] bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
                 Interests & Hobbies
               </label>
               <input
@@ -633,12 +633,12 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 value={interestsText}
                 onChange={(e) => setInterestsText(e.target.value)}
                 placeholder="Hackathons, AI, Open Source, Robotics"
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-2xl border border-[var(--hx-green-160)] bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
                 LinkedIn Profile URL
               </label>
               <input
@@ -646,13 +646,13 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
                 placeholder="https://linkedin.com/in/username"
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-2xl border border-[var(--hx-green-160)] bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]"
               />
-              {errors.linkedinUrl && <p className="mt-1 text-xs text-rose-500">{errors.linkedinUrl}</p>}
+              {errors.linkedinUrl && <p className="mt-1 text-xs text-red-500">{errors.linkedinUrl}</p>}
             </div>
 
             <div>
-              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[var(--hx-text-muted)]">
                 GitHub Profile URL
               </label>
               <input
@@ -660,9 +660,9 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
                 value={githubUrl}
                 onChange={(e) => setGithubUrl(e.target.value)}
                 placeholder="https://github.com/username"
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                className="w-full rounded-2xl border border-[var(--hx-green-160)] bg-white px-4 py-3 text-sm text-[var(--hx-text-primary)] outline-none transition focus:border-[var(--hx-green)] focus:ring-2 focus:ring-[var(--hx-green-40)]"
               />
-              {errors.githubUrl && <p className="mt-1 text-xs text-rose-500">{errors.githubUrl}</p>}
+              {errors.githubUrl && <p className="mt-1 text-xs text-red-500">{errors.githubUrl}</p>}
             </div>
           </div>
         </div>
@@ -672,11 +672,11 @@ export function UserProfileTab({ onProfileUpdated }: UserProfileTabProps) {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-8 py-4 text-sm font-extrabold uppercase tracking-widest text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:scale-105 hover:bg-emerald-400 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+            className="btn-primary flex items-center gap-2 rounded-full px-8 py-4 text-sm font-extrabold uppercase tracking-widest shadow-lg shadow-[var(--hx-green-40)] transition hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {saving ? (
               <>
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 <span>Saving to Firestore...</span>
               </>
             ) : (

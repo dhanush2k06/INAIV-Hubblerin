@@ -5,11 +5,9 @@ import {
   firebaseSignOut,
   getFirebaseAuthErrorMessage,
   isFirebaseAuthError,
-  shouldTrySupportLogin,
   signInWithEmail,
   signInWithGithub,
   signInWithGoogle,
-  signInWithSupportCustomToken,
 } from '../services/firebaseAuth'
 
 interface LoginPageProps {
@@ -25,7 +23,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
   async function completeLogin(idToken: string) {
     try {
-      const response = await loginWithFirebaseIdToken(idToken)
+      const response = await loginWithFirebaseIdToken(idToken, 'STUDENT')
+      if (response.role !== 'STUDENT') {
+        await firebaseSignOut().catch(() => {})
+        setError('College organizer accounts cannot sign in through Student Login. Please use the College Login portal.')
+        return
+      }
       onLogin(response.token, response.role)
       navigate('/dashboard')
     } catch (err) {
@@ -44,18 +47,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
         const idToken = await signInWithEmail(email, password)
         await completeLogin(idToken)
       } catch (firebaseError) {
-        if (shouldTrySupportLogin(firebaseError)) {
-          try {
-            const response = await loginSupport(email, password)
-            const idToken = await signInWithSupportCustomToken(response.token)
-            await completeLogin(idToken)
+        // If direct sign-in failed, check if this email belongs to a College/Organizer account
+        try {
+          await loginSupport(email, password, 'STUDENT')
+        } catch (backendError) {
+          const msg = parseApiError(backendError)
+          if (/college/i.test(msg) || /organizer/i.test(msg) || /portal/i.test(msg)) {
+            setError(msg)
             return
-          } catch (supportError) {
-            const supportMsg = parseApiError(supportError)
-            if (/support user not found/i.test(supportMsg)) {
-              throw firebaseError
-            }
-            throw supportError
           }
         }
         throw firebaseError
@@ -149,7 +148,14 @@ export function LoginPage({ onLogin }: LoginPageProps) {
 
             {error && (
               <div className="rounded-btn border-l-4 border-red-500 bg-red-50 px-4 py-3 font-['DM_Sans'] text-sm text-red-700">
-                {error}
+                <p>{error}</p>
+                {/college|organizer/i.test(error) && (
+                  <span className="mt-2 block">
+                    <Link to="/college-login" className="font-[Manrope] font-bold text-[var(--hx-green)] hover:underline inline-flex items-center gap-1">
+                      Go to College Login →
+                    </Link>
+                  </span>
+                )}
                 {error.includes('not registered') && (
                   <span className="mt-1 block">
                     <Link to="/signup" className="font-semibold underline hover:text-red-800">

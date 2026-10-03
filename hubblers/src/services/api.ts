@@ -115,17 +115,17 @@ export interface AuthResponse {
   role: string
 }
 
-export async function loginWithFirebaseIdToken(idToken: string) {
+export async function loginWithFirebaseIdToken(idToken: string, requiredRole?: 'STUDENT' | 'COLLEGE_ADMIN') {
   return request<AuthResponse>('/api/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ idToken }),
+    body: JSON.stringify({ idToken, requiredRole }),
   })
 }
 
-export async function loginSupport(email: string, password: string) {
+export async function loginSupport(email: string, password: string, requiredRole?: 'STUDENT' | 'COLLEGE_ADMIN') {
   return request<AuthResponse>('/api/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, requiredRole }),
   })
 }
 

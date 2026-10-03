@@ -71,10 +71,21 @@ export function EventsPage() {
 
   // ── filter state ────────────────────────────────────────────────────────────
   const initialCategory = (searchParams.get('category') ?? 'all') as CategoryKey
-  const [searchQuery,     setSearchQuery]     = useState('')
+  const [searchQuery,     setSearchQuery]     = useState(searchParams.get('search') ?? searchParams.get('q') ?? '')
   const [activeCategory,  setActiveCategory]  = useState<CategoryKey>(initialCategory)
   const [showRegistered,  setShowRegistered]  = useState(false)
   const [filtersOpen,     setFiltersOpen]     = useState(false) // mobile filter drawer
+
+  useEffect(() => {
+    const urlCategory = searchParams.get('category') as CategoryKey | null
+    if (urlCategory) {
+      setActiveCategory(urlCategory)
+    }
+    const urlSearch = searchParams.get('search') ?? searchParams.get('q')
+    if (urlSearch !== null) {
+      setSearchQuery(urlSearch)
+    }
+  }, [searchParams])
 
   // ── auth ────────────────────────────────────────────────────────────────────
   const isAuthenticated = typeof localStorage !== 'undefined' && Boolean(localStorage.getItem('hubblers_token'))

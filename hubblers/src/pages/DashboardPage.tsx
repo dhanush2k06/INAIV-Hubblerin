@@ -277,8 +277,8 @@ export function DashboardPage({ role }: DashboardPageProps) {
 
   if (!role) {
     return (
-      <div className="mx-auto min-h-[calc(100dvh-88px)] max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-        <p className="rounded-3xl border border-slate-800 bg-slate-950/95 p-10 text-center text-slate-300">
+      <div className="mx-auto min-h-[calc(100dvh-64px)] max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
+        <p className="rounded-card border border-[var(--hx-green-160)] bg-white p-10 text-center font-['DM_Sans'] text-[var(--hx-text-muted)] shadow-sm">
           Please log in to view your dashboard.
         </p>
       </div>
@@ -286,16 +286,16 @@ export function DashboardPage({ role }: DashboardPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 transition-colors dark:bg-slate-950">
+    <div className="min-h-screen bg-[var(--hx-surface)] py-8 transition-colors">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-emerald-500">
-                {role === 'COLLEGE_ADMIN' ? 'Organizer CRM Portal' : 'Portal'}
+              <p className="font-[Manrope] text-xs font-bold uppercase tracking-[0.2em] text-[var(--hx-green)]">
+                {role === 'COLLEGE_ADMIN' ? 'Organizer CRM Portal' : 'Student Portal'}
               </p>
-              <h1 className="mt-1 text-3xl font-extrabold text-slate-900 dark:text-white">
+              <h1 className="mt-1 font-[Manrope] text-2xl sm:text-3xl font-extrabold text-[var(--hx-text-primary)]">
                 {role === 'COLLEGE_ADMIN'
                   ? 'Organizer Management Center'
                   : role === 'STUDENT'
@@ -308,7 +308,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
                 <button
                   onClick={handleExportExcel}
                   disabled={registrations.length === 0}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-2.5 text-xs font-bold text-slate-950 shadow-md shadow-emerald-500/20 transition hover:bg-emerald-400 active:scale-95 disabled:opacity-50"
+                  className="btn-primary text-xs py-2 px-4"
                   title="Download all registrations as an Excel spreadsheet (.csv format compatible with MS Excel)"
                 >
                   <span>📥</span>
@@ -316,7 +316,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
                 </button>
                 <button
                   onClick={openCreateModal}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-2.5 text-xs font-bold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="btn-secondary text-xs py-2 px-4"
                 >
                   <span>+</span>
                   <span>New Event</span>
@@ -326,7 +326,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
             {role === 'STUDENT' && (
               <div className="flex flex-wrap items-center gap-3">
                 {(rewardsSummary?.hubblerId || dashboard?.hubblerId) && (
-                  <div className="flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-mono font-bold text-emerald-400">
+                  <div className="flex items-center gap-2 rounded-btn border border-[var(--hx-green-160)] bg-white px-3.5 py-1.5 text-xs font-mono font-bold text-[var(--hx-green)] shadow-sm">
                     <span>🆔 {rewardsSummary?.hubblerId || dashboard?.hubblerId}</span>
                     <button
                       onClick={() => {
@@ -336,7 +336,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
                           setMessage('HubblerID copied to clipboard!')
                         }
                       }}
-                      className="rounded-lg bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-300 hover:bg-emerald-500/30 transition"
+                      className="rounded-tag bg-[var(--hx-green-40)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hx-green)] hover:bg-[var(--hx-green-90)] transition"
                       title="Copy HubblerID"
                     >
                       Copy
@@ -345,7 +345,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
                       href={`/profile/${rewardsSummary?.hubblerId || dashboard?.hubblerId}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="rounded-lg bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-300 hover:bg-emerald-500/30 transition"
+                      className="rounded-tag bg-[var(--hx-green-40)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hx-green)] hover:bg-[var(--hx-green-90)] transition"
                       title="View Public Profile"
                     >
                       View Public ↗
@@ -354,7 +354,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
                 )}
                 <button
                   onClick={() => setIsReferralOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2.5 text-xs font-bold text-cyan-300 shadow-sm transition hover:bg-cyan-500/20 active:scale-95"
+                  className="btn-secondary text-xs py-2 px-3.5 shadow-sm"
                 >
                   <span>🎁</span>
                   <span>Refer a Friend (+20 XP)</span>
@@ -365,16 +365,16 @@ export function DashboardPage({ role }: DashboardPageProps) {
 
           {/* Profile Completion Reminder Banner */}
           {role === 'STUDENT' && ((dashboard?.profileCompletion ?? 0) < 100) && !hideProfileReminder && activeTab !== 'profile' && (
-            <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-transparent p-5 shadow-sm dark:border-emerald-500/20 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mt-6 flex flex-col gap-4 rounded-card border border-[var(--hx-green-160)] bg-white p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-500 text-slate-950 font-black text-sm shadow-md shadow-emerald-500/20">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--hx-green)] text-white font-[Manrope] font-extrabold text-sm shadow-sm">
                   {dashboard?.profileCompletion ?? 30}%
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-slate-900 dark:text-white">
+                  <p className="font-[Manrope] text-sm font-bold text-[var(--hx-text-primary)]">
                     {dashboard?.profileCompletion ?? 30}% Profile Completed — Complete your profile!
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400">
+                  <p className="mt-0.5 font-['DM_Sans'] text-xs text-[var(--hx-text-muted)]">
                     Fill in your college, department, roll number, and phone to unlock verified event certificates, XP rewards, and networking!
                   </p>
                 </div>
@@ -382,13 +382,13 @@ export function DashboardPage({ role }: DashboardPageProps) {
               <div className="flex items-center gap-2 self-end sm:self-center">
                 <button
                   onClick={() => setSearchParams({ tab: 'profile' })}
-                  className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-slate-950 shadow-sm transition hover:bg-emerald-400"
+                  className="btn-primary text-xs py-2 px-4"
                 >
                   Complete Profile →
                 </button>
                 <button
                   onClick={() => setHideProfileReminder(true)}
-                  className="rounded-xl p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  className="rounded-btn p-2 text-[var(--hx-text-muted)] hover:text-[var(--hx-text-primary)] hover:bg-[var(--hx-green-40)] transition"
                   title="Dismiss reminder"
                 >
                   ✕
@@ -399,29 +399,29 @@ export function DashboardPage({ role }: DashboardPageProps) {
 
           {/* Student Tab Navigation Bar */}
           {role === 'STUDENT' && (
-            <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-slate-200 dark:border-slate-800">
+            <div className="mt-6 flex items-center gap-1.5 overflow-x-auto pb-3 pt-1 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-[var(--hx-green-160)]">
               <button
                 onClick={() => setSearchParams({ tab: 'overview' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-4 py-2 text-xs sm:text-sm font-[Manrope] font-semibold transition ${
                   activeTab === 'overview'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 📊 Overview
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'profile' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-4 py-2 text-xs sm:text-sm font-[Manrope] font-semibold transition flex items-center gap-1.5 ${
                   activeTab === 'profile'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 <span>👤 Profile</span>
                 {(dashboard?.profileCompletion ?? 0) < 100 && (
                   <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-black ${
-                    activeTab === 'profile' ? 'bg-slate-950 text-emerald-400' : 'bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                    activeTab === 'profile' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800'
                   }`}>
                     {dashboard?.profileCompletion ?? 30}%
                   </span>
@@ -429,56 +429,56 @@ export function DashboardPage({ role }: DashboardPageProps) {
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'feed' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-4 py-2 text-xs sm:text-sm font-[Manrope] font-semibold transition ${
                   activeTab === 'feed'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 ⚡ Community Feed
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'connections' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-4 py-2 text-xs sm:text-sm font-[Manrope] font-semibold transition ${
                   activeTab === 'connections'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 🤝 Connections
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'rewards' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-4 py-2 text-xs sm:text-sm font-[Manrope] font-semibold transition ${
                   activeTab === 'rewards'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 🏆 Rewards & Badges
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'leaderboard' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-4 py-2 text-xs sm:text-sm font-[Manrope] font-semibold transition ${
                   activeTab === 'leaderboard'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 🥇 Leaderboard
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'certificates' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition flex items-center gap-1.5 ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-4 py-2 text-xs sm:text-sm font-[Manrope] font-semibold transition flex items-center gap-1.5 ${
                   activeTab === 'certificates'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 <span>📜 Certificates</span>
                 {rewardsSummary?.certificates && rewardsSummary.certificates.length > 0 && (
                   <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-black ${
-                    activeTab === 'certificates' ? 'bg-slate-950 text-emerald-400' : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                    activeTab === 'certificates' ? 'bg-white/20 text-white' : 'bg-[var(--hx-green-40)] text-[var(--hx-green)]'
                   }`}>
                     {rewardsSummary.certificates.length}
                   </span>
@@ -486,20 +486,20 @@ export function DashboardPage({ role }: DashboardPageProps) {
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'store' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-4 py-2 text-xs sm:text-sm font-[Manrope] font-semibold transition ${
                   activeTab === 'store'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 🛍️ XP Store
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'inventory' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-4 py-2.5 text-xs sm:text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-4 py-2 text-xs sm:text-sm font-[Manrope] font-semibold transition ${
                   activeTab === 'inventory'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 🎒 Wardrobe & Vouchers
@@ -509,39 +509,39 @@ export function DashboardPage({ role }: DashboardPageProps) {
 
           {/* Organizer / College Tab Navigation Bar */}
           {role === 'COLLEGE_ADMIN' && (
-            <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-slate-200 dark:border-slate-800">
+            <div className="mt-6 flex items-center gap-2 overflow-x-auto pb-3 pt-1 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap border-b border-[var(--hx-green-160)]">
               <button
                 onClick={() => setSearchParams({ tab: 'overview' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-5 py-2.5 text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-5 py-2.5 text-sm font-[Manrope] font-semibold transition ${
                   activeTab === 'overview'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 📊 Overview
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'profile' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-5 py-2.5 text-sm font-bold transition ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-5 py-2.5 text-sm font-[Manrope] font-semibold transition ${
                   activeTab === 'profile'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 🏛️ College Profile
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'registrations' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-5 py-2.5 text-sm font-bold transition flex items-center gap-2 ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-5 py-2.5 text-sm font-[Manrope] font-semibold transition flex items-center gap-2 ${
                   activeTab === 'registrations'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 <span>👥 Registration Base (CRM)</span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-black ${
-                    activeTab === 'registrations' ? 'bg-slate-950 text-emerald-400' : 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                    activeTab === 'registrations' ? 'bg-white/20 text-white' : 'bg-[var(--hx-green-40)] text-[var(--hx-green)]'
                   }`}
                 >
                   {registrations.length}
@@ -549,16 +549,16 @@ export function DashboardPage({ role }: DashboardPageProps) {
               </button>
               <button
                 onClick={() => setSearchParams({ tab: 'events' })}
-                className={`shrink-0 whitespace-nowrap rounded-2xl px-5 py-2.5 text-sm font-bold transition flex items-center gap-2 ${
+                className={`shrink-0 whitespace-nowrap rounded-btn px-5 py-2.5 text-sm font-[Manrope] font-semibold transition flex items-center gap-2 ${
                   activeTab === 'events'
-                    ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                    : 'bg-transparent text-slate-600 hover:bg-slate-200/60 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-white'
+                    ? 'bg-[var(--hx-green)] text-white shadow-sm'
+                    : 'text-[var(--hx-text-muted)] hover:bg-[var(--hx-green-90)] hover:text-[var(--hx-green)]'
                 }`}
               >
                 <span>🎪 My Events</span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-black ${
-                    activeTab === 'events' ? 'bg-slate-950 text-emerald-400' : 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                    activeTab === 'events' ? 'bg-white/20 text-white' : 'bg-[var(--hx-green-40)] text-[var(--hx-green)]'
                   }`}
                 >
                   {myEvents.length}
@@ -570,17 +570,17 @@ export function DashboardPage({ role }: DashboardPageProps) {
 
         {/* Feedback Banners */}
         {message && (
-          <div className="mb-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-600 dark:text-emerald-400 flex items-center justify-between">
+          <div className="mb-6 rounded-btn border border-[var(--hx-green-160)] bg-[var(--hx-green-40)] p-4 text-sm font-semibold text-[var(--hx-green)] flex items-center justify-between shadow-sm">
             <span>✓ {message}</span>
-            <button onClick={() => setMessage('')} className="text-xs text-emerald-500 hover:underline">
+            <button onClick={() => setMessage('')} className="text-xs text-[var(--hx-green)] hover:underline font-bold">
               Dismiss
             </button>
           </div>
         )}
         {errorMessage && (
-          <div className="mb-6 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm font-semibold text-rose-600 dark:text-rose-400 flex items-center justify-between">
+          <div className="mb-6 rounded-btn border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700 flex items-center justify-between shadow-sm">
             <span>⚠️ {errorMessage}</span>
-            <button onClick={() => setErrorMessage('')} className="text-xs text-rose-500 hover:underline">
+            <button onClick={() => setErrorMessage('')} className="text-xs text-red-700 hover:underline font-bold">
               Dismiss
             </button>
           </div>
@@ -603,39 +603,39 @@ export function DashboardPage({ role }: DashboardPageProps) {
                 )}
 
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Total XP</p>
-                    <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{rewardsSummary?.xp ?? dashboard.xp ?? 0}</p>
-                    <p className="mt-1 text-xs text-slate-500">Verified activity earnings</p>
+                  <div className="rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm hover:border-[var(--hx-green)] transition-all">
+                    <p className="font-[Manrope] text-xs font-bold uppercase tracking-[0.15em] text-[var(--hx-green)]">Total XP</p>
+                    <p className="mt-2 font-[Manrope] text-3xl sm:text-4xl font-extrabold text-[var(--hx-text-primary)]">{rewardsSummary?.xp ?? dashboard.xp ?? 0}</p>
+                    <p className="mt-1 font-['DM_Sans'] text-xs text-[var(--hx-text-muted)]">Verified activity earnings</p>
                   </div>
-                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Annual Credits</p>
-                    <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{dashboard.credits?.annual ?? 0}</p>
-                    <p className="mt-1 text-xs text-slate-500">Credits reset each academic year</p>
+                  <div className="rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm hover:border-[var(--hx-green)] transition-all">
+                    <p className="font-[Manrope] text-xs font-bold uppercase tracking-[0.15em] text-[var(--hx-green)]">Annual Credits</p>
+                    <p className="mt-2 font-[Manrope] text-3xl sm:text-4xl font-extrabold text-[var(--hx-text-primary)]">{dashboard.credits?.annual ?? 0}</p>
+                    <p className="mt-1 font-['DM_Sans'] text-xs text-[var(--hx-text-muted)]">Credits reset each academic year</p>
                   </div>
-                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Lifetime Credits</p>
-                    <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">{dashboard.credits?.lifetime ?? 0}</p>
-                    <p className="mt-1 text-xs text-slate-500">All-time accumulated credits</p>
+                  <div className="rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm hover:border-[var(--hx-green)] transition-all">
+                    <p className="font-[Manrope] text-xs font-bold uppercase tracking-[0.15em] text-[var(--hx-green)]">Lifetime Credits</p>
+                    <p className="mt-2 font-[Manrope] text-3xl sm:text-4xl font-extrabold text-[var(--hx-text-primary)]">{dashboard.credits?.lifetime ?? 0}</p>
+                    <p className="mt-1 font-['DM_Sans'] text-xs text-[var(--hx-text-muted)]">All-time accumulated credits</p>
                   </div>
-                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-colors dark:border-slate-800 dark:bg-slate-950/95">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-500 dark:text-emerald-400">Badges Unlocked</p>
-                    <p className="mt-3 text-4xl font-bold text-slate-900 dark:text-white">
+                  <div className="rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm hover:border-[var(--hx-green)] transition-all">
+                    <p className="font-[Manrope] text-xs font-bold uppercase tracking-[0.15em] text-[var(--hx-green)]">Badges Unlocked</p>
+                    <p className="mt-2 font-[Manrope] text-3xl sm:text-4xl font-extrabold text-[var(--hx-text-primary)]">
                       {rewardsSummary?.unlockedBadges?.length ?? 0}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">Milestone & ranking honors</p>
+                    <p className="mt-1 font-['DM_Sans'] text-xs text-[var(--hx-text-muted)]">Milestone & ranking honors</p>
                   </div>
                 </div>
 
-                <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950/95">
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-4 dark:border-slate-800">
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">My Activity — Registered Events</h2>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                <section className="rounded-card border border-[var(--hx-green-160)] bg-white p-6 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-[var(--hx-green-160)] pb-4">
+                    <h2 className="font-[Manrope] text-lg font-bold text-[var(--hx-text-primary)]">My Activity — Registered Events</h2>
+                    <span className="hx-tag">
                       {dashboard.registeredEvents?.length ?? 0} event(s)
                     </span>
                   </div>
                   {!dashboard.registeredEvents || dashboard.registeredEvents.length === 0 ? (
-                    <p className="mt-6 text-slate-500 dark:text-slate-400">
+                    <p className="mt-6 font-['DM_Sans'] text-sm text-[var(--hx-text-muted)]">
                       You haven't registered for any events yet. Head to the Events page to get started.
                     </p>
                   ) : (
@@ -644,23 +644,23 @@ export function DashboardPage({ role }: DashboardPageProps) {
                         const matchingCert = rewardsSummary?.certificates?.find((c) => c.eventId === event.id)
 
                         return (
-                          <div key={event.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900">
+                          <div key={event.id} className="rounded-2xl border border-[var(--hx-green-160)] bg-[var(--hx-surface)] p-5 hover:border-[var(--hx-green-350)] transition">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                               <div>
                                 <div className="flex items-center gap-2">
-                                  <p className="text-lg font-semibold text-slate-900 dark:text-white">{event.title}</p>
+                                  <p className="font-[Manrope] text-base sm:text-lg font-bold text-[var(--hx-text-primary)]">{event.title}</p>
                                   {event.category && (
-                                    <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                                    <span className="hx-tag text-[10px]">
                                       {event.category}
                                     </span>
                                   )}
                                 </div>
-                                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                                <p className="mt-1 font-['DM_Sans'] text-sm text-[var(--hx-text-muted)]">
                                   {event.startDate} · {event.location}
                                 </p>
                               </div>
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-500 ring-1 ring-emerald-500/20">
+                                <span className="rounded-tag bg-[var(--hx-green-40)] border border-[var(--hx-green-160)] px-3 py-1 font-[Manrope] text-xs font-semibold text-[var(--hx-green)]">
                                   +5 Reg XP
                                 </span>
 
@@ -668,7 +668,7 @@ export function DashboardPage({ role }: DashboardPageProps) {
                                 {(event.eventOver || event.attended) && (
                                   <button
                                     onClick={() => setFeedbackEvent({ id: event.id, title: event.title })}
-                                    className="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/30 transition"
+                                    className="rounded-btn bg-[var(--hx-green-90)] px-3 py-1 font-[Manrope] text-xs font-semibold text-[var(--hx-green)] hover:bg-[var(--hx-green)] hover:text-white transition"
                                   >
                                     💬 Leave Feedback (+5 XP)
                                   </button>
@@ -678,25 +678,25 @@ export function DashboardPage({ role }: DashboardPageProps) {
                                 {matchingCert && (
                                   <button
                                     onClick={() => setActiveCertModal(matchingCert)}
-                                    className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-bold text-amber-600 dark:text-amber-300 hover:bg-amber-500/30 transition"
+                                    className="rounded-btn bg-amber-50 border border-amber-200 px-3 py-1 font-[Manrope] text-xs font-semibold text-amber-800 hover:bg-amber-100 transition"
                                   >
                                     📜 View Certificate
                                   </button>
                                 )}
 
                                 {event.eventOver ? (
-                                  <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-700 ring-1 ring-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600">
+                                  <span className="rounded-tag bg-gray-100 border border-gray-200 px-3 py-1 font-[Manrope] text-xs font-semibold text-gray-600">
                                     Event Over
                                   </span>
                                 ) : (
                                   <div className="flex items-center gap-2">
-                                    <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 ring-1 ring-emerald-500/20 dark:text-emerald-400">
+                                    <span className="rounded-tag bg-[var(--hx-green-90)] px-3 py-1 font-[Manrope] text-xs font-semibold text-[var(--hx-green)]">
                                       Registered
                                     </span>
                                     <button
                                       onClick={() => handleUnregister(event.id, event.title)}
                                       disabled={cancellingId === event.id}
-                                      className="rounded-full bg-rose-500/10 px-3 py-1 text-xs font-bold text-rose-500 ring-1 ring-rose-500/30 transition hover:bg-rose-600 hover:text-white disabled:opacity-50"
+                                      className="rounded-btn bg-red-50 border border-red-200 px-3 py-1 font-[Manrope] text-xs font-semibold text-red-600 hover:bg-red-100 transition disabled:opacity-50"
                                     >
                                       {cancellingId === event.id ? 'Cancelling…' : 'Cancel Registration'}
                                     </button>
@@ -705,23 +705,23 @@ export function DashboardPage({ role }: DashboardPageProps) {
                               </div>
                             </div>
                             {event.qrCodeUrl ? (
-                              <div className="mt-4 flex flex-col items-start gap-4 rounded-3xl bg-white p-4 dark:bg-slate-950 sm:flex-row sm:items-center">
+                              <div className="mt-4 flex flex-col items-start gap-4 rounded-2xl bg-white border border-[var(--hx-green-160)] p-4 sm:flex-row sm:items-center shadow-sm">
                                 <img
                                   src={event.qrCodeUrl}
                                   alt={`QR code for ${event.title}`}
-                                  className="h-32 w-32 rounded-2xl bg-white p-1 shadow-sm"
+                                  className="h-28 w-28 rounded-xl bg-white p-1 border border-[var(--hx-green-160)] object-contain shadow-sm"
                                 />
                                 <div>
-                                  <p className="text-sm font-semibold text-slate-900 dark:text-white">Event QR Code Pass</p>
-                                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                  <p className="font-[Manrope] text-sm font-bold text-[var(--hx-text-primary)]">Event QR Code Pass</p>
+                                  <p className="mt-1 font-['DM_Sans'] text-xs text-[var(--hx-text-muted)]">
                                     Present this QR code at the venue entrance. A copy was also sent via email.
                                   </p>
                                 </div>
                               </div>
                             ) : event.eventOver ? (
-                              <div className="mt-4 rounded-3xl bg-white p-4 dark:bg-slate-950">
-                                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Event has ended</p>
-                                <p className="mt-1 text-xs text-slate-500">
+                              <div className="mt-4 rounded-2xl bg-white border border-[var(--hx-green-160)] p-4 shadow-sm">
+                                <p className="font-[Manrope] text-sm font-bold text-[var(--hx-text-muted)]">Event has ended</p>
+                                <p className="mt-1 font-['DM_Sans'] text-xs text-[var(--hx-text-muted)]">
                                   The QR code is no longer valid and has been removed. This event stays in your history.
                                 </p>
                               </div>
